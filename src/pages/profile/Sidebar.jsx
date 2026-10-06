@@ -5,16 +5,26 @@ import { championIcon, championName } from "../../lib/ddragon";
 
 const wrClass = wr => (wr >= 50 ? "win" : "loss");
 
+// Color de la liga para teñir la tarjeta (fondo, borde, brillo y barra de LP); gris si no tiene rango
+const tierStyle = (entry, i) => ({ "--i": i, "--tier": entry ? tierColor(entry.tier) : "var(--text-3)" });
+
+/** Emblema con un brillo suave del color de la liga detrás */
+const GlowEmblem = ({ entry, size }) => (
+  <span className={`rank-glow${entry ? "" : " none"}`}>
+    <RankEmblem tier={entry?.tier ?? null} rank={entry?.rank} size={size} />
+  </span>
+);
+
 // ─── Rango Solo/Duo ──────────────────────────────────────────────────────
 export function SoloCard({ entry, error }) {
   const wr = entry ? winrate(entry.wins, entry.losses) : null;
   return (
-    <section className="card card-pad rank-card reveal" style={{ "--i": 0 }} aria-label="Clasificatoria Solo/Duo">
+    <section className={`card card-pad rank-card tier-card reveal${entry ? "" : " unranked"}`} style={tierStyle(entry, 0)} aria-label="Clasificatoria Solo/Duo">
       <p className="eyebrow">Clasificatoria Solo/Duo</p>
       {entry ? (
         <>
           <div className="rank-main">
-            <RankEmblem tier={entry.tier} rank={entry.rank} size={44} />
+            <GlowEmblem entry={entry} size={40} />
             <div className="rank-text">
               <strong className="rank-name" style={{ color: tierColor(entry.tier) }}>{rankLabel(entry.tier, entry.rank)}</strong>
               <span className="faint num"><CountUp value={entry.leaguePoints} /> LP · {entry.wins}V {entry.losses}D</span>
@@ -29,7 +39,7 @@ export function SoloCard({ entry, error }) {
         </>
       ) : (
         <div className="rank-main">
-          <RankEmblem tier={null} size={44} />
+          <GlowEmblem entry={null} size={40} />
           <div className="rank-text">
             <strong className="rank-name">Sin clasificar</strong>
             <span className="faint">{error ? "No se pudo cargar el rango" : "Aún no juega Solo/Duo esta temporada"}</span>
@@ -44,8 +54,8 @@ export function SoloCard({ entry, error }) {
 export function FlexCard({ entry }) {
   const wr = entry ? winrate(entry.wins, entry.losses) : null;
   return (
-    <section className="card flex-card reveal" style={{ "--i": 2 }} aria-label="Clasificatoria Flex 5v5">
-      <RankEmblem tier={entry?.tier} rank={entry?.rank} size={34} />
+    <section className={`card flex-card tier-card reveal${entry ? "" : " unranked"}`} style={tierStyle(entry, 2)} aria-label="Clasificatoria Flex 5v5">
+      <GlowEmblem entry={entry} size={34} />
       <div className="rank-text">
         <p className="eyebrow">Flex 5v5</p>
         <strong className="flex-name">{entry ? <>{rankLabel(entry.tier, entry.rank)} · <CountUp value={entry.leaguePoints} /> LP</> : "Sin clasificar"}</strong>

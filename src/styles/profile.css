@@ -102,11 +102,42 @@
 .rank-card .eyebrow { margin: 0 0 14px; font-size: 10px; }
 .rank-main { display: flex; align-items: center; gap: 10px; }
 .rank-text { display: flex; flex-direction: column; min-width: 0; flex: 1; font-size: 11px; }
-.rank-name { font-family: var(--font-title); font-size: 16px; font-weight: 600; line-height: 1.25; }
+.rank-name { font-family: var(--font-title); font-size: 15px; font-weight: 600; line-height: 1.25; white-space: nowrap; letter-spacing: -0.01em; }
 .rank-text .faint { white-space: nowrap; }
-.rank-wr { font-family: var(--font-title); font-size: 16px; font-weight: 600; align-self: flex-start; margin-top: 2px; }
+.rank-wr { font-family: var(--font-title); font-size: 15px; font-weight: 600; align-self: flex-start; margin-top: 2px; }
 .lp-bar { height: 5px; border-radius: 3px; background: var(--border-2); overflow: hidden; margin-top: 16px; }
-.lp-bar span { display: block; height: 100%; background: var(--brand); border-radius: 3px; }
+.lp-bar span { display: block; height: 100%; background: var(--tier, var(--brand)); border-radius: 3px; }
+
+/* Tarjeta teñida con el color de la liga (--tier). color-mix no existe en navegadores viejos: ahí queda la tarjeta normal. */
+.tier-card {
+  position: relative;
+  overflow: hidden;
+  border-color: color-mix(in srgb, var(--tier) 28%, var(--border));
+  background:
+    radial-gradient(120% 90% at 0% 0%, color-mix(in srgb, var(--tier) 13%, transparent), transparent 62%),
+    var(--surface);
+}
+.tier-card.unranked { border-color: var(--border); background: var(--surface); }
+.rank-glow { position: relative; display: inline-flex; flex: none; isolation: isolate; }
+.rank-glow::before {
+  content: "";
+  position: absolute;
+  inset: -40%;
+  z-index: -1;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--tier) 55%, transparent), transparent);
+  opacity: .55;
+  animation: rank-glow 6s ease-in-out infinite;
+  will-change: opacity, transform;
+}
+.rank-glow.none::before { display: none; }
+@keyframes rank-glow {
+  0%, 100% { opacity: .4; transform: scale(.92); }
+  50% { opacity: .7; transform: scale(1.05); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rank-glow::before { animation: none; }
+}
 
 .lp-card .eyebrow { margin: 0; font-size: 10px; }
 .lp-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
