@@ -1,14 +1,14 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import Layout from "../components/Layout";
-import SearchForm, { savedRegion } from "../components/SearchForm";
+import SearchForm from "../components/SearchForm";
 import Icon from "../components/Icon";
 import { DDImg, GameChips, Initials, Skeleton, StateBox } from "../components/ui";
 import { getLeaderboard, getLive } from "../api/lol";
 import { errorMessage } from "../api/client";
 import { useAsync, useInterval, useNow, useTitle } from "../lib/hooks";
 import { clearRecents, useFavorites, useRecents } from "../lib/library";
-import { REGIONS, livePath, profilePath, regionBySlug } from "../lib/regions";
+import { REGIONS, livePath, profilePath, regionBySlug, savedRegion } from "../lib/regions";
 import { formatDuration, formatNumber, queueLong, rankLabel, winrate } from "../lib/lol";
 import { championIcon, championName, useDDragon } from "../lib/ddragon";
 import { gameById } from "../lib/games";

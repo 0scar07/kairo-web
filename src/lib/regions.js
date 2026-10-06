@@ -1,3 +1,5 @@
+import { readJSON, writeJSON } from "./storage";
+
 // Regiones de la web. `slug` va en la URL (/lol/lan/...), `id` es la plataforma de Riot que entiende el backend.
 export const REGIONS = [
   { slug: "lan", id: "la1",  label: "LAN", name: "Latinoamérica Norte" },
@@ -12,6 +14,11 @@ export const DEFAULT_REGION = REGIONS[0];
 
 export const regionBySlug = slug => REGIONS.find(r => r.slug === String(slug || "").toLowerCase()) || null;
 export const regionById = id => REGIONS.find(r => r.id === id) || null;
+
+// Última región usada en el buscador (la usan el buscador y la clasificación de la portada)
+const REGION_PREF = "kairo:region";
+export const savedRegion = () => regionBySlug(readJSON(REGION_PREF)) || DEFAULT_REGION;
+export const saveRegion = slug => writeJSON(REGION_PREF, slug);
 
 // ─── Riot ID en la URL: "Nombre-TAG" ─────────────────────────────────────
 // El tag es alfanumérico, así que se separa por el ÚLTIMO guion (el nombre sí puede tener guiones o espacios).

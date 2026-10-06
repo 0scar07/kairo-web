@@ -2,14 +2,9 @@ import { useId, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Icon from "./Icon";
 import { DDImg } from "./ui";
-import { DEFAULT_REGION, REGIONS, parseRiotId, profilePath, regionBySlug } from "../lib/regions";
-import { readJSON, writeJSON } from "../lib/storage";
+import { REGIONS, parseRiotId, profilePath, regionBySlug, saveRegion, savedRegion } from "../lib/regions";
 import { suggestions, useFavorites, useRecents } from "../lib/library";
 import { profileIcon } from "../lib/ddragon";
-
-const REGION_PREF = "kairo:region";
-
-export const savedRegion = () => regionBySlug(readJSON(REGION_PREF)) || DEFAULT_REGION;
 
 /**
  * Buscador de jugadores: región + "Nombre#TAG", con autocompletado de favoritos y búsquedas recientes.
@@ -38,7 +33,7 @@ export default function SearchForm({ size = "large", initialRegion, autoFocus = 
     setError("");
     setText("");
     close();
-    writeJSON(REGION_PREF, regionSlug);
+    saveRegion(regionSlug);
     navigate(profilePath(regionSlug, gameName, tagLine));
   }
 

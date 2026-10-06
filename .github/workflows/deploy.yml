@@ -29,6 +29,10 @@ jobs:
 
       - run: npm ci
 
+      # Si el lint o las pruebas fallan no se publica nada
+      - run: npm run lint
+      - run: npm test
+
       - run: npm run build
         env:
           VITE_API_URL: https://kairo-api-nqts.onrender.com
