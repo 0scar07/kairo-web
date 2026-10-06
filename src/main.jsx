@@ -6,9 +6,12 @@ import "./styles/tokens.css";
 import "./styles/global.css";
 import App from "./App";
 
+// Misma base que vite.config.js ("/kairo-web/" en GitHub Pages, "/" en la raíz de un dominio)
+const basename = import.meta.env.BASE_URL.replace(/\/$/, "") || "/";
+
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <BrowserRouter>
+    <BrowserRouter basename={basename}>
       <App />
     </BrowserRouter>
   </React.StrictMode>

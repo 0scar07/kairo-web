@@ -1,5 +1,7 @@
 # Kairo Web
 
+**Web publicada: <https://0scar07.github.io/kairo-web/>**
+
 Versión web de [Kairo](https://github.com/0scar07/Kairo): busca jugadores de **League of Legends** y mira su rango, su historial y su partida en vivo, estilo op.gg / porofessor.gg.
 
 Los demás juegos de Kairo (TFT, Brawl Stars, Clash Royale, Clash of Clans, Dota 2, Fortnite, Apex Legends y PUBG) aparecen como "Próximamente".
@@ -16,7 +18,9 @@ Los demás juegos de Kairo (TFT, Brawl Stars, Clash Royale, Clash of Clans, Dota
 | `/lol/:region/:Nombre-TAG/en-vivo` | Partida en curso: cola, mapa, cronómetro, bloqueos y los dos equipos con rango y winrate |
 | `/juegos`, `/juegos/:juego` | Juegos que todavía no están en la web |
 
-Regiones en la URL: `lan`, `las`, `na`, `euw`, `kr`, `br`. El Riot ID va como `Nombre-TAG` (se corta por el último guion), por ejemplo `/lol/kr/Hide%20on%20bush-KR1`. Los enlaces se pueden compartir y cargan directo.
+Regiones en la URL: `lan`, `las`, `na`, `euw`, `kr`, `br`. El Riot ID va como `Nombre-TAG` (se corta por el último guion), por ejemplo <https://0scar07.github.io/kairo-web/lol/kr/Hide%20on%20bush-KR1>. Los enlaces se pueden compartir y cargan directo.
+
+Las rutas de la tabla son relativas a la base `/kairo-web/` (ver *Despliegue*).
 
 ## Correr en local
 
@@ -25,7 +29,7 @@ Requisitos: Node 18 o más nuevo.
 ```bash
 npm install
 cp .env.example .env     # y ajusta VITE_API_URL
-npm run dev              # http://localhost:5173
+npm run dev              # http://localhost:5173/kairo-web/
 ```
 
 **Contra el backend local** (repo de Kairo, carpeta `server/`, con su propio `.env` con `RIOT_API_KEY`):
@@ -52,14 +56,23 @@ Si cambias `.env`, reinicia `npm run dev`: Vite lee las variables al arrancar.
 - **Favoritos y recientes**: en `localStorage` de este navegador, sin cuenta. Los favoritos en partida se revisan cada minuto con `/lol/live` (máximo 6).
 - **Campeones**: calculados con las partidas cargadas ("últimas N partidas"). Riot no ofrece estadísticas por temporada.
 
-## Desplegar en Cloudflare Pages
+## Despliegue
+
+### GitHub Pages (actual)
+
+Cada push a `main` ejecuta [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml): `npm ci`, `npm run build` con `VITE_API_URL=https://kairo-api-nqts.onrender.com` y publicación de `dist/` con `actions/deploy-pages`. En *Settings → Pages* la fuente es **GitHub Actions**.
+
+- La web vive en `/kairo-web/`: `base` en `vite.config.js` (el `basename` de React Router se toma de ahí) y los assets de `public/` usan `import.meta.env.BASE_URL`.
+- GitHub Pages no reescribe rutas. Por eso el build copia `index.html` a `404.html`: al recargar un perfil o abrir un link directo, Pages sirve esa copia, la SPA arranca y muestra la página pedida. El build también crea `.nojekyll`.
+- El backend debe aceptar el origen `https://0scar07.github.io` en CORS. Es el mismo origen que la PWA de la app.
+
+### Cloudflare Pages (alternativa)
 
 1. *Workers & Pages → Create → Pages → Connect to Git* y elige este repo.
-2. Framework preset **Vite** (o a mano): build command `npm run build` y output directory `dist`.
-3. Variables de entorno (Production y Preview): `VITE_API_URL=https://kairo-api-nqts.onrender.com`. Opcional: `VITE_APK_URL`.
-4. Node: el repo trae `.nvmrc` (20).
-5. Las rutas SPA funcionan al recargar gracias a `public/_redirects` (`/* /index.html 200`).
-6. Agrega el dominio final (`*.pages.dev` y tu dominio propio) a `CORS_ORIGINS` del backend.
+2. Build command `npm run build`, output directory `dist`.
+3. Variables de entorno: `VITE_API_URL=https://kairo-api-nqts.onrender.com` y **`BASE_PATH=/`** (la web queda en la raíz del dominio en vez de `/kairo-web/`).
+4. Las rutas SPA funcionan al recargar gracias a `public/_redirects` (`/* /index.html 200`). En GitHub Pages ese archivo se ignora.
+5. Agrega el dominio de Pages a `CORS_ORIGINS` del backend.
 
 ## Estructura
 

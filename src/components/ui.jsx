@@ -35,7 +35,7 @@ export function RankEmblem({ tier, rank, size = 48 }) {
   return (
     <img
       className="rank-emblem"
-      src={`/ranks/${tier.toLowerCase()}.png`}
+      src={`${import.meta.env.BASE_URL}ranks/${tier.toLowerCase()}.png`}
       alt={rankLabel(tier, rank)}
       width={Math.round(size * (256 / 224))}
       height={size}
