@@ -3,6 +3,7 @@ import { Route, Routes, useLocation, useNavigationType } from "react-router-dom"
 import Home from "./pages/Home";
 import Profile from "./pages/Profile";
 import Live from "./pages/Live";
+import Favorites from "./pages/Favorites";
 import { ComingSoon, NotFound } from "./pages/Misc";
 import { probe } from "./api/server";
 import { ensureDDragon } from "./lib/ddragon";
@@ -14,9 +15,17 @@ import "./styles/live.css";
 
 // Al cambiar de página se vuelve arriba (salvo al ir atrás/adelante, que el navegador restaura)
 function ScrollToTop() {
-  const { pathname } = useLocation();
+  const { pathname, hash } = useLocation();
   const type = useNavigationType();
-  useEffect(() => { if (type !== "POP") window.scrollTo(0, 0); }, [pathname, type]);
+  useEffect(() => {
+    if (hash) {
+      // La sección puede tardar un cuadro en existir (la página se acaba de montar)
+      const id = requestAnimationFrame(() => document.getElementById(hash.slice(1))?.scrollIntoView({ block: "start" }));
+      return () => cancelAnimationFrame(id);
+    }
+    if (type !== "POP") window.scrollTo(0, 0);
+    return undefined;
+  }, [pathname, hash, type]);
   return null;
 }
 
@@ -34,6 +43,7 @@ export default function App() {
         <Route path="/" element={<Home />} />
         <Route path="/lol/:region/:riotId" element={<Profile />} />
         <Route path="/lol/:region/:riotId/en-vivo" element={<Live />} />
+        <Route path="/favoritos" element={<Favorites />} />
         <Route path="/juegos" element={<ComingSoon />} />
         <Route path="/juegos/:game" element={<ComingSoon />} />
         <Route path="*" element={<NotFound />} />

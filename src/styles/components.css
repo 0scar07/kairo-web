@@ -4,15 +4,15 @@
   border-bottom: 1px solid var(--border);
   position: sticky;
   top: 0;
-  z-index: 20;
+  z-index: 30;
 }
 .header-inner {
   display: flex;
   align-items: center;
-  gap: 20px;
-  min-height: 52px;
-  padding-top: 8px;
-  padding-bottom: 8px;
+  gap: 14px;
+  min-height: 54px;
+  padding-top: 7px;
+  padding-bottom: 7px;
 }
 .logo { display: inline-flex; align-items: center; gap: 10px; flex: none; }
 /* Ícono real de la app con un resplandor que respira y un brillo que lo recorre cada ~4,5 s.
@@ -74,35 +74,158 @@
   letter-spacing: 0.28em;
 }
 
-.header-nav { display: flex; align-items: center; gap: 4px; flex: 1; min-width: 0; }
-.nav-link {
-  padding: 7px 10px;
-  border-radius: 8px;
+/* Selector de juego */
+.game-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 10px 0 12px;
+  border-radius: var(--radius-btn);
+  border: 1px solid var(--border-2);
+  background: var(--surface-2);
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: border-color .15s;
+}
+.game-pill:hover, .game-pill[aria-expanded="true"] { border-color: color-mix(in srgb, var(--game-lol) 45%, var(--border-2)); }
+.game-pill .icon-chev { color: var(--text-2); }
+
+/* Navegación principal */
+.header-nav { display: flex; align-items: center; gap: 2px; flex: 1; min-width: 0; }
+.nav-item {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 36px;
+  padding: 0 11px;
+  border-radius: 9px;
   color: var(--text-2);
   font-size: 13px;
   font-weight: 500;
   white-space: nowrap;
   transition: color .15s, background-color .15s;
 }
-.nav-link:hover { color: var(--text); }
-.nav-link.active { color: var(--text); background: var(--surface-2); }
+.nav-item svg { opacity: .85; }
+.nav-item:hover { color: var(--text); background: rgba(255, 255, 255, .03); }
+.nav-item.active { color: var(--text); background: var(--surface-2); }
+.nav-count {
+  min-width: 17px;
+  height: 17px;
+  padding: 0 5px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--live);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+}
+.nav-new {
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--game-pubg) 85%, #000);
+  color: #1a1206;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .02em;
+}
 
-.header-search { flex: 1; min-width: 0; }
+/* Herramientas de la derecha */
+.header-tools { display: flex; align-items: center; gap: 6px; flex: none; }
+.header-search { width: 280px; flex: none; }
+.header-nav + .header-tools { margin-left: auto; }
+.tool-btn { position: relative; width: 38px; height: 38px; color: var(--text-2); border-color: transparent; }
+.tool-btn:hover, .tool-btn[aria-expanded="true"] { color: var(--text); background: var(--surface-2); }
+.tool-dot {
+  position: absolute;
+  top: 8px;
+  right: 9px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--live);
+  box-shadow: 0 0 0 2px var(--header);
+}
+
+/* Menús desplegables */
+.popover { position: relative; }
+.popover-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  z-index: 50;
+  min-width: 260px;
+  padding: 8px;
+  border-radius: 14px;
+  border: 1px solid var(--border-2);
+  background: var(--surface);
+  box-shadow: 0 18px 44px rgba(0, 0, 0, .5);
+  animation: suggest-in .14s ease-out;
+}
+.game-picker .popover-panel { left: 0; }
+.bell-panel { right: 0; width: 320px; }
+.popover-title { margin: 4px 8px 8px; font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--text-3); }
+.popover-empty { margin: 4px 8px 10px; font-size: 13px; color: var(--text-2); line-height: 1.5; }
+.popover-panel ul { list-style: none; margin: 0; padding: 0; }
+.games-panel { width: 300px; }
+.game-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  border-radius: 9px;
+  font-size: 13px;
+}
+.game-option:hover { background: var(--surface-2); }
+.game-option.current { background: color-mix(in srgb, var(--game-lol) 9%, transparent); }
+.game-option-logo { width: 28px; height: 28px; display: grid; place-items: center; border-radius: 8px; background: var(--bg); border: 1px solid var(--border); flex: none; }
+.game-option-name { flex: 1; font-weight: 500; }
+.game-option-tag { font-size: 10px; font-weight: 600; color: var(--text-3); }
+.game-option-tag.on { color: var(--brand); }
+.bell-item { display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 9px; }
+.bell-item:hover { background: var(--surface-2); }
+.bell-item .dd { border-radius: 8px; }
+.bell-text { display: flex; flex-direction: column; min-width: 0; flex: 1; font-size: 11px; }
+.bell-text strong { font-size: 13px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bell-time { color: var(--brand); font-weight: 600; font-size: 12px; }
+.popover-foot {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 6px;
+  padding: 10px 8px 4px;
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+  font-weight: 600;
+}
+.popover-foot a { color: var(--brand); }
+.popover-foot a:hover { text-decoration: underline; }
+
+/* Barra de vuelta (página En vivo) */
+.subbar { border-top: 1px solid var(--border); background: var(--bg); }
+.subbar .container { padding-top: 9px; padding-bottom: 9px; }
 .header-back {
-  flex: 1;
   display: inline-flex; align-items: center; gap: 6px;
   color: var(--text-2);
   font-size: 13px;
   font-weight: 500;
-  min-width: 0;
+  max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 .header-back:hover { color: var(--text); }
-.header-download { flex: none; height: 34px; margin-left: auto; }
 
-@media (max-width: 900px) {
+@media (max-width: 1360px) {
+  .header-search { width: 200px; }
+  .nav-item { padding: 0 8px; gap: 6px; }
+}
+@media (max-width: 1180px) {
+  .header-search { width: 260px; }
+  .header-inner { flex-wrap: wrap; row-gap: 6px; }
+  .header-tools { order: 2; margin-left: auto; }
   .header-nav {
     order: 3;
     flex-basis: 100%;
@@ -112,8 +235,12 @@
     padding: 0 var(--gutter);
   }
   .header-nav::-webkit-scrollbar { display: none; }
-  .header-inner { flex-wrap: wrap; row-gap: 6px; }
-  .header-search { order: 3; flex-basis: 100%; }
+}
+@media (max-width: 700px) {
+  .header-search { order: 4; width: auto; flex-basis: 100%; }
+  .game-pill-name { display: none; }
+  .bell-panel { width: min(320px, calc(100vw - 32px)); right: -46px; }
+  .games-panel { width: min(300px, calc(100vw - 32px)); }
 }
 
 /* ─── Buscador ─────────────────────────────────────────── */

@@ -35,6 +35,7 @@ const sameId = (a, b) => a.region === b.region
 // ─── Favoritos: { region (slug), gameName, tagLine, puuid, iconId, rank } ─────
 const favorites = createList(FAVORITES_KEY);
 export const useFavorites = favorites.use;
+export const getFavorites = favorites.get;
 export const isFavorite = (list, player) => list.some(f => sameId(f, player));
 
 /** Actualiza los datos guardados de un favorito (ícono, rango, nombre con mayúsculas correctas) si existe */

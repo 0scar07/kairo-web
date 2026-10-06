@@ -1,13 +1,14 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import Layout from "../components/Layout";
 import SearchForm from "../components/SearchForm";
 import Icon from "../components/Icon";
 import { DDImg, GameChips, Initials, Skeleton, StateBox } from "../components/ui";
-import { getLeaderboard, getLive } from "../api/lol";
+import { getLeaderboard } from "../api/lol";
 import { errorMessage } from "../api/client";
-import { useAsync, useInterval, useNow, useTitle } from "../lib/hooks";
+import { useAsync, useNow, useTitle } from "../lib/hooks";
 import { clearRecents, useFavorites, useRecents } from "../lib/library";
+import { useLiveFavorites } from "../lib/liveFavorites";
 import { REGIONS, livePath, profilePath, regionBySlug, savedRegion } from "../lib/regions";
 import { formatDuration, formatNumber, queueLong, rankLabel, winrate } from "../lib/lol";
 import { championIcon, championName, useDDragon } from "../lib/ddragon";
@@ -47,29 +48,16 @@ export default function Home() {
 }
 
 // ─── Tus favoritos en partida ─────────────────────────────────────────────
-const MAX_CHECKED = 6;   // favoritos consultados a la vez (cada consulta pasa por la caché del backend)
-
 function LiveFavorites() {
   useDDragon();
-  const favorites = useFavorites();
   const [showAll, setShowAll] = useState(false);
-  const watched = useMemo(() => favorites.filter(f => f.puuid).slice(0, MAX_CHECKED), [favorites]);
-  const key = watched.map(f => f.puuid).join(",");
-
-  const { data, loading, reload } = useAsync(async force => {
-    const results = await Promise.allSettled(watched.map(f => getLive(f.puuid, regionBySlug(f.region)?.id, force)));
-    return results
-      .map((r, i) => ({ fav: watched[i], live: r.status === "fulfilled" ? r.value : null }))
-      .filter(x => x.live?.inGame);
-  }, [key]);
-
-  useInterval(() => reload(true), 60_000, watched.length > 0);
-
-  const live = data || [];
+  const hasFavorites = useFavorites().some(f => f.puuid);
+  // Misma consulta que la campanita del header (lib/liveFavorites.js), que la repite cada minuto
+  const { items: live, checked } = useLiveFavorites();
   const visible = showAll ? live : live.slice(0, 3);
 
   return (
-    <section className="home-section" aria-labelledby="live-favs-title">
+    <section className="home-section" id="en-partida" aria-labelledby="live-favs-title">
       <div className="section-head">
         <h2 className="section-title live-title" id="live-favs-title">
           <span className={`live-dot${live.length ? " pulse" : ""}`} aria-hidden="true" /> Tus favoritos en partida
@@ -79,11 +67,11 @@ function LiveFavorites() {
         )}
       </div>
 
-      {!watched.length ? (
+      {!hasFavorites ? (
         <div className="card"><StateBox compact icon="star" title="Aún no tienes favoritos">
           Abre el perfil de un jugador y márcalo con la estrella: aquí verás cuándo está jugando.
         </StateBox></div>
-      ) : loading && !data ? (
+      ) : !checked ? (
         <div className="fav-grid">{[0, 1, 2].map(i => <FavoriteSkeleton key={i} />)}</div>
       ) : !live.length ? (
         <div className="card"><StateBox compact icon="clock" title="Ninguno de tus favoritos está en partida">
@@ -135,7 +123,7 @@ function Leaderboard() {
   const { data, error, loading, reload } = useAsync(() => getLeaderboard(regionBySlug(region).id, 10), [region]);
 
   return (
-    <section className="home-section leaderboard" aria-labelledby="ladder-title">
+    <section className="home-section leaderboard" id="clasificacion" aria-labelledby="ladder-title">
       <div className="section-head">
         <h2 className="section-title" id="ladder-title">Clasificación · Solo/Duo</h2>
         {/* Las regiones solo tienen sentido cuando el backend ya ofrece la clasificación */}

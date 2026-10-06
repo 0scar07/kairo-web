@@ -105,7 +105,7 @@ export default function SearchForm({ size = "large", initialRegion, autoFocus = 
             onFocus={() => setOpen(true)}
             onClick={() => setOpen(true)}
             onKeyDown={onKeyDown}
-            placeholder={size === "large" ? "Nombre#TAG" : "Buscar otro jugador · Nombre#TAG"}
+            placeholder={size === "large" ? "Nombre#TAG" : "Buscar Nombre#TAG"}
             autoComplete="off"
             spellCheck="false"
             autoFocus={autoFocus}

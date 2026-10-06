@@ -1,7 +1,15 @@
-import { Link, NavLink } from "react-router-dom";
+import { useEffect, useId, useRef, useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 import Icon from "./Icon";
+import GameLogo from "./GameLogo";
 import SearchForm from "./SearchForm";
-import { NAV_GAMES, gamePath } from "../lib/games";
+import { DDImg } from "./ui";
+import { GAMES, gamePath } from "../lib/games";
+import { useLiveFavorites } from "../lib/liveFavorites";
+import { useNow } from "../lib/hooks";
+import { livePath } from "../lib/regions";
+import { championIcon, championName, useDDragon } from "../lib/ddragon";
+import { formatDuration, queueShort } from "../lib/lol";
 import { APK_URL, GITHUB_URL, PRIVACY_URL } from "../lib/config";
 import { useServerState } from "../api/server";
 
@@ -18,38 +26,148 @@ export function Logo() {
   );
 }
 
-const DownloadButton = () => (
-  <a className="btn header-download" href={APK_URL} rel="noopener">Descargar app</a>
-);
+// Menú desplegable sencillo: se cierra con Esc, al hacer clic fuera o al elegir una opción
+function usePopover() {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+  useEffect(() => {
+    if (!open) return undefined;
+    const onDown = e => { if (!ref.current?.contains(e.target)) setOpen(false); };
+    const onKey = e => { if (e.key === "Escape") { setOpen(false); ref.current?.querySelector("button")?.focus(); } };
+    document.addEventListener("pointerdown", onDown);
+    document.addEventListener("keydown", onKey);
+    return () => { document.removeEventListener("pointerdown", onDown); document.removeEventListener("keydown", onKey); };
+  }, [open]);
+  return { open, ref, toggle: () => setOpen(v => !v), close: () => setOpen(false) };
+}
+
+/** Selector de juego: League of Legends hoy; el resto, próximamente (ya están en la app) */
+function GamePicker() {
+  const pop = usePopover();
+  const id = useId();
+  return (
+    <div className="popover game-picker" ref={pop.ref}>
+      <button type="button" className="game-pill" aria-expanded={pop.open} aria-controls={id} onClick={pop.toggle}>
+        <GameLogo game="lol" size={16} color="var(--game-lol)" />
+        <span className="game-pill-name">League of Legends</span>
+        <Icon name="chevronDown" size={14} style={{ transform: pop.open ? "rotate(180deg)" : undefined, transition: "transform .15s" }} />
+      </button>
+      {pop.open && (
+        <div className="popover-panel games-panel" id={id}>
+          <p className="popover-title">Juegos de Kairo</p>
+          <ul>
+            {GAMES.map(g => (
+              <li key={g.id}>
+                <Link to={gamePath(g)} className={`game-option${g.available ? " current" : ""}`} onClick={pop.close}>
+                  <span className="game-option-logo"><GameLogo game={g.id} size={18} color={g.color} /></span>
+                  <span className="game-option-name">{g.name}</span>
+                  <span className={`game-option-tag${g.available ? " on" : ""}`}>{g.available ? "Disponible" : "Próximamente"}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** Campanita: qué favoritos están jugando ahora (los avisos con la app cerrada solo existen en la app) */
+function LiveBell() {
+  const pop = usePopover();
+  const id = useId();
+  const now = useNow(1000);
+  const { items, watched } = useLiveFavorites();
+  return (
+    <div className="popover" ref={pop.ref}>
+      <button
+        type="button"
+        className="btn btn-icon tool-btn"
+        aria-expanded={pop.open}
+        aria-controls={id}
+        aria-label={items.length ? `${items.length} favoritos en partida` : "Favoritos en partida"}
+        title="Favoritos en partida"
+        onClick={pop.toggle}
+      >
+        <Icon name="bell" size={17} />
+        {items.length > 0 && <span className="tool-dot" aria-hidden="true" />}
+      </button>
+      {pop.open && (
+        <div className="popover-panel bell-panel" id={id}>
+          <p className="popover-title">Favoritos en partida</p>
+          {!watched ? (
+            <p className="popover-empty">Marca jugadores con la estrella en su perfil y aquí verás cuándo están jugando.</p>
+          ) : !items.length ? (
+            <p className="popover-empty">Ninguno de tus favoritos está jugando ahora. Revisamos cada minuto.</p>
+          ) : (
+            <ul className="bell-list">
+              {items.map(({ fav, live }) => {
+                const me = live.participants.find(p => p.puuid === fav.puuid);
+                return (
+                  <li key={fav.puuid}>
+                    <Link to={livePath(fav.region, fav.gameName, fav.tagLine)} className="bell-item" onClick={pop.close}>
+                      <DDImg src={me ? championIcon(me.championId) : null} size={30} alt="" />
+                      <span className="bell-text">
+                        <strong>{fav.gameName}<span className="faint">#{fav.tagLine}</span></strong>
+                        <span className="faint">{[me && championName(me.championId), queueShort(live.queueId)].filter(Boolean).join(" · ")}</span>
+                      </span>
+                      <span className="bell-time num">{live.startTime > 0 ? formatDuration((now - live.startTime) / 1000) : "Cargando"}</span>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+          <div className="popover-foot">
+            <Link to="/favoritos" onClick={pop.close}>Ver favoritos</Link>
+            <a href={APK_URL} rel="noopener">Avisos en el celular</a>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 /**
- *   variant="nav"    portada: menú de juegos
- *   variant="search" perfil: buscador compacto
- *   variant="back"   en vivo: enlace de vuelta (back = { to, label })
+ *   variant="nav"    portada (el buscador grande ya está en la página)
+ *   variant="search" con buscador compacto en el header
+ *   variant="back"   con buscador y una barra de vuelta debajo (back = { to, label })
  */
 export function Header({ variant = "nav", back, region }) {
+  useDDragon();
+  const { pathname, hash } = useLocation();
+  const { items } = useLiveFavorites();
+  const at = (path, h = "") => pathname === path && hash === h;
+  const cls = active => `nav-item${active ? " active" : ""}`;
+
   return (
     <header className="header">
-      <div className={`container header-inner header-${variant}`}>
+      <div className="container header-inner">
         <Logo />
-        {variant === "nav" && (
-          <nav className="header-nav" aria-label="Juegos">
-            {NAV_GAMES.map(g => (
-              <NavLink key={g.id} to={gamePath(g)} end className={({ isActive }) => `nav-link${isActive ? " active" : ""}`}>
-                {g.name}
-              </NavLink>
-            ))}
-            <NavLink to="/juegos" className={({ isActive }) => `nav-link${isActive ? " active" : ""}`}>Más juegos</NavLink>
-          </nav>
-        )}
-        {variant === "search" && <div className="header-search"><SearchForm size="compact" initialRegion={region} /></div>}
-        {variant === "back" && back && (
-          <Link to={back.to} className="header-back">
-            <Icon name="chevronLeft" size={14} /> {back.label}
+        <GamePicker />
+        <nav className="header-nav" aria-label="Principal">
+          <Link to="/" className={cls(at("/"))} aria-current={at("/") ? "page" : undefined}><Icon name="home" size={15} /> Inicio</Link>
+          <Link to={{ pathname: "/", hash: "#en-partida" }} className={cls(at("/", "#en-partida"))}>
+            <Icon name="radio" size={15} /> En vivo
+            {items.length > 0 && <span className="nav-count">{items.length}<span className="sr-only"> en partida</span></span>}
           </Link>
-        )}
-        <DownloadButton />
+          <Link to="/favoritos" className={cls(pathname === "/favoritos")} aria-current={pathname === "/favoritos" ? "page" : undefined}><Icon name="star" size={15} /> Favoritos</Link>
+          <Link to={{ pathname: "/", hash: "#clasificacion" }} className={cls(at("/", "#clasificacion"))}><Icon name="trophy" size={15} /> Clasificación</Link>
+          <a href={APK_URL} rel="noopener" className="nav-item"><Icon name="phone" size={15} /> App <span className="nav-new">Nuevo</span></a>
+        </nav>
+        {variant !== "nav" && <div className="header-search"><SearchForm size="compact" initialRegion={region} /></div>}
+        <div className="header-tools">
+          <LiveBell />
+          <a className="btn btn-icon tool-btn" href={GITHUB_URL} rel="noopener" aria-label="Código en GitHub" title="Código en GitHub"><Icon name="github" size={17} /></a>
+        </div>
       </div>
+      {variant === "back" && back && (
+        <div className="subbar">
+          <div className="container">
+            <Link to={back.to} className="header-back"><Icon name="chevronLeft" size={14} /> {back.label}</Link>
+          </div>
+        </div>
+      )}
     </header>
   );
 }
