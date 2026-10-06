@@ -344,116 +344,171 @@ a.ladder-name:hover { text-decoration: underline; }
   .hero-spark { opacity: .5; transform: rotate(45deg) scale(.6); }
 }
 
-/* ─── Tarjetas de juegos (debajo del buscador) ─────────────────────────────
-   Al pasar el mouse: inclinación 3D que sigue al puntero (--rx/--ry), reflejo que lo acompaña (--gx/--gy),
-   elevación y zoom del arte. */
-.game-cards { position: relative; z-index: 2; margin-top: 34px; padding-bottom: 48px; }
+/* ─── Pósters de juegos (debajo del buscador) ──────────────────────────────
+   Capas: fondo recortado (.poster-frame) · personaje sin recortar que sobresale (.poster-char) · degradado y nombre.
+   Reposo: el personaje respira y se balancea (5 s, desfasado por tarjeta). Hover: sube, se inclina hacia el cursor
+   (--rx/--ry) y el personaje crece más que el fondo (parallax). Solo transform y opacity. */
+.game-cards { position: relative; z-index: 2; margin-top: 4px; padding-bottom: 44px; }
 .game-rail {
   list-style: none;
-  margin: 0 -6px;
-  padding: 16px 6px 6px;
+  /* Espacio arriba para que el personaje que sobresale no quede cortado por el scroll horizontal */
+  margin: 0 -8px;
+  padding: 78px 8px 6px;
   display: flex;
-  gap: 16px;
+  gap: 18px;
   overflow-x: auto;
+  overscroll-behavior-x: contain;
   scroll-snap-type: x mandatory;
+  scroll-padding: 0 8px;
   scrollbar-width: none;
 }
 .game-rail::-webkit-scrollbar { display: none; }
-.game-card-wrap { flex: 0 0 168px; scroll-snap-align: start; perspective: 900px; display: flex; flex-direction: column; gap: 10px; }
-.game-card {
+.poster-wrap { flex: 0 0 180px; scroll-snap-align: start; display: flex; flex-direction: column; gap: 10px; }
+.poster { display: block; perspective: 900px; border-radius: 12px; outline-offset: 4px; }
+.poster-tilt {
   position: relative;
   display: block;
-  aspect-ratio: 168 / 238;
-  border-radius: 12px;
-  overflow: hidden;
-  isolation: isolate;
-  background:
-    radial-gradient(90% 70% at 50% 35%, color-mix(in srgb, var(--game) 34%, transparent), transparent 70%),
-    linear-gradient(180deg, color-mix(in srgb, var(--game) 14%, var(--surface-2)), var(--surface));
-  border: 1px solid color-mix(in srgb, var(--game) 22%, var(--border));
+  aspect-ratio: 3 / 4;
   transform: translateY(var(--lift, 0)) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
   transform-style: preserve-3d;
-  transition: transform .55s cubic-bezier(.2, .7, .2, 1), border-color .3s;
+  transition: transform .5s cubic-bezier(.2, .7, .2, 1);
 }
-.game-card:hover, .game-card:focus-visible {
-  --lift: -8px;
-  border-color: color-mix(in srgb, var(--game) 60%, var(--border));
-  transition: transform .14s ease-out, border-color .3s;
-}
-/* Sombra de color debajo: aparece con opacity (no se anima el box-shadow) */
-.game-card::before {
-  content: "";
+.poster:hover .poster-tilt, .poster:focus-visible .poster-tilt { --lift: -8px; transition: transform .15s ease-out; }
+
+/* 1. Fondo, recortado a la tarjeta */
+.poster-frame {
   position: absolute;
   inset: 0;
-  z-index: -1;
-  border-radius: inherit;
-  box-shadow: 0 22px 40px -12px color-mix(in srgb, var(--game) 70%, transparent);
-  opacity: 0;
-  transition: opacity .35s;
+  overflow: hidden;
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--game) 26%, var(--border));
+  background: var(--surface-2);
 }
-.game-card:hover::before { opacity: 1; }
-.game-card-art { position: absolute; inset: 0; display: grid; place-items: center; }
-.game-card-art img {
+.poster-bg {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: 62% center;
-  transform: scale(1.04);
-  transition: transform .7s cubic-bezier(.2, .7, .2, 1);
-}
-.game-card:hover .game-card-art img { transform: scale(1.12); }
-.game-card-art::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, transparent 45%, rgba(10, 15, 13, .75));
-}
-.game-card-logo-big {
-  display: grid;
-  place-items: center;
-  filter: drop-shadow(0 10px 24px color-mix(in srgb, var(--game) 55%, transparent));
+  transform-origin: 50% 100%;
   transition: transform .6s cubic-bezier(.2, .7, .2, 1);
 }
-.game-card:hover .game-card-logo-big { transform: translateY(-6px) scale(1.08); }
-.game-card-mark {
+.poster:hover .poster-bg { transform: scale(1.03); }
+
+/* Fondo gráfico propio (juegos sin arte permitido): color del juego, rayas y el logo real */
+.poster-graphic {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(85% 60% at 50% 30%, color-mix(in srgb, var(--game) 38%, transparent), transparent 72%),
+    repeating-linear-gradient(135deg, color-mix(in srgb, var(--game) 9%, transparent) 0 2px, transparent 2px 14px),
+    linear-gradient(180deg, color-mix(in srgb, var(--game) 16%, var(--surface-2)), var(--bg));
+}
+.poster-watermark {
+  position: absolute;
+  right: -48px;
+  bottom: 18px;
+  opacity: .12;
+  transform: rotate(-14deg);
+}
+.poster-emblem {
   position: absolute;
   left: 50%;
-  bottom: 18px;
-  z-index: 2;
-  transform: translateX(-50%);
-  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, .6));
+  top: 26%;
+  margin-left: -32px;
+  filter: drop-shadow(0 10px 22px color-mix(in srgb, var(--game) 60%, transparent));
+  animation: poster-idle 5.2s ease-in-out calc(var(--i) * -0.7s) infinite;
 }
-.game-card-glare {
+
+/* 2. Personaje sin recortar, alineado abajo con la tarjeta y a la misma escala que el fondo: lo que pasa de 100%
+   sobresale por arriba. Se desvanece hacia abajo para que, al moverse, se funda con el fondo sin costura. */
+.poster-char {
   position: absolute;
-  inset: -60%;
-  z-index: 3;
+  /* Más ancho que la tarjeta por los márgenes laterales del recorte (solo tienen píxeles en la parte que sobresale) */
+  left: calc(var(--char-l, 0%) * -1);
+  right: calc(var(--char-r, 0%) * -1);
+  bottom: 0;
+  height: var(--char-h, 100%);
   pointer-events: none;
-  background: radial-gradient(circle at center, rgba(255, 255, 255, .32), rgba(255, 255, 255, 0) 32%);
-  opacity: 0;
-  transform: translate(var(--gx, 0%), var(--gy, 0%));
-  transition: opacity .3s;
-  mix-blend-mode: overlay;
+  transform-origin: 50% 100%;
+  transition: transform .6s cubic-bezier(.2, .7, .2, 1);
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 58%, transparent 82%);
+  mask-image: linear-gradient(180deg, #000 0%, #000 58%, transparent 82%);
 }
-.game-card:hover .game-card-glare { opacity: 1; }
-.game-card-badge {
+.poster-char img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  transform-origin: 50% 100%;
+  animation: poster-breathe 5s ease-in-out calc(var(--i) * -1.3s) infinite;
+  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, .45));
+}
+.poster:hover .poster-char { transform: scale(1.07); }
+
+/* 3. Degradado oscuro abajo (sobre fondo y personaje, recortado a la tarjeta) y el nombre en grande */
+.poster-shade {
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  background: linear-gradient(180deg, transparent 48%, rgba(8, 12, 10, .55) 68%, rgba(8, 12, 10, .94) 100%);
+  pointer-events: none;
+}
+.poster-title {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 14px;
+  font-family: var(--font-title);
+  font-size: 19px;
+  font-weight: 800;
+  line-height: 1.02;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  text-align: center;
+  color: #fff;
+  text-wrap: balance;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, .7);
+}
+.poster-badge {
   position: absolute;
   top: 0;
   right: 0;
-  z-index: 4;
   padding: 4px 9px;
-  border-bottom-left-radius: 9px;
-  background: rgba(10, 15, 13, .78);
-  color: var(--text-2);
-  font-size: 10px;
+  border-radius: 0 12px 0 9px;
+  background: var(--game);
+  color: #0a0f0d;
+  font-size: 9px;
   font-weight: 800;
-  letter-spacing: .04em;
+  letter-spacing: .05em;
   text-transform: uppercase;
 }
-.game-card-badge.on { background: var(--brand); color: var(--on-brand); }
-.game-card-label { display: flex; align-items: center; gap: 8px; padding: 0 2px; font-size: 13px; font-weight: 500; color: var(--text); }
+/* Sombra de color debajo al pasar el mouse (aparece con opacity) */
+.poster-tilt::after {
+  content: "";
+  position: absolute;
+  inset: 8% 6% -4%;
+  z-index: -1;
+  border-radius: 14px;
+  background: var(--game);
+  filter: blur(22px);
+  opacity: 0;
+  transition: opacity .35s;
+}
+.poster:hover .poster-tilt::after { opacity: .35; }
+.poster-label { display: flex; align-items: center; gap: 8px; padding: 0 2px; font-size: 13px; font-weight: 500; color: var(--text); }
+
+@keyframes poster-breathe {
+  0%, 100% { transform: translateY(0) rotate(0deg) scale(1); }
+  30% { transform: translateY(-3px) rotate(.6deg) scale(1.006); }
+  65% { transform: translateY(-1px) rotate(-.5deg) scale(1.002); }
+}
+@keyframes poster-idle {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-4px) rotate(-1.5deg); }
+}
+
 .rail-btn {
   position: absolute;
-  top: calc(16px + 119px - 20px);
+  top: calc(78px + 120px - 20px);
   z-index: 5;
   width: 40px;
   height: 40px;
@@ -468,14 +523,16 @@ a.ladder-name:hover { text-decoration: underline; }
 .rail-btn:hover { background: var(--surface-2); }
 .rail-btn.prev { left: -14px; }
 .rail-btn.next { right: -14px; }
+
 @media (max-width: 700px) {
-  .game-card-wrap { flex-basis: 132px; }
+  .poster-wrap { flex-basis: 140px; }
+  .poster-title { font-size: 15px; bottom: 10px; }
+  .game-rail { padding-top: 62px; gap: 14px; }
   .rail-btn { display: none; }   /* en celular se desliza con el dedo */
-  .game-cards { margin-top: 26px; padding-bottom: 36px; }
+  .poster-emblem { transform: scale(.8); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .game-card, .game-card:hover { transform: none; transition: border-color .3s; }
-  .game-card:hover .game-card-art img, .game-card:hover .game-card-logo-big { transform: none; }
-  .game-card-art img { transform: none; }
-  .game-card-glare { display: none; }
+  .poster-tilt, .poster:hover .poster-tilt { transform: none; transition: none; }
+  .poster-char img, .poster-emblem { animation: none; }
+  .poster:hover .poster-bg, .poster:hover .poster-char { transform: none; }
 }

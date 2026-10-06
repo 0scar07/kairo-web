@@ -11,9 +11,9 @@ const FALLBACK = [103, 64, 222, 157];
 // conjunto nunca se vea sincronizado.
 const SLOTS = [
   { side: "left", x: "4%", y: 26, rot: -9, dur: 7.5, delay: 0 },
-  { side: "left", x: "14%", y: 150, rot: 5, dur: 9, delay: -2.5 },
+  { side: "left", x: "14%", y: 128, rot: 5, dur: 9, delay: -2.5 },
   { side: "right", x: "14%", y: 34, rot: 8, dur: 8.2, delay: -1.2 },
-  { side: "right", x: "4%", y: 158, rot: -6, dur: 9.6, delay: -4 },
+  { side: "right", x: "4%", y: 134, rot: -6, dur: 9.6, delay: -4 },
 ];
 
 // Destellos alrededor de las tarjetas (posiciones fijas, titilan desfasados)

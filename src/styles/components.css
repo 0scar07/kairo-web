@@ -375,7 +375,10 @@
   font-size: 11px;
   color: var(--text-3);
 }
-.footer-inner p { margin: 0; max-width: 520px; line-height: 1.6; }
+.footer-legal { display: flex; flex-direction: column; gap: 6px; max-width: 620px; }
+.footer-inner p { margin: 0; line-height: 1.6; }
+.footer-legal a { text-decoration: underline; }
+.footer-legal a:hover { color: var(--text); }
 .footer-links { display: flex; gap: 16px; flex: none; }
 .footer-links a:hover { color: var(--text); }
 @media (max-width: 640px) {

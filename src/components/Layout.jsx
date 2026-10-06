@@ -176,10 +176,21 @@ export function Footer() {
   return (
     <footer className="footer">
       <div className="container footer-inner">
-        <p>
-          Kairo no está respaldada por Riot Games, Supercell, Valve, Epic Games, Electronic Arts ni KRAFTON.
-          Todas las marcas pertenecen a sus dueños.
-        </p>
+        <div className="footer-legal">
+          <p>
+            Kairo no está respaldada por Riot Games, Supercell, Valve, Epic Games, Electronic Arts ni KRAFTON.
+            Todas las marcas pertenecen a sus dueños.
+          </p>
+          {/* Avisos que exigen las políticas de contenido de fans de Riot y de Supercell */}
+          <p>
+            Kairo fue creada bajo la política «Legal Jibber Jabber» de Riot Games usando recursos propiedad de Riot Games.
+            Riot Games no respalda ni patrocina este proyecto.
+          </p>
+          <p>
+            Este material no es oficial y no está respaldado por Supercell. Para más información, consulta la{" "}
+            <a href="https://supercell.com/en/fan-content-policy/" rel="noopener">Política de contenido de fans de Supercell</a>.
+          </p>
+        </div>
         <nav className="footer-links" aria-label="Enlaces">
           <a href={PRIVACY_URL} rel="noopener">Privacidad</a>
           <a href={GITHUB_URL} rel="noopener">GitHub</a>
