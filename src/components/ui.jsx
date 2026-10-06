@@ -1,7 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
 import Icon from "./Icon";
-import { GAMES, gamePath } from "../lib/games";
 import { rankLabel } from "../lib/lol";
 
 /** Imagen de Data Dragon con cuadro de respaldo (mientras carga, si falla o si no hay URL). */
@@ -57,22 +55,6 @@ export function StateBox({ icon = "alert", title, children, action, compact = fa
       {children && <p>{children}</p>}
       {action}
     </div>
-  );
-}
-
-/** Chips de los 9 juegos con su color */
-export function GameChips() {
-  return (
-    <ul className="game-chips" aria-label="Juegos de Kairo">
-      {GAMES.map(g => (
-        <li key={g.id}>
-          <Link to={gamePath(g)} className={`game-chip${g.available ? " available" : ""}`} title={g.available ? g.name : `${g.name} · Próximamente`}>
-            <span className="game-dot" style={{ background: g.color }} aria-hidden="true" />
-            {g.name}
-          </Link>
-        </li>
-      ))}
-    </ul>
   );
 }
 

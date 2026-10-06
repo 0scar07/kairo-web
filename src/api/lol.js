@@ -62,6 +62,10 @@ export async function getMatches(ids, region) {
   return { matches, failed: results.length - matches.length };
 }
 
+/** Rotación gratuita de la semana: { free: [championId], newPlayers: [championId] } */
+export const getRotation = region =>
+  get("/lol/rotation", { params: { region }, ttl: 60 * MIN, persist: true });
+
 /** Partida en curso: { inGame: false } o { inGame: true, queueId, mapId, startTime, bans, participants } */
 export const getLive = (puuid, region, force) =>
   get(`/lol/live/${puuid}`, { params: { region }, ttl: TTL.live, force });

@@ -44,6 +44,8 @@
   .hero-grid, .hero-glow { animation: none; }
 }
 .hero-inner {
+  position: relative;
+  z-index: 2;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -54,8 +56,7 @@
 .hero-eyebrow { color: var(--brand); font-size: 10px; letter-spacing: .2em; margin: 0 0 18px; }
 .hero-title { font-size: clamp(32px, 5.4vw, 44px); font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; }
 .hero-sub { color: var(--text-2); font-size: 15px; max-width: 400px; margin: 18px 0 24px; }
-.hero-search { width: 100%; max-width: 544px; margin-bottom: 20px; }
-.hero .game-chips { max-width: 620px; }
+.hero-search { width: 100%; max-width: 544px; position: relative; z-index: 5; }
 
 .home-body { padding-top: 40px; }
 .home-section { margin-bottom: 40px; min-width: 0; }
@@ -250,4 +251,231 @@ a.ladder-name:hover { text-decoration: underline; }
   .fav-row-main { flex-basis: calc(100% - 50px); }
   .fav-row-live { order: 3; flex-basis: 100%; }
   .fav-row-idle { display: none; }
+}
+
+/* ─── Arte animado del hero: campeones de la rotación gratuita ─────────────
+   Las tarjetas flotan a ritmos distintos y los destellos titilan desfasados: siempre hay movimiento, sin cursor.
+   Solo transform y opacity; con prefers-reduced-motion queda quieto. */
+.hero-art { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+.hero-card {
+  position: absolute;
+  width: 112px;
+  animation: hero-float var(--dur, 8s) ease-in-out var(--delay, 0s) infinite;
+  will-change: transform;
+}
+.hero-card-inner {
+  position: relative;
+  display: block;
+  aspect-ratio: 308 / 560;
+  border-radius: 14px;
+  overflow: hidden;
+  transform: rotate(var(--rot, 0deg));
+  border: 1px solid rgba(255, 255, 255, .14);
+  background: var(--surface-2);
+  box-shadow: 0 22px 44px rgba(0, 0, 0, .55), 0 0 0 1px rgba(53, 224, 161, .08), 0 0 34px rgba(53, 224, 161, .12);
+}
+.hero-card-inner img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.hero-card-inner::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 55%, rgba(10, 15, 13, .85));
+}
+.hero-card-name {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 9px;
+  z-index: 2;
+  font-family: var(--font-title);
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, .7);
+}
+.hero-card-shine {
+  position: absolute;
+  inset: -20% auto -20% 0;
+  z-index: 1;
+  width: 55%;
+  background: linear-gradient(100deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, .28), rgba(255, 255, 255, 0));
+  transform: translateX(-180%) skewX(-16deg);
+  animation: hero-shine 6s ease-in-out var(--delay, 0s) infinite;
+}
+.hero-spark {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  border-radius: 1px;
+  background: #fff;
+  transform: rotate(45deg) scale(.3);
+  opacity: 0;
+  box-shadow: 0 0 10px 2px rgba(53, 224, 161, .6);
+  animation: hero-twinkle 3.2s ease-in-out var(--d, 0s) infinite;
+}
+.hero-card-name small {
+  display: block;
+  margin-top: 1px;
+  font-family: var(--font-body);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--brand);
+}
+@keyframes hero-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-14px); }
+}
+@keyframes hero-shine {
+  0%, 70% { transform: translateX(-180%) skewX(-16deg); }
+  100% { transform: translateX(260%) skewX(-16deg); }
+}
+@keyframes hero-twinkle {
+  0%, 100% { opacity: 0; transform: rotate(45deg) scale(.3); }
+  45% { opacity: .95; transform: rotate(45deg) scale(1); }
+  60% { opacity: .2; transform: rotate(45deg) scale(.6); }
+}
+@media (max-width: 1150px) {
+  .hero-art { display: none; }   /* sin espacio a los lados del título: no se cargan sus imágenes */
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-card, .hero-card-shine, .hero-spark { animation: none; }
+  .hero-spark { opacity: .5; transform: rotate(45deg) scale(.6); }
+}
+
+/* ─── Tarjetas de juegos (debajo del buscador) ─────────────────────────────
+   Al pasar el mouse: inclinación 3D que sigue al puntero (--rx/--ry), reflejo que lo acompaña (--gx/--gy),
+   elevación y zoom del arte. */
+.game-cards { position: relative; z-index: 2; margin-top: 34px; padding-bottom: 48px; }
+.game-rail {
+  list-style: none;
+  margin: 0 -6px;
+  padding: 16px 6px 6px;
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+.game-rail::-webkit-scrollbar { display: none; }
+.game-card-wrap { flex: 0 0 168px; scroll-snap-align: start; perspective: 900px; display: flex; flex-direction: column; gap: 10px; }
+.game-card {
+  position: relative;
+  display: block;
+  aspect-ratio: 168 / 238;
+  border-radius: 12px;
+  overflow: hidden;
+  isolation: isolate;
+  background:
+    radial-gradient(90% 70% at 50% 35%, color-mix(in srgb, var(--game) 34%, transparent), transparent 70%),
+    linear-gradient(180deg, color-mix(in srgb, var(--game) 14%, var(--surface-2)), var(--surface));
+  border: 1px solid color-mix(in srgb, var(--game) 22%, var(--border));
+  transform: translateY(var(--lift, 0)) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transform-style: preserve-3d;
+  transition: transform .55s cubic-bezier(.2, .7, .2, 1), border-color .3s;
+}
+.game-card:hover, .game-card:focus-visible {
+  --lift: -8px;
+  border-color: color-mix(in srgb, var(--game) 60%, var(--border));
+  transition: transform .14s ease-out, border-color .3s;
+}
+/* Sombra de color debajo: aparece con opacity (no se anima el box-shadow) */
+.game-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  box-shadow: 0 22px 40px -12px color-mix(in srgb, var(--game) 70%, transparent);
+  opacity: 0;
+  transition: opacity .35s;
+}
+.game-card:hover::before { opacity: 1; }
+.game-card-art { position: absolute; inset: 0; display: grid; place-items: center; }
+.game-card-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 62% center;
+  transform: scale(1.04);
+  transition: transform .7s cubic-bezier(.2, .7, .2, 1);
+}
+.game-card:hover .game-card-art img { transform: scale(1.12); }
+.game-card-art::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 45%, rgba(10, 15, 13, .75));
+}
+.game-card-logo-big {
+  display: grid;
+  place-items: center;
+  filter: drop-shadow(0 10px 24px color-mix(in srgb, var(--game) 55%, transparent));
+  transition: transform .6s cubic-bezier(.2, .7, .2, 1);
+}
+.game-card:hover .game-card-logo-big { transform: translateY(-6px) scale(1.08); }
+.game-card-mark {
+  position: absolute;
+  left: 50%;
+  bottom: 18px;
+  z-index: 2;
+  transform: translateX(-50%);
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, .6));
+}
+.game-card-glare {
+  position: absolute;
+  inset: -60%;
+  z-index: 3;
+  pointer-events: none;
+  background: radial-gradient(circle at center, rgba(255, 255, 255, .32), rgba(255, 255, 255, 0) 32%);
+  opacity: 0;
+  transform: translate(var(--gx, 0%), var(--gy, 0%));
+  transition: opacity .3s;
+  mix-blend-mode: overlay;
+}
+.game-card:hover .game-card-glare { opacity: 1; }
+.game-card-badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 4;
+  padding: 4px 9px;
+  border-bottom-left-radius: 9px;
+  background: rgba(10, 15, 13, .78);
+  color: var(--text-2);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+.game-card-badge.on { background: var(--brand); color: var(--on-brand); }
+.game-card-label { display: flex; align-items: center; gap: 8px; padding: 0 2px; font-size: 13px; font-weight: 500; color: var(--text); }
+.rail-btn {
+  position: absolute;
+  top: calc(16px + 119px - 20px);
+  z-index: 5;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1px solid var(--border-2);
+  background: rgba(17, 24, 21, .92);
+  color: var(--text);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, .45);
+}
+.rail-btn:hover { background: var(--surface-2); }
+.rail-btn.prev { left: -14px; }
+.rail-btn.next { right: -14px; }
+@media (max-width: 700px) {
+  .game-card-wrap { flex-basis: 132px; }
+  .rail-btn { display: none; }   /* en celular se desliza con el dedo */
+  .game-cards { margin-top: 26px; padding-bottom: 36px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .game-card, .game-card:hover { transform: none; transition: border-color .3s; }
+  .game-card:hover .game-card-art img, .game-card:hover .game-card-logo-big { transform: none; }
+  .game-card-art img { transform: none; }
+  .game-card-glare { display: none; }
 }

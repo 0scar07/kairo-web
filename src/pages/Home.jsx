@@ -3,7 +3,9 @@ import { Link } from "react-router-dom";
 import Layout from "../components/Layout";
 import SearchForm from "../components/SearchForm";
 import Icon from "../components/Icon";
-import { DDImg, GameChips, Initials, Skeleton, StateBox } from "../components/ui";
+import { DDImg, Initials, Skeleton, StateBox } from "../components/ui";
+import HeroArt from "./home/HeroArt";
+import GameCards from "./home/GameCards";
 import { getLeaderboard } from "../api/lol";
 import { errorMessage } from "../api/client";
 import { useAsync, useNow, useTitle } from "../lib/hooks";
@@ -24,12 +26,15 @@ export default function Home() {
           <div className="hero-grid" />
           <div className="hero-glow" />
         </div>
+        <HeroArt />
         <div className="container hero-inner">
           <p className="eyebrow hero-eyebrow">Estadísticas de 9 juegos en un solo lugar</p>
           <h1 className="hero-title">Cada partida cuenta.</h1>
           <p className="hero-sub">Busca cualquier jugador y mira su rango, su historial y su partida en vivo.</p>
           <div className="hero-search"><SearchForm size="large" /></div>
-          <GameChips />
+        </div>
+        <div className="container">
+          <GameCards />
         </div>
       </section>
 

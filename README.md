@@ -49,9 +49,11 @@ Busca a cualquier jugador de **League of Legends** y mira su rango, su historial
 - Buscador compacto, una campanita con los favoritos que están jugando ahora y el enlace a GitHub.
 
 **Inicio**
+- Arte animado alrededor del título: los campeones de la **rotación gratuita de la semana** flotan con destellos, siempre en movimiento.
+- Tarjetas de los 9 juegos con inclinación 3D que sigue al mouse, reflejo y elevación.
 - Buscador grande con región (LAN, LAS, NA, EUW, KR, BR) y `Nombre#TAG`. Autocompleta con tus favoritos y búsquedas recientes, con ícono, Riot ID y rango, y se maneja con el teclado (flechas, Enter, Esc).
 - *Tus favoritos en partida*: qué favoritos están jugando ahora, con campeón, cola y cronómetro. Se revisa cada minuto.
-- Clasificación Challenger por región (ver [backend](#backend)) y búsquedas recientes.
+- Clasificación Challenger real por región (LAN, LAS, NA, EUW, KR, BR) con Riot ID, LP y winrate, y búsquedas recientes.
 
 **Perfil** · `/lol/:region/:Nombre-TAG`
 - Cabecera con ícono, nivel y el splash del campeón más jugado de fondo. Botones Actualizar y Favorito.
@@ -165,17 +167,14 @@ La web usa estos endpoints de `server/` del repo de Kairo:
 | `GET /lol/mastery/:puuid?count=10` | Pestaña Maestría |
 | `GET /lol/live/:puuid` | Partida en vivo y favoritos en partida |
 | `GET /lol/leaderboard?region&queue&limit` | Clasificación Challenger: `[{ puuid, gameName, tagLine, leaguePoints, wins, losses }]` |
+| `GET /lol/rotation?region` | Rotación gratuita (arte del hero) |
 | `GET /health` | Saber si el servidor está despierto |
 
-`/lol/leaderboard` y el parámetro `queue` de `/lol/matches` **todavía no existen** en el backend, pero la web ya está lista para ellos:
-- Mientras no exista `/lol/leaderboard`, la clasificación muestra "Disponible pronto".
-- Mientras no exista `queue`, los filtros trabajan sobre las partidas ya cargadas.
-
-Cuando el backend los agregue, la web los empieza a usar sola, sin otro despliegue.
+El parámetro `queue` de `/lol/matches` **todavía no existe** en el backend: mientras tanto, los filtros de cola trabajan sobre las partidas ya cargadas, y cuando el backend lo agregue la web lo usa sola. Si el backend no tuviera `/lol/leaderboard` (por ejemplo, una versión vieja), la clasificación muestra "Disponible pronto" en vez de un error.
 
 ## Hoja de ruta
 
-- [ ] Clasificación Challenger real (endpoint `/lol/leaderboard`)
+- [x] Clasificación Challenger real (endpoint `/lol/leaderboard`)
 - [ ] Filtros de cola en el servidor (`?queue=` en `/lol/matches`)
 - [ ] Comparar dos jugadores (ya existe en la app)
 - [ ] Rango de temporadas pasadas (la API de Riot no lo ofrece: habría que guardarlo en el backend)
