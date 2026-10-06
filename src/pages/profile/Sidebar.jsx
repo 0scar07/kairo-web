@@ -1,6 +1,7 @@
 import { DDImg, RankEmblem, Skeleton } from "../../components/ui";
 import CountUp from "../../components/CountUp";
-import { isApex, rankLabel, tierColor, winrate } from "../../lib/lol";
+import Icon from "../../components/Icon";
+import { rankLabel, rankScore, tierColor, winrate } from "../../lib/lol";
 import { championIcon, championName } from "../../lib/ddragon";
 
 const wrClass = wr => (wr >= 50 ? "win" : "loss");
@@ -15,55 +16,63 @@ const GlowEmblem = ({ entry, size }) => (
   </span>
 );
 
-// ─── Rango Solo/Duo ──────────────────────────────────────────────────────
-export function SoloCard({ entry, error }) {
+// ─── Tarjetas de rango (estilo op.gg) ────────────────────────────────────
+const QUEUE_INFO = "Temporada actual. La API de Riot no ofrece el rango de temporadas pasadas.";
+
+/** Mejor rango de los últimos 30 días según las fotos diarias del backend, si supera al actual */
+function peakOf(history, queue, entry) {
+  const current = entry ? rankScore(entry.tier, entry.rank, entry.leaguePoints) : null;
+  let best = null;
+  for (const snap of history || []) {
+    const e = snap[queue];
+    if (e && Number.isFinite(e.score) && (!best || e.score > best.score)) best = e;
+  }
+  return best && current !== null && best.score > current ? best : null;
+}
+
+function RankedCard({ title, entry, error, history, queue, index, emptyText, big = false }) {
   const wr = entry ? winrate(entry.wins, entry.losses) : null;
+  const peak = peakOf(history, queue, entry);
   return (
-    <section className={`card card-pad rank-card tier-card reveal${entry ? "" : " unranked"}`} style={tierStyle(entry, 0)} aria-label="Clasificatoria Solo/Duo">
-      <p className="eyebrow">Clasificatoria Solo/Duo</p>
-      {entry ? (
-        <>
-          <div className="rank-main">
-            <GlowEmblem entry={entry} size={40} />
-            <div className="rank-text">
-              <strong className="rank-name" style={{ color: tierColor(entry.tier) }}>{rankLabel(entry.tier, entry.rank)}</strong>
-              <span className="faint num"><CountUp value={entry.leaguePoints} /> LP · {entry.wins}V {entry.losses}D</span>
-            </div>
-            {wr !== null && <span className={`rank-wr num ${wrClass(wr)}`}><CountUp value={wr} suffix="%" /></span>}
+    <section className={`card ranked tier-card reveal${entry ? "" : " unranked"}${big ? " big" : ""}`} style={tierStyle(entry, index)} aria-label={title}>
+      <header className="ranked-head">
+        <h2>{title}</h2>
+        <span className="ranked-info" title={QUEUE_INFO} aria-label={QUEUE_INFO} role="img"><Icon name="info" size={14} /></span>
+      </header>
+      <div className="ranked-body">
+        <span className="ranked-emblem"><GlowEmblem entry={entry} size={big ? 62 : 46} /></span>
+        <div className="ranked-text">
+          <strong className="ranked-tier" style={entry ? { color: tierColor(entry.tier) } : undefined}>{entry ? rankLabel(entry.tier, entry.rank) : "Sin clasificar"}</strong>
+          <span className="faint num">{entry ? <><CountUp value={entry.leaguePoints} /> LP</> : (error ? "No se pudo cargar el rango" : emptyText)}</span>
+        </div>
+        {entry && (
+          <div className="ranked-record">
+            <span className="faint num">{entry.wins}V {entry.losses}D</span>
+            <span className="num">Winrate <strong className={wrClass(wr)}><CountUp value={wr} suffix="%" /></strong></span>
           </div>
-          {!isApex(entry.tier) && (
-            <div className="lp-bar" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={entry.leaguePoints} aria-label="LP de la división">
-              <span style={{ width: `${Math.min(100, entry.leaguePoints)}%` }} />
-            </div>
-          )}
-        </>
-      ) : (
-        <div className="rank-main">
-          <GlowEmblem entry={null} size={40} />
-          <div className="rank-text">
-            <strong className="rank-name">Sin clasificar</strong>
-            <span className="faint">{error ? "No se pudo cargar el rango" : "Aún no juega Solo/Duo esta temporada"}</span>
+        )}
+      </div>
+      {peak && (
+        <div className="ranked-peak">
+          <span className="ranked-emblem small"><RankEmblem tier={peak.tier} rank={peak.rank} size={30} /></span>
+          <div className="ranked-text">
+            <strong>{rankLabel(peak.tier, peak.rank)}</strong>
+            <span className="faint num">{peak.lp} LP</span>
           </div>
+          <span className="peak-badge" title="El rango más alto que guardó Kairo en los últimos 30 días">Mejor nivel · 30 días</span>
         </div>
       )}
     </section>
   );
 }
 
-// ─── Rango Flex ──────────────────────────────────────────────────────────
-export function FlexCard({ entry }) {
-  const wr = entry ? winrate(entry.wins, entry.losses) : null;
-  return (
-    <section className={`card flex-card tier-card reveal${entry ? "" : " unranked"}`} style={tierStyle(entry, 2)} aria-label="Clasificatoria Flex 5v5">
-      <GlowEmblem entry={entry} size={34} />
-      <div className="rank-text">
-        <p className="eyebrow">Flex 5v5</p>
-        <strong className="flex-name">{entry ? <>{rankLabel(entry.tier, entry.rank)} · <CountUp value={entry.leaguePoints} /> LP</> : "Sin clasificar"}</strong>
-      </div>
-      {wr !== null && <span className="flex-wr num"><CountUp value={wr} suffix="%" /></span>}
-    </section>
-  );
-}
+export const SoloCard = ({ entry, error, history }) => (
+  <RankedCard title="Clasificatoria Solo/Dúo" entry={entry} error={error} history={history} queue="solo" index={0} emptyText="Aún no juega Solo/Dúo esta temporada" big />
+);
+
+export const FlexCard = ({ entry, history }) => (
+  <RankedCard title="Clasificatoria flexible" entry={entry} history={history} queue="flex" index={1} emptyText="Aún no juega Flex esta temporada" />
+);
 
 // ─── Gráfico de LP (últimos 30 días) ─────────────────────────────────────
 export function LpChart({ history, soloEntry }) {

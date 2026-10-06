@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
-  championStats, compactMatch, formatDuration, kdaText, killParticipation, queueLong, queueShort,
-  rankFromScore, rankLabel, rankScore, rankShort, summarize, timeAgo, winrate,
+  QUEUE_FILTERS, championStats, compactMatch, formatDuration, kdaText, kdaTone, killParticipation, matchesFilter,
+  queueLong, queueShort, rankFromScore, rankLabel, rankScore, rankShort, roleStats, summarize, timeAgo, winrate,
 } from "./lol";
 
 describe("rangos", () => {
@@ -121,5 +121,40 @@ describe("resúmenes", () => {
 
   it("devuelve null sin partidas del jugador", () => {
     expect(summarize(games, "otro")).toBeNull();
+  });
+});
+
+describe("filtros de cola y roles", () => {
+  const byKey = k => QUEUE_FILTERS.find(f => f.key === k);
+  const q = queueId => ({ queueId });
+
+  it("Todo deja pasar cualquier cola; ARAM incluye ARAM: Caos y Arena sus cuatro colas", () => {
+    expect(matchesFilter(byKey("all"), q(1700))).toBe(true);
+    expect(matchesFilter(byKey("aram"), q(450))).toBe(true);
+    expect(matchesFilter(byKey("aram"), q(2400))).toBe(true);
+    expect(matchesFilter(byKey("aram"), q(420))).toBe(false);
+    expect([1700, 1710, 1740, 1750].every(id => matchesFilter(byKey("arena"), q(id)))).toBe(true);
+  });
+
+  it("solo se manda ?queue= al backend cuando el filtro es de una sola cola", () => {
+    expect(QUEUE_FILTERS.filter(f => f.queue).map(f => f.key)).toEqual(["solo", "flex"]);
+  });
+
+  it("roleStats cuenta posiciones sin remakes ni partidas sin carril", () => {
+    const games = [
+      match([raw({ teamPosition: "MIDDLE" })]),
+      match([raw({ teamPosition: "MIDDLE" })]),
+      match([raw({ teamPosition: "UTILITY" })]),
+      match([raw({ teamPosition: "", individualPosition: "" })], { queueId: 450 }),
+      match([raw({ teamPosition: "TOP", gameEndedInEarlySurrender: true })]),
+    ];
+    const { total, roles } = roleStats(games, "me");
+    expect(total).toBe(3);
+    expect(Object.fromEntries(roles.map(r => [r.key, r.games]))).toEqual({ TOP: 0, JUNGLE: 0, MIDDLE: 2, BOTTOM: 0, UTILITY: 1 });
+    expect(roles.find(r => r.key === "MIDDLE").share).toBeCloseTo(2 / 3);
+  });
+
+  it("colorea el KDA como op.gg", () => {
+    expect([2.9, 3, 4.2, 5, Infinity].map(kdaTone)).toEqual(["", "kda-3", "kda-4", "kda-5", "kda-5"]);
   });
 });

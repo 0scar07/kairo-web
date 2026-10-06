@@ -24,13 +24,17 @@ export const queueLong = id => QUEUES[id]?.[1] || "Otro modo";
 const MAPS = { 11: "La Grieta del Invocador", 12: "Abismo de los Lamentos", 21: "Nexus Blitz", 30: "Arena" };
 export const mapName = id => MAPS[id] || "Mapa especial";
 
-// Filtros del historial: id de cola que se manda al backend (?queue=) y se usa para filtrar en local
+// Filtros del historial (pestañas sobre el perfil). `queues` son las colas que se dejan al filtrar en local; `queue`
+// se manda al backend (?queue=) solo cuando el filtro es de una sola cola (la API de Riot acepta una).
 export const QUEUE_FILTERS = [
-  { key: "all", label: "Todas", queue: null },
-  { key: "solo", label: "Solo/Duo", queue: 420 },
-  { key: "flex", label: "Flex", queue: 440 },
-  { key: "aram", label: "ARAM", queue: 450 },
+  { key: "all", label: "Todo", queue: null, queues: null },
+  { key: "solo", label: "Solo/Duo", queue: 420, queues: [420] },
+  { key: "flex", label: "Flex", queue: 440, queues: [440] },
+  { key: "aram", label: "ARAM", queue: null, queues: [450, 2400] },   // ARAM y ARAM: Caos
+  { key: "arena", label: "Arena", queue: null, queues: [1700, 1710, 1740, 1750] },
 ];
+
+export const matchesFilter = (filter, match) => !filter?.queues || filter.queues.includes(match.queueId);
 
 // ─── Rangos ──────────────────────────────────────────────────────────────
 export const TIERS = ["IRON", "BRONZE", "SILVER", "GOLD", "PLATINUM", "EMERALD", "DIAMOND", "MASTER", "GRANDMASTER", "CHALLENGER"];
@@ -188,6 +192,31 @@ export function championStats(matches, puuid) {
       avgDamage: Math.round(s.damage / s.games),
     }))
     .sort((x, y) => y.games - x.games || y.wr - x.wr);
+}
+
+/** Color del KDA como en op.gg: 5+ dorado, 4+ azul, 3+ verde; el resto, normal */
+export const kdaTone = v => (v >= 5 ? "kda-5" : v >= 4 ? "kda-4" : v >= 3 ? "kda-3" : "");
+
+// ─── Roles ───────────────────────────────────────────────────────────────
+export const ROLES = [
+  { key: "TOP", label: "Superior" },
+  { key: "JUNGLE", label: "Jungla" },
+  { key: "MIDDLE", label: "Central" },
+  { key: "BOTTOM", label: "Inferior" },
+  { key: "UTILITY", label: "Soporte" },
+];
+
+/** Partidas por rol (solo cuentan las que traen posición: Grieta del Invocador, sin remakes) */
+export function roleStats(matches, puuid) {
+  const counts = Object.fromEntries(ROLES.map(r => [r.key, 0]));
+  let total = 0;
+  for (const m of matches) {
+    const me = findMe(m, puuid);
+    if (!me || me.remake || !(me.position in counts)) continue;
+    counts[me.position]++;
+    total++;
+  }
+  return { total, roles: ROLES.map(r => ({ ...r, games: counts[r.key], share: total ? counts[r.key] / total : 0 })) };
 }
 
 export const formatKda = v => (v === Infinity ? "Perfecto" : `${v.toFixed(2)} : 1`);

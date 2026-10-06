@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { MATCH_PAGE_FIRST, MATCH_PAGE_MORE, getAccount, getLive, getMastery, getMatchIds, getMatches, getRankHistory, getRanked, getSummoner } from "../../api/lol";
 import { useAsync } from "../../lib/hooks";
+import { matchesFilter } from "../../lib/lol";
 
 const settle = p => p.then(data => ({ data }), error => ({ error }));
 
@@ -37,11 +38,12 @@ export function useProfile(region, gameName, tagLine) {
  * si el backend aún no soporta el parámetro devuelve todas las colas y aquí quedan solo las pedidas.
  * Cada cola guarda su propia lista para que cambiar de filtro y volver sea instantáneo.
  */
-export function useMatches(puuid, region, queue, refreshKey) {
+export function useMatches(puuid, region, filter, refreshKey) {
   const lists = useRef(new Map());   // clave de cola -> { matches, nextStart, hasMore, failed }
   const [state, setState] = useState({ matches: [], hasMore: false, loading: true, loadingMore: false, error: null, failed: 0 });
   const run = useRef(0);
-  const key = queue ?? "all";
+  const key = filter?.key ?? "all";
+  const queue = filter?.queue ?? null;
 
   // Cambiar de jugador o pulsar Actualizar borra lo guardado
   useEffect(() => { lists.current.clear(); }, [puuid, region, refreshKey]);
@@ -50,12 +52,12 @@ export function useMatches(puuid, region, queue, refreshKey) {
     const ids = await getMatchIds(puuid, region, { start, count, queue, force });
     const { matches, failed } = ids.length ? await getMatches(ids, region) : { matches: [], failed: 0 };
     return {
-      matches: queue ? matches.filter(m => m.queueId === queue) : matches,
+      matches: matches.filter(m => matchesFilter(filter, m)),
       nextStart: start + ids.length,   // cuenta los IDs recibidos, no las partidas cargadas (como la app)
       hasMore: ids.length === count,
       failed,
     };
-  }, [puuid, region, queue]);
+  }, [puuid, region, queue, filter]);
 
   useEffect(() => {
     if (!puuid) return;

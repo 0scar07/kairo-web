@@ -7,9 +7,10 @@ import { DDImg, Skeleton, StateBox } from "../components/ui";
 import { errorMessage } from "../api/client";
 import { useProfile, useMatches } from "./profile/useProfile";
 import { ChampionsCard, FlexCard, LpChart, SoloCard } from "./profile/Sidebar";
+import RecentCard from "./profile/RecentCard";
 import MatchRow from "./profile/MatchRow";
 import { REGIONS, livePath, parseRiotIdSlug, profilePath, regionBySlug } from "../lib/regions";
-import { QUEUE_FILTERS, championStats, formatKda, formatNumber, rankLabel, summarize, timeAgo } from "../lib/lol";
+import { QUEUE_FILTERS, championStats, findMe, formatNumber, rankLabel, timeAgo } from "../lib/lol";
 import { championIcon, championName, championSplash, profileIcon, useDDragon } from "../lib/ddragon";
 import { addRecent, isFavorite, toggleFavorite, updateFavorite, useFavorites } from "../lib/library";
 import { useNow, useTitle } from "../lib/hooks";
@@ -37,11 +38,22 @@ function ProfilePage({ region, gameName, tagLine }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const tab = TABS.some(t => t.key === searchParams.get("tab")) ? searchParams.get("tab") : "resumen";
   const [filter, setFilter] = useState("all");
-  const queue = QUEUE_FILTERS.find(f => f.key === filter)?.queue ?? null;
+  const filterDef = QUEUE_FILTERS.find(f => f.key === filter) || QUEUE_FILTERS[0];
+  const [champQuery, setChampQuery] = useState("");
 
   const data = profile.data;
   const puuid = data?.account?.puuid;
-  const matches = useMatches(puuid, region.id, queue, refreshKey);
+  const matches = useMatches(puuid, region.id, filterDef, refreshKey);
+
+  // Búsqueda de campeón: filtra el resumen y el historial (por el nombre en español o el de la partida)
+  const shown = useMemo(() => {
+    const q = champQuery.trim().toLowerCase();
+    if (!q) return matches.matches;
+    return matches.matches.filter(m => {
+      const me = findMe(m, puuid);
+      return me && (championName(me.championId, me.championName).toLowerCase().includes(q) || String(me.championName).toLowerCase().includes(q));
+    });
+  }, [matches.matches, champQuery, puuid]);
 
   const name = data?.account?.gameName || gameName;
   const tag = data?.account?.tagLine || tagLine;
@@ -113,18 +125,34 @@ function ProfilePage({ region, gameName, tagLine }) {
         ) : tab === "maestria" ? (
           <MasteryTab mastery={data.mastery} error={data.masteryError} />
         ) : (
-          <div className="profile-grid">
-            <aside className="profile-side">
-              <SoloCard entry={solo} error={data.rankedError} />
-              <LpChart history={data.history} soloEntry={solo} />
-              <FlexCard entry={flex} />
-              <ChampionsCard stats={championStats(matches.matches, puuid)} games={matches.matches.length} loading={matches.loading} />
-            </aside>
-            <section className="profile-main" aria-label="Historial de partidas">
-              <MatchSummary matches={matches} puuid={puuid} filter={filter} setFilter={setFilter} />
-              <MatchList matches={matches} puuid={puuid} region={region.slug} queue={queue} />
-            </section>
-          </div>
+          <>
+            <nav className="queue-tabs" aria-label="Filtrar por cola">
+              {QUEUE_FILTERS.map(f => (
+                <button key={f.key} type="button" className={`queue-tab${filter === f.key ? " active" : ""}`} aria-pressed={filter === f.key} onClick={() => setFilter(f.key)}>
+                  {f.label}
+                </button>
+              ))}
+            </nav>
+            <div className="profile-grid">
+              <aside className="profile-side">
+                <SoloCard entry={solo} error={data.rankedError} history={data.history} />
+                <FlexCard entry={flex} history={data.history} />
+                <LpChart history={data.history} soloEntry={solo} />
+                <ChampionsCard stats={championStats(shown, puuid)} games={shown.length} loading={matches.loading} />
+              </aside>
+              <section className="profile-main" aria-label="Historial de partidas">
+                <RecentCard
+                  matches={shown}
+                  puuid={puuid}
+                  loading={matches.loading}
+                  query={champQuery}
+                  setQuery={setChampQuery}
+                  queueLabel={filterDef.queue || filterDef.queues ? filterDef.label : null}
+                />
+                <MatchList matches={matches} list={shown} puuid={puuid} region={region.slug} filtered={Boolean(filterDef.queues)} searching={Boolean(champQuery.trim())} />
+              </section>
+            </div>
+          </>
         )}
       </div>
     </Layout>
@@ -205,36 +233,7 @@ function ProfileSplash({ src }) {
 }
 
 // ─── Resumen e historial ──────────────────────────────────────────────────
-function MatchSummary({ matches, puuid, filter, setFilter }) {
-  const s = summarize(matches.matches, puuid);
-  return (
-    <div className="card summary reveal" style={{ "--i": 0 }}>
-      <div className="summary-block">
-        <p className="eyebrow">{matches.loading ? "Últimas partidas" : `Últimas ${matches.matches.length} partidas`}</p>
-        {matches.loading ? <Skeleton w={120} h={22} /> : (
-          <strong className="summary-big num">
-            {s ? <>{s.wins}V {s.losses}D · <span className={s.wr >= 50 ? "win" : "loss"}><CountUp value={s.wr} suffix="%" /></span></> : "—"}
-          </strong>
-        )}
-      </div>
-      <div className="summary-block">
-        <span className="summary-label">KDA medio</span>
-        {matches.loading ? <Skeleton w={70} h={16} /> : <strong className="summary-val num">{!s ? "—" : s.kda === Infinity ? formatKda(s.kda) : <CountUp value={s.kda} decimals={2} suffix=" : 1" />}</strong>}
-      </div>
-      <div className="summary-block">
-        <span className="summary-label">Participación</span>
-        {matches.loading ? <Skeleton w={50} h={16} /> : <strong className="summary-val num">{s ? <CountUp value={s.kp} suffix="%" /> : "—"}</strong>}
-      </div>
-      <div className="segmented summary-filters" role="group" aria-label="Filtrar por cola">
-        {QUEUE_FILTERS.map(f => (
-          <button key={f.key} type="button" aria-pressed={filter === f.key} onClick={() => setFilter(f.key)}>{f.label}</button>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function MatchList({ matches, puuid, region, queue }) {
+function MatchList({ matches, list, puuid, region, filtered, searching }) {
   if (matches.loading) {
     return <div className="match-list">{[0, 1, 2, 3, 4].map(i => <div key={i} className="match match-skeleton"><Skeleton h={66} r={14} /></div>)}</div>;
   }
@@ -243,11 +242,13 @@ function MatchList({ matches, puuid, region, queue }) {
       <div className="card"><StateBox compact tone="error" title="No se pudo cargar el historial">{errorMessage(matches.error)}</StateBox></div>
     );
   }
-  if (!matches.matches.length) {
+  if (!list.length) {
     return (
       <div className="card">
-        <StateBox compact icon="swords" title={queue ? "Sin partidas de esta cola" : "Sin partidas recientes"}>
-          {queue
+        <StateBox compact icon="swords" title={searching ? "Sin partidas con ese campeón" : filtered ? "Sin partidas de esta cola" : "Sin partidas recientes"}>
+          {searching
+            ? "No hay partidas con ese campeón entre las cargadas."
+            : filtered
             ? (matches.hasMore ? "No hay partidas de esta cola entre las cargadas. Prueba con «Cargar más partidas»." : "No encontramos partidas de esta cola.")
             : "Este jugador no tiene partidas recientes."}
         </StateBox>
@@ -257,7 +258,7 @@ function MatchList({ matches, puuid, region, queue }) {
   }
   return (
     <div className="match-list">
-      {matches.matches.map((m, i) => <MatchRow key={m.id} match={m} puuid={puuid} region={region} index={i} />)}
+      {list.map((m, i) => <MatchRow key={m.id} match={m} puuid={puuid} region={region} index={i} />)}
       {matches.failed > 0 && <p className="list-note faint">{matches.failed === 1 ? "Una partida no se pudo cargar." : `${matches.failed} partidas no se pudieron cargar.`}</p>}
       {matches.error && <p className="list-note loss" role="alert">{errorMessage(matches.error)}</p>}
       {matches.hasMore && <LoadMore matches={matches} />}
