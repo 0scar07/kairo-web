@@ -24,7 +24,7 @@ Las rutas de la tabla son relativas a la base `/kairo-web/` (ver *Despliegue*).
 
 ## Correr en local
 
-Requisitos: Node 18 o más nuevo.
+Requisitos: Node 20 o más nuevo (el despliegue usa Node 22, ver `.nvmrc`).
 
 ```bash
 npm install
