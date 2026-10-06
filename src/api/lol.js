@@ -76,7 +76,14 @@ export const getLive = (puuid, region, force) =>
  */
 export async function getLeaderboard(region, limit = 10) {
   try {
-    return await get("/lol/leaderboard", { params: { region, queue: "RANKED_SOLO_5x5", limit }, ttl: TTL.leaderboard, persist: true });
+    // Si el backend no pudo traer el Riot ID de alguien (Riot limitó las consultas), la lista se muestra pero no se
+    // guarda: la próxima visita la vuelve a pedir en vez de dejar jugadores sin nombre durante 10 minutos
+    return await get("/lol/leaderboard", {
+      params: { region, queue: "RANKED_SOLO_5x5", limit },
+      ttl: TTL.leaderboard,
+      persist: true,
+      cacheIf: rows => Array.isArray(rows) && rows.every(r => r.gameName),
+    });
   } catch (e) {
     if (e instanceof ApiError && e.status === 404 && e.code === "ROUTE_NOT_FOUND") return null;
     throw e;

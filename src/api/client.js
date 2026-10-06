@@ -74,9 +74,10 @@ async function fetchWithWake(url) {
  *   ttl: ms de caché (0 = sin caché) · persist: también en localStorage (sobrevive a recargar)
  *   force: ignora lo guardado (botón Actualizar) · map: transforma la respuesta antes de guardarla
  *   version: se suma a la clave de caché (cambiarla invalida lo guardado con un `map` anterior)
+ *   cacheIf: si devuelve false para la respuesta, se usa pero no se guarda (p. ej. una respuesta incompleta)
  * Devuelve { data, at } (at = cuándo se obtuvo el dato).
  */
-export async function request(path, { params, ttl = 0, persist = false, force = false, map, version } = {}) {
+export async function request(path, { params, ttl = 0, persist = false, force = false, map, version, cacheIf } = {}) {
   const url = buildUrl(path, params);
   const key = url.slice(API_URL.length) + (version ? `#v${version}` : "");
 
@@ -94,7 +95,7 @@ export async function request(path, { params, ttl = 0, persist = false, force = 
   const promise = fetchWithWake(url).then(raw => {
     const data = map ? map(raw) : raw;
     const at = Date.now();
-    if (ttl > 0) {
+    if (ttl > 0 && (!cacheIf || cacheIf(data))) {
       memory.set(key, { at, exp: at + ttl, data });
       if (persist) cacheWrite(key, data, ttl);
     }

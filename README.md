@@ -105,7 +105,7 @@ Para el backend local: `cd server && npm install && npm start` en el repo de Kai
 | `npm run build` | Build de producción en `dist/` (con `404.html` y `.nojekyll`) |
 | `npm run preview` | Sirve el build en local |
 | `npm run lint` | ESLint (reglas de React Hooks incluidas) |
-| `npm test` | Pruebas con Vitest (29): Riot ID en la URL, rangos, KDA, partidas, filtros de cola, roles y sugerencias |
+| `npm test` | Pruebas con Vitest (32): caché del cliente, Riot ID en la URL, rangos, KDA, partidas, filtros de cola, roles y sugerencias |
 | `npm run check` | Lint, pruebas y build: lo mismo que corre la CI |
 
 ## Despliegue

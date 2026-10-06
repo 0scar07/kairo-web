@@ -214,7 +214,7 @@ function LadderTable({ rows, region }) {
             ))
             : rows.map((p, i) => {
               const wr = winrate(p.wins, p.losses) ?? 0;
-              const name = p.gameName ? `${p.gameName}#${p.tagLine}` : "Jugador oculto";
+              const name = p.gameName ? `${p.gameName}#${p.tagLine}` : "Nombre no disponible";
               return (
                 <tr key={p.puuid || i} className="reveal" style={{ "--i": i }}>
                   <td className={`col-pos num${i < 3 ? " top" : ""}`}>{i + 1}</td>
