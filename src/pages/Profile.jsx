@@ -10,7 +10,7 @@ import MatchRow from "./profile/MatchRow";
 import { REGIONS, livePath, parseRiotIdSlug, profilePath, regionBySlug } from "../lib/regions";
 import { QUEUE_FILTERS, championStats, formatKda, formatNumber, rankLabel, summarize, timeAgo } from "../lib/lol";
 import { championIcon, championName, championSplash, profileIcon, useDDragon } from "../lib/ddragon";
-import { addRecent, isFavorite, toggleFavorite, useFavorites } from "../lib/library";
+import { addRecent, isFavorite, toggleFavorite, updateFavorite, useFavorites } from "../lib/library";
 import { useNow, useTitle } from "../lib/hooks";
 import { NotFound } from "./Misc";
 
@@ -58,15 +58,19 @@ function ProfilePage({ region, gameName, tagLine }) {
   const flex = data?.ranked.find(r => r.queueType === "RANKED_FLEX_SR") || null;
 
   // Guarda la búsqueda en recientes en cuanto el perfil carga
+  // y refresca el ícono y el rango guardados si es favorito (los usa el autocompletado del buscador)
   useEffect(() => {
     if (!data) return;
+    const rank = solo ? rankLabel(solo.tier, solo.rank) : null;
+    const player = { region: region.slug, gameName: data.account.gameName, tagLine: data.account.tagLine };
     addRecent({
       game: "lol",
-      region: region.slug,
-      gameName: data.account.gameName,
-      tagLine: data.account.tagLine,
-      subtitle: `League of Legends · ${solo ? rankLabel(solo.tier, solo.rank) : `Nivel ${data.summoner.summonerLevel}`}`,
+      ...player,
+      iconId: data.summoner.profileIconId ?? null,
+      rank,
+      subtitle: `League of Legends · ${rank || `Nivel ${data.summoner.summonerLevel}`}`,
     });
+    updateFavorite(player, { ...player, puuid: data.account.puuid, iconId: data.summoner.profileIconId ?? null, rank });
   }, [data, region.slug, solo]);
 
   const refresh = () => { profile.reload(true); setRefreshKey(k => k + 1); };
@@ -96,6 +100,7 @@ function ProfilePage({ region, gameName, tagLine }) {
         setTab={setTab}
         inGame={Boolean(data?.live?.inGame)}
         splash={splashChamp ? championSplash(splashChamp.id, splashChamp.key) : null}
+        soloRank={solo ? rankLabel(solo.tier, solo.rank) : null}
       />
 
       <div className="container profile-body">
@@ -126,7 +131,7 @@ function ProfilePage({ region, gameName, tagLine }) {
 }
 
 // ─── Cabecera ─────────────────────────────────────────────────────────────
-function ProfileHeader({ loading, name, tag, region, summoner, updatedAt, refreshing, onRefresh, puuid, tab, setTab, inGame, splash }) {
+function ProfileHeader({ loading, name, tag, region, summoner, updatedAt, refreshing, onRefresh, puuid, tab, setTab, inGame, splash, soloRank }) {
   const now = useNow(30_000);
   const favorites = useFavorites();
   const player = { region: region.slug, gameName: name, tagLine: tag };
@@ -159,7 +164,7 @@ function ProfileHeader({ loading, name, tag, region, summoner, updatedAt, refres
               aria-pressed={fav}
               aria-label={fav ? "Quitar de favoritos" : "Añadir a favoritos"}
               title={fav ? "Quitar de favoritos" : "Añadir a favoritos"}
-              onClick={() => toggleFavorite({ ...player, puuid, iconId: summoner?.profileIconId ?? null })}
+              onClick={() => toggleFavorite({ ...player, puuid, iconId: summoner?.profileIconId ?? null, rank: soloRank })}
             >
               <Icon name="star" size={16} filled={fav} />
             </button>

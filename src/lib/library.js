@@ -32,10 +32,18 @@ const sameId = (a, b) => a.region === b.region
   && a.gameName.toLowerCase() === b.gameName.toLowerCase()
   && a.tagLine.toLowerCase() === b.tagLine.toLowerCase();
 
-// ─── Favoritos: { region (slug), gameName, tagLine, puuid, iconId } ─────
+// ─── Favoritos: { region (slug), gameName, tagLine, puuid, iconId, rank } ─────
 const favorites = createList(FAVORITES_KEY);
 export const useFavorites = favorites.use;
 export const isFavorite = (list, player) => list.some(f => sameId(f, player));
+
+/** Actualiza los datos guardados de un favorito (ícono, rango, nombre con mayúsculas correctas) si existe */
+export function updateFavorite(player, patch) {
+  const list = favorites.get();
+  if (!isFavorite(list, player)) return;
+  const next = list.map(f => (sameId(f, player) ? { ...f, ...patch } : f));
+  if (JSON.stringify(next) !== JSON.stringify(list)) favorites.set(next);
+}
 
 export function toggleFavorite(player) {
   const list = favorites.get();
@@ -43,7 +51,7 @@ export function toggleFavorite(player) {
   else favorites.set([{ ...player, addedAt: Date.now() }, ...list].slice(0, MAX_FAVORITES));
 }
 
-// ─── Recientes: { game, region, gameName, tagLine, subtitle } ──────────
+// ─── Recientes: { game, region, gameName, tagLine, subtitle, iconId, rank } ──────────
 const recents = createList(RECENTS_KEY);
 export const useRecents = recents.use;
 
@@ -53,3 +61,31 @@ export function addRecent(entry) {
 }
 
 export const clearRecents = () => recents.set([]);
+
+/**
+ * Sugerencias del buscador: favoritos primero y luego recientes (sin repetir), filtrados por lo escrito.
+ * Cada una: { key, favorite, region, gameName, tagLine, iconId, rank }
+ */
+export function suggestions(favoriteList, recentList, query, limit = 8) {
+  const q = String(query || "").trim().toLowerCase();
+  const out = [];
+  const seen = new Set();
+  const keyOf = p => `${p.region}:${p.gameName}#${p.tagLine}`.toLowerCase();
+  // Un favorito guardado antes de que existiera el ícono o el rango los toma de su búsqueda reciente
+  const recentByKey = new Map(recentList.map(r => [keyOf(r), r]));
+  const push = (p, favorite) => {
+    const key = keyOf(p);
+    if (seen.has(key)) return;
+    if (q && !`${p.gameName}#${p.tagLine}`.toLowerCase().includes(q)) return;
+    seen.add(key);
+    const recent = recentByKey.get(key);
+    out.push({
+      key, favorite, region: p.region, gameName: p.gameName, tagLine: p.tagLine,
+      iconId: p.iconId ?? recent?.iconId ?? null,
+      rank: p.rank || recent?.rank || null,
+    });
+  };
+  favoriteList.forEach(f => push(f, true));
+  recentList.filter(r => r.game === "lol").forEach(r => push(r, false));
+  return out.slice(0, limit);
+}

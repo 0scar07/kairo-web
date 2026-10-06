@@ -1,34 +1,82 @@
-import { useState } from "react";
+import { useId, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Icon from "./Icon";
+import { DDImg } from "./ui";
 import { DEFAULT_REGION, REGIONS, parseRiotId, profilePath, regionBySlug } from "../lib/regions";
 import { readJSON, writeJSON } from "../lib/storage";
+import { suggestions, useFavorites, useRecents } from "../lib/library";
+import { profileIcon } from "../lib/ddragon";
 
 const REGION_PREF = "kairo:region";
 
 export const savedRegion = () => regionBySlug(readJSON(REGION_PREF)) || DEFAULT_REGION;
 
 /**
- * Buscador de jugadores: región + "Nombre#TAG".
+ * Buscador de jugadores: región + "Nombre#TAG", con autocompletado de favoritos y búsquedas recientes.
  *   size="large" (portada) o "compact" (header del perfil)
+ * Accesible como combobox (patrón ARIA 1.2): flechas para moverse, Enter para abrir, Esc para cerrar.
  */
 export default function SearchForm({ size = "large", initialRegion, autoFocus = false }) {
   const navigate = useNavigate();
+  const uid = useId();
+  const listId = `${uid}-list`;
   const [region, setRegion] = useState(() => initialRegion || savedRegion().slug);
   const [text, setText] = useState("");
   const [error, setError] = useState("");
+  const [open, setOpen] = useState(false);
+  const [active, setActive] = useState(-1);
+  const formRef = useRef(null);
+
+  const favorites = useFavorites();
+  const recents = useRecents();
+  const options = useMemo(() => suggestions(favorites, recents, text), [favorites, recents, text]);
+  const expanded = open && options.length > 0;
+
+  const close = () => { setOpen(false); setActive(-1); };
+
+  function go(gameName, tagLine, regionSlug) {
+    setError("");
+    setText("");
+    close();
+    writeJSON(REGION_PREF, regionSlug);
+    navigate(profilePath(regionSlug, gameName, tagLine));
+  }
 
   function submit(e) {
     e.preventDefault();
+    if (expanded && active >= 0) {
+      const o = options[active];
+      go(o.gameName, o.tagLine, o.region);
+      return;
+    }
     const id = parseRiotId(text);
     if (!id) {
       setError(text.trim() ? "Falta el #TAG. Escribe el Riot ID completo, por ejemplo Faker#KR1." : "Escribe un Riot ID, por ejemplo Faker#KR1.");
       return;
     }
-    setError("");
-    writeJSON(REGION_PREF, region);
-    setText("");
-    navigate(profilePath(region, id.gameName, id.tagLine));
+    go(id.gameName, id.tagLine, region);
+  }
+
+  function onKeyDown(e) {
+    if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+      if (!options.length) return;
+      e.preventDefault();
+      if (!open) { setOpen(true); setActive(e.key === "ArrowDown" ? 0 : options.length - 1); return; }
+      const step = e.key === "ArrowDown" ? 1 : -1;
+      setActive(i => (i + step + options.length) % options.length);
+    } else if (e.key === "Escape") {
+      if (expanded) { e.preventDefault(); close(); }
+      else if (text) { e.preventDefault(); setText(""); }
+    } else if (e.key === "Home" && expanded && active >= 0) {
+      e.preventDefault(); setActive(0);
+    } else if (e.key === "End" && expanded && active >= 0) {
+      e.preventDefault(); setActive(options.length - 1);
+    }
+  }
+
+  // Se cierra al salir del buscador (pero no al pulsar una sugerencia, que está dentro del formulario)
+  function onBlur(e) {
+    if (!formRef.current?.contains(e.relatedTarget)) close();
   }
 
   const regionSelect = (
@@ -41,8 +89,10 @@ export default function SearchForm({ size = "large", initialRegion, autoFocus = 
     </label>
   );
 
+  const optionId = i => `${uid}-opt-${i}`;
+
   return (
-    <form className={`search search-${size}`} onSubmit={submit} role="search" noValidate>
+    <form ref={formRef} className={`search search-${size}`} onSubmit={submit} onBlur={onBlur} role="search" noValidate>
       <div className="search-box">
         {size === "compact" && <Icon name="search" size={16} className="search-lead" />}
         {size === "large" && regionSelect}
@@ -50,14 +100,22 @@ export default function SearchForm({ size = "large", initialRegion, autoFocus = 
           <span className="sr-only">Riot ID</span>
           <input
             type="text"
+            role="combobox"
+            aria-autocomplete="list"
+            aria-expanded={expanded}
+            aria-controls={listId}
+            aria-activedescendant={expanded && active >= 0 ? optionId(active) : undefined}
             value={text}
-            onChange={e => { setText(e.target.value); if (error) setError(""); }}
+            onChange={e => { setText(e.target.value); setOpen(true); setActive(-1); if (error) setError(""); }}
+            onFocus={() => setOpen(true)}
+            onClick={() => setOpen(true)}
+            onKeyDown={onKeyDown}
             placeholder={size === "large" ? "Nombre#TAG" : "Buscar otro jugador · Nombre#TAG"}
             autoComplete="off"
             spellCheck="false"
             autoFocus={autoFocus}
             aria-invalid={Boolean(error)}
-            aria-describedby={error ? `search-error-${size}` : undefined}
+            aria-describedby={error ? `${uid}-error` : undefined}
           />
         </label>
         {size === "compact" && regionSelect}
@@ -67,7 +125,38 @@ export default function SearchForm({ size = "large", initialRegion, autoFocus = 
           </button>
         )}
       </div>
-      {error && <p className="search-error" id={`search-error-${size}`} role="alert">{error}</p>}
+
+      <ul id={listId} role="listbox" aria-label="Sugerencias: favoritos y búsquedas recientes" className="suggest" hidden={!expanded}>
+        {expanded && options.map((o, i) => {
+          const r = regionBySlug(o.region);
+          return (
+            <li
+              key={o.key}
+              id={optionId(i)}
+              role="option"
+              aria-selected={i === active}
+              className={`suggest-item${i === active ? " active" : ""}`}
+              onMouseDown={e => e.preventDefault()}   // no quitar el foco del input
+              onMouseEnter={() => setActive(i)}
+              onClick={() => go(o.gameName, o.tagLine, o.region)}
+            >
+              <DDImg src={o.iconId != null ? profileIcon(o.iconId) : null} size={28} alt="" />
+              <span className="suggest-text">
+                <span className="suggest-name">{o.gameName}<span className="faint">#{o.tagLine}</span></span>
+                <span className="suggest-sub">{[r?.label, o.rank || "League of Legends"].filter(Boolean).join(" · ")}</span>
+              </span>
+              {o.favorite
+                ? <Icon name="star" size={14} filled className="suggest-star" title="Favorito" />
+                : <Icon name="history" size={14} className="faint" title="Búsqueda reciente" />}
+            </li>
+          );
+        })}
+      </ul>
+      <span className="sr-only" role="status" aria-live="polite">
+        {expanded ? `${options.length} ${options.length === 1 ? "sugerencia" : "sugerencias"}. Usa las flechas para elegir.` : ""}
+      </span>
+
+      {error && <p className="search-error" id={`${uid}-error`} role="alert">{error}</p>}
     </form>
   );
 }
