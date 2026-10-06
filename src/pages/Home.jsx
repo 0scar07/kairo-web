@@ -5,7 +5,7 @@ import SearchForm from "../components/SearchForm";
 import Icon from "../components/Icon";
 import { DDImg, Initials, RankEmblem, Skeleton, StateBox } from "../components/ui";
 import GameLogo from "../components/GameLogo";
-import HeroArt from "./home/HeroArt";
+import HeroShowcase from "./home/HeroShowcase";
 import GameCards from "./home/GameCards";
 import { getLeaderboard, getProfileIconId } from "../api/lol";
 import { errorMessage } from "../api/client";
@@ -27,8 +27,8 @@ export default function Home() {
           <div className="hero-grid" />
           <div className="hero-glow" />
         </div>
-        <HeroArt />
         <div className="container hero-inner">
+          <HeroShowcase />
           <p className="eyebrow hero-eyebrow">Estadísticas de 9 juegos en un solo lugar</p>
           <h1 className="hero-title">Cada partida cuenta.</h1>
           <p className="hero-sub">Busca cualquier jugador y mira su rango, su historial y su partida en vivo.</p>

@@ -115,12 +115,6 @@ export function championSplash(championId, championKey) {
   } : null;
 }
 
-/** Arte vertical de carga del campeón (308x560, liviano): lo usan las tarjetas del hero */
-export function championLoading(championId) {
-  const key = champs[championId]?.id;
-  return key ? `${CDN}/cdn/img/champion/loading/${key}_0.jpg` : null;
-}
-
 export const itemIcon = id => (id ? img(`item/${id}.png`) : null);
 export const itemName = id => items[id] || "";
 export const profileIcon = id => (id || id === 0 ? img(`profileicon/${id}.png`) : null);

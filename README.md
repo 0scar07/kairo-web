@@ -49,7 +49,7 @@ Busca a cualquier jugador de **League of Legends** y mira su rango, su historial
 - Buscador compacto, una campanita con los favoritos que están jugando ahora y el enlace a GitHub.
 
 **Inicio**
-- Arte animado alrededor del título: los campeones de la **rotación gratuita de la semana** flotan con destellos, siempre en movimiento.
+- Logotipo animado: "KAIRO" de mosaicos con un degradado que corre y destellos, con personajes de varios juegos (Lux, el Bárbaro, Leon y Pengu) bailando delante, siempre en movimiento.
 - Carrusel de pósters de los 9 juegos. En League of Legends, Lux sobresale por encima de la tarjeta (splash de Data Dragon recortado con rembg, `scripts/poster-art.py`) y respira en reposo; al pasar el mouse la tarjeta sube, se inclina y el personaje crece más que el fondo. TFT (Pengu, de Data Dragon) y Brawl Stars, Clash Royale y Clash of Clans (Leon, el Caballero y el Bárbaro, del [Fan Kit oficial de Supercell](https://fankit.supercell.com/)) también tienen personaje, generado con `scripts/poster-cutouts.py`. Fortnite, Apex Legends, Dota 2 y PUBG usan un fondo gráfico propio con su color y su logo, mientras no haya arte con permiso. Se maneja con flechas, teclado y el dedo.
 - Buscador grande con región (LAN, LAS, NA, EUW, KR, BR) y `Nombre#TAG`. Autocompleta con tus favoritos y búsquedas recientes, con ícono, Riot ID y rango, y se maneja con el teclado (flechas, Enter, Esc).
 - *Tus favoritos en partida*: qué favoritos están jugando ahora, con campeón, cola y cronómetro. Se revisa cada minuto.
@@ -59,7 +59,8 @@ Busca a cualquier jugador de **League of Legends** y mira su rango, su historial
 - Cabecera con ícono, nivel y el splash del campeón más jugado de fondo. Botones Actualizar y Favorito.
 - Pestañas de cola al estilo op.gg: Todo, Solo/Duo, Flex, ARAM (incluye ARAM: Caos) y Arena.
 - Tarjetas de rango Solo/Dúo y flexible con el emblema y el color de la liga, victorias, derrotas, winrate y el *mejor nivel* de los últimos 30 días cuando supera al actual.
-- **Partidas recientes**: dona de winrate, K/D/A medio, KDA, participación en kills, los 3 campeones más jugados con su récord y el rol preferido. Tiene búsqueda por campeón.
+- **Tu última partida**: el splash del campeón de fondo, resultado, K/D/A, CS por minuto, daño (y % del equipo), oro, visión, participación, objetos e insignias (Pentakill, Sin morir, Más daño del equipo, Primera sangre…). Al lado, la **forma reciente**: las últimas 20 partidas como una tira de resultados, la racha actual, el KDA medio y el rol principal.
+- Búsqueda por campeón en la barra del historial.
 - Gráfico de LP de 30 días y campeones de las partidas cargadas.
 - Historial con resultado, campeón, hechizos, runas, K/D/A, KDA, CS por minuto, participación, objetos y tiempo. El detalle muestra los 10 jugadores. Botón "Cargar más".
 - Pestañas Campeones (tabla completa) y Maestría (top 10).
@@ -105,7 +106,7 @@ Para el backend local: `cd server && npm install && npm start` en el repo de Kai
 | `npm run build` | Build de producción en `dist/` (con `404.html` y `.nojekyll`) |
 | `npm run preview` | Sirve el build en local |
 | `npm run lint` | ESLint (reglas de React Hooks incluidas) |
-| `npm test` | Pruebas con Vitest (32): caché del cliente, Riot ID en la URL, rangos, KDA, partidas, filtros de cola, roles y sugerencias |
+| `npm test` | Pruebas con Vitest (35): caché del cliente, insignias y racha, Riot ID en la URL, rangos, KDA, partidas, filtros de cola, roles y sugerencias |
 | `npm run check` | Lint, pruebas y build: lo mismo que corre la CI |
 
 ## Despliegue
@@ -167,7 +168,6 @@ La web usa estos endpoints de `server/` del repo de Kairo:
 | `GET /lol/mastery/:puuid?count=10` | Pestaña Maestría |
 | `GET /lol/live/:puuid` | Partida en vivo y favoritos en partida |
 | `GET /lol/leaderboard?region&queue&limit` | Clasificación Challenger: `[{ puuid, gameName, tagLine, leaguePoints, wins, losses }]` |
-| `GET /lol/rotation?region` | Rotación gratuita (arte del hero) |
 | `GET /health` | Saber si el servidor está despierto |
 
 El parámetro `queue` de `/lol/matches` **todavía no existe** en el backend: mientras tanto, los filtros de cola trabajan sobre las partidas ya cargadas, y cuando el backend lo agregue la web lo usa sola. Si el backend no tuviera `/lol/leaderboard` (por ejemplo, una versión vieja), la clasificación muestra "Disponible pronto" en vez de un error.

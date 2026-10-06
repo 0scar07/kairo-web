@@ -134,6 +134,10 @@ export function compactMatch(m) {
       keystone: p.perks?.styles?.[0]?.selections?.[0]?.perk ?? null,
       secondary: p.perks?.styles?.[1]?.style ?? null,
       placement: p.subteamPlacement || p.placement || null,
+      // Para las insignias de la última partida
+      multikill: p.largestMultiKill || 0,
+      firstBlood: Boolean(p.firstBloodKill),
+      turrets: p.turretKills || 0,
     })),
   };
 }
@@ -192,6 +196,51 @@ export function championStats(matches, puuid) {
       avgDamage: Math.round(s.damage / s.games),
     }))
     .sort((x, y) => y.games - x.games || y.wr - x.wr);
+}
+
+const MULTIKILL = { 2: "Doble kill", 3: "Triple kill", 4: "Quadra kill", 5: "Pentakill" };
+
+/**
+ * Lo destacado de una partida para la tarjeta "Tu última partida": porción del daño del equipo y hasta 3 insignias,
+ * de la más rara a la más común. Devuelve null si el jugador no está en la partida.
+ */
+export function matchHighlights(match, puuid) {
+  const me = findMe(match, puuid);
+  if (!me) return null;
+  const team = match.participants.filter(p => p.teamId === me.teamId);
+  const teamDamage = team.reduce((s, p) => s + p.damage, 0);
+  const minutes = match.duration / 60;
+  const badges = [];
+  if (!me.remake) {
+    if (me.multikill >= 3) badges.push({ key: "multi", label: MULTIKILL[Math.min(me.multikill, 5)], tone: "gold" });
+    if (me.deaths === 0 && me.kills + me.assists > 0) badges.push({ key: "deathless", label: "Sin morir", tone: "brand" });
+    if (team.length > 1 && me.damage > 0 && me.damage >= Math.max(...team.map(p => p.damage))) badges.push({ key: "damage", label: "Más daño del equipo", tone: "red" });
+    if (team.length > 1 && me.kills > 0 && me.kills >= Math.max(...team.map(p => p.kills))) badges.push({ key: "kills", label: "Más kills del equipo", tone: "red" });
+    if (me.firstBlood) badges.push({ key: "fb", label: "Primera sangre", tone: "red" });
+    if (me.multikill === 2) badges.push({ key: "double", label: MULTIKILL[2], tone: "blue" });
+    if (me.turrets >= 2) badges.push({ key: "turrets", label: `${me.turrets} torres`, tone: "blue" });
+    if (minutes > 0 && me.cs / minutes >= 8) badges.push({ key: "cs", label: `${(me.cs / minutes).toFixed(1)} CS/min`, tone: "brand" });
+  }
+  return {
+    me,
+    damageShare: teamDamage > 0 ? Math.round((me.damage / teamDamage) * 100) : 0,
+    csMin: minutes > 0 ? me.cs / minutes : 0,
+    kp: killParticipation(match, me),
+    badges: badges.slice(0, 3),
+  };
+}
+
+/** Racha actual (victorias o derrotas seguidas desde la partida más reciente, sin contar remakes) */
+export function currentStreak(matches, puuid) {
+  let win = null, count = 0;
+  for (const m of matches) {
+    const me = findMe(m, puuid);
+    if (!me || me.remake) continue;
+    if (win === null) win = me.win;
+    if (me.win !== win) break;
+    count++;
+  }
+  return win === null ? null : { win, count };
 }
 
 /** Color del KDA como en op.gg: 5+ dorado, 4+ azul, 3+ verde; el resto, normal */

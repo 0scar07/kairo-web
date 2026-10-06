@@ -7,7 +7,7 @@ import { DDImg, Skeleton, StateBox } from "../components/ui";
 import { errorMessage } from "../api/client";
 import { useProfile, useMatches } from "./profile/useProfile";
 import { ChampionsCard, FlexCard, LpChart, SoloCard } from "./profile/Sidebar";
-import RecentCard from "./profile/RecentCard";
+import LastMatchCard from "./profile/LastMatchCard";
 import MatchRow from "./profile/MatchRow";
 import { REGIONS, livePath, parseRiotIdSlug, profilePath, regionBySlug } from "../lib/regions";
 import { QUEUE_FILTERS, championStats, findMe, formatNumber, rankLabel, timeAgo } from "../lib/lol";
@@ -141,14 +141,15 @@ function ProfilePage({ region, gameName, tagLine }) {
                 <ChampionsCard stats={championStats(shown, puuid)} games={shown.length} loading={matches.loading} />
               </aside>
               <section className="profile-main" aria-label="Historial de partidas">
-                <RecentCard
-                  matches={shown}
-                  puuid={puuid}
-                  loading={matches.loading}
-                  query={champQuery}
-                  setQuery={setChampQuery}
-                  queueLabel={filterDef.queue || filterDef.queues ? filterDef.label : null}
-                />
+                <LastMatchCard matches={shown} puuid={puuid} loading={matches.loading} />
+                <div className="history-bar">
+                  <h2>Historial <span className="faint num">{matches.loading ? "" : `${shown.length} partidas`}</span></h2>
+                  <label className="champ-search">
+                    <Icon name="search" size={15} />
+                    <span className="sr-only">Buscar un campeón</span>
+                    <input type="search" value={champQuery} onChange={e => setChampQuery(e.target.value)} placeholder="Busca un campeón" autoComplete="off" spellCheck="false" />
+                  </label>
+                </div>
                 <MatchList matches={matches} list={shown} puuid={puuid} region={region.slug} filtered={Boolean(filterDef.queues)} searching={Boolean(champQuery.trim())} />
               </section>
             </div>

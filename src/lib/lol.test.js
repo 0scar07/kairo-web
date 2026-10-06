@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  QUEUE_FILTERS, championStats, compactMatch, formatDuration, kdaText, kdaTone, killParticipation, matchesFilter,
+  QUEUE_FILTERS, championStats, compactMatch, currentStreak, matchHighlights, formatDuration, kdaText, kdaTone, killParticipation, matchesFilter,
   queueLong, queueShort, rankFromScore, rankLabel, rankScore, rankShort, roleStats, summarize, timeAgo, winrate,
 } from "./lol";
 
@@ -156,5 +156,34 @@ describe("filtros de cola y roles", () => {
 
   it("colorea el KDA como op.gg", () => {
     expect([2.9, 3, 4.2, 5, Infinity].map(kdaTone)).toEqual(["", "kda-3", "kda-4", "kda-5", "kda-5"]);
+  });
+});
+
+describe("última partida", () => {
+  it("matchHighlights calcula la porción de daño y prioriza las insignias más raras", () => {
+    const m = match([
+      raw({ kills: 12, deaths: 0, assists: 5, largestMultiKill: 5, firstBloodKill: true, totalDamageDealtToChampions: 30000 }),
+      raw({ puuid: "ally", kills: 3, totalDamageDealtToChampions: 10000 }),
+      raw({ puuid: "enemy", teamId: 200, win: false }),
+    ]);
+    const h = matchHighlights(m, "me");
+    expect(h.damageShare).toBe(75);
+    expect(h.badges.map(b => b.label)).toEqual(["Pentakill", "Sin morir", "Más daño del equipo"]);   // máximo 3
+  });
+
+  it("un remake no tiene insignias y un jugador ajeno da null", () => {
+    expect(matchHighlights(match([raw({ gameEndedInEarlySurrender: true })]), "me").badges).toEqual([]);
+    expect(matchHighlights(match([raw()]), "otro")).toBeNull();
+  });
+
+  it("currentStreak cuenta desde la más reciente y salta los remakes", () => {
+    const games = [
+      match([raw({ win: true })]),
+      match([raw({ win: false, gameEndedInEarlySurrender: true })]),
+      match([raw({ win: true })]),
+      match([raw({ win: false })]),
+    ];
+    expect(currentStreak(games, "me")).toEqual({ win: true, count: 2 });
+    expect(currentStreak([], "me")).toBeNull();
   });
 });
