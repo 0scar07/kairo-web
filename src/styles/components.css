@@ -93,7 +93,9 @@
 .game-pill .icon-chev { color: var(--text-2); }
 
 /* Navegación principal */
-.header-nav { display: flex; align-items: center; gap: 2px; flex: 1; min-width: 0; }
+/* La navegación nunca se encoge (si se encogiera, sus enlaces quedarían debajo del buscador): lo que se adapta es
+   el buscador, y si ni así cabe todo, la navegación baja a su propia fila (ver el @media de 1240px). */
+.header-nav { display: flex; align-items: center; gap: 2px; flex: none; }
 .nav-item {
   position: relative;
   display: inline-flex;
@@ -134,9 +136,9 @@
 }
 
 /* Herramientas de la derecha */
-.header-tools { display: flex; align-items: center; gap: 6px; flex: none; }
-.header-search { width: 280px; flex: none; }
-.header-nav + .header-tools { margin-left: auto; }
+.header-tools { display: flex; align-items: center; gap: 6px; flex: none; margin-left: auto; }
+.header-search { flex: 1 1 300px; min-width: 170px; max-width: 300px; margin-left: auto; }
+.header-search + .header-tools { margin-left: 0; }
 .tool-btn { position: relative; width: 38px; height: 38px; color: var(--text-2); border-color: transparent; }
 .tool-btn:hover, .tool-btn[aria-expanded="true"] { color: var(--text); background: var(--surface-2); }
 .tool-dot {
@@ -219,16 +221,16 @@
 .header-back:hover { color: var(--text); }
 
 @media (max-width: 1360px) {
-  .header-search { width: 200px; }
   .nav-item { padding: 0 8px; gap: 6px; }
 }
-@media (max-width: 1180px) {
-  .header-search { width: 260px; }
+/* Sin espacio para todo en una fila: la navegación baja a la segunda, con scroll horizontal si hace falta */
+@media (max-width: 1240px) {
   .header-inner { flex-wrap: wrap; row-gap: 6px; }
-  .header-tools { order: 2; margin-left: auto; }
+  .header-search { max-width: 360px; }
+  .header-tools { order: 2; }
   .header-nav {
     order: 3;
-    flex-basis: 100%;
+    flex: 0 0 100%;
     overflow-x: auto;
     scrollbar-width: none;
     margin: 0 calc(var(--gutter) * -1);
@@ -237,7 +239,8 @@
   .header-nav::-webkit-scrollbar { display: none; }
 }
 @media (max-width: 700px) {
-  .header-search { order: 4; width: auto; flex-basis: 100%; }
+  .header-search { order: 4; flex: 0 0 100%; max-width: none; margin-left: 0; }
+  .header-tools { margin-left: auto; }
   .game-pill-name { display: none; }
   .bell-panel { width: min(320px, calc(100vw - 32px)); right: -46px; }
   .games-panel { width: min(300px, calc(100vw - 32px)); }
