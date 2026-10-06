@@ -55,7 +55,7 @@ function LivePage({ region, gameName, tagLine }) {
           title={notFound ? `No encontramos a ${gameName}#${tagLine}` : "No se pudo consultar la partida"}
           action={notFound ? <Link className="btn btn-primary" to="/">Buscar otro jugador</Link> : <button type="button" className="btn btn-primary" onClick={() => reload(true)}>Reintentar</button>}
         >
-          {notFound ? `Revisa el nombre y el #TAG o prueba en otra región (buscaste en ${region.label}).` : errorMessage(error)}
+          {notFound ? "No existe ninguna cuenta Riot con ese nombre y #TAG. Revisa espacios y acentos." : errorMessage(error)}
         </StateBox>
       </div></div>
     );
@@ -104,7 +104,7 @@ function LiveGame({ live, puuid, region, riotId }) {
         <div className="container live-hero-inner">
           <div>
             <span className="live-pill"><span className="live-dot pulse" aria-hidden="true" /> En vivo</span>
-            <h1 className="live-title">{queueLong(live.queueId)}</h1>
+            <h1 className="live-heading">{queueLong(live.queueId)}</h1>
             <p className="muted">{mapName(live.mapId)} · {region.name}</p>
           </div>
           <div className="live-clock">

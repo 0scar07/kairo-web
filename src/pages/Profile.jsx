@@ -301,7 +301,7 @@ function MasteryTab({ mastery, error }) {
     <section className="tab-section" aria-labelledby="mastery-title">
       <div className="section-head">
         <h2 className="section-title" id="mastery-title">Maestría</h2>
-        {mastery && <span className="faint num">Puntuación total: {formatNumber(mastery.score)}</span>}
+        {mastery && <span className="faint num">Puntuación de maestría: {formatNumber(mastery.score)}</span>}
       </div>
       {!mastery ? (
         <div className="card"><StateBox compact tone={error ? "error" : undefined} title="Maestría no disponible">{error ? errorMessage(error) : "No hay datos de maestría."}</StateBox></div>
@@ -352,14 +352,17 @@ function ProfileError({ error, region, gameName, tagLine, onRetry }) {
         <StateBox
           icon="userX"
           title={error.code === "PLAYER_NOT_FOUND" ? `No encontramos a ${riotId}` : `${riotId} no tiene perfil de LoL en ${region.label}`}
-          action={
-            <div className="state-actions">
-              {others.map(r => <Link key={r.slug} className="btn" to={profilePath(r.slug, gameName, tagLine)}>Buscar en {r.label}</Link>)}
-            </div>
-          }
+          action={error.code === "PLAYER_NOT_FOUND"
+            // Las cuentas Riot son globales: si el Riot ID no existe, no existe en ninguna región
+            ? <Link className="btn btn-primary" to="/">Buscar otro jugador</Link>
+            : (
+              <div className="state-actions">
+                {others.map(r => <Link key={r.slug} className="btn" to={profilePath(r.slug, gameName, tagLine)}>Buscar en {r.label}</Link>)}
+              </div>
+            )}
         >
           {error.code === "PLAYER_NOT_FOUND"
-            ? "Revisa el nombre y el #TAG (no distinguen mayúsculas, pero sí espacios y acentos)."
+            ? "No existe ninguna cuenta Riot con ese nombre y #TAG. Revisa espacios y acentos (las mayúsculas no importan)."
             : "La cuenta Riot existe, pero no juega League of Legends en esta región. Prueba en otra."}
         </StateBox>
       </div>

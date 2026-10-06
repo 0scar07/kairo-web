@@ -24,7 +24,7 @@
   text-transform: uppercase;
 }
 .live-pill .live-dot { width: 6px; height: 6px; }
-.live-title { font-size: clamp(24px, 3.4vw, 30px); font-weight: 700; margin: 16px 0 10px; }
+.live-heading { font-size: clamp(24px, 3.4vw, 30px); font-weight: 700; margin: 16px 0 10px; }
 .live-hero .muted { margin: 0; font-size: 12px; }
 .live-clock { display: flex; flex-direction: column; align-items: flex-end; }
 .live-clock .eyebrow { font-size: 9px; }
@@ -88,7 +88,7 @@
   min-height: 64px;
 }
 .live-player + .live-player { border-top: 1px solid var(--border); }
-.live-player.me { background: #0f1c17; }
+.live-player.me { background: rgba(53, 224, 161, .07); box-shadow: inset 3px 0 0 var(--brand); }
 .live-player .dd { border-radius: 10px; }
 .live-spells { display: flex; flex-direction: column; gap: 3px; }
 .live-spells .dd { border-radius: 4px; }

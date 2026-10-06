@@ -171,7 +171,12 @@
 .detail-head { display: flex; align-items: center; gap: 12px; font-size: 12px; margin-bottom: 6px; }
 .detail-head.blue strong { color: var(--blue); }
 .detail-head.red strong { color: var(--red); }
-.detail-table { width: 100%; border-collapse: collapse; min-width: 620px; font-size: 11px; }
+.detail-table { width: 100%; border-collapse: collapse; min-width: 620px; font-size: 11px; table-layout: fixed; }
+/* Mismo ancho de columnas en los dos equipos */
+.detail-table th:nth-child(1) { width: 34%; }
+.detail-table th:nth-child(2) { width: 12%; }
+.detail-table th:nth-child(3) { width: 16%; }
+.detail-table th:nth-child(4) { width: 11%; }
 .detail-table th {
   text-align: left;
   font-size: 9px;
