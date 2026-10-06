@@ -1,0 +1,129 @@
+/* ─── Partida en vivo ──────────────────────────────────── */
+.live-hero { border-bottom: 1px solid var(--border); }
+.live-hero-inner {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  padding-top: 30px;
+  padding-bottom: 30px;
+  flex-wrap: wrap;
+}
+.live-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  background: #2a1214;
+  border: 1px solid #4a1f23;
+  color: #FF8080;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+.live-pill .live-dot { width: 6px; height: 6px; }
+.live-title { font-size: clamp(24px, 3.4vw, 30px); font-weight: 700; margin: 16px 0 10px; }
+.live-hero .muted { margin: 0; font-size: 12px; }
+.live-clock { display: flex; flex-direction: column; align-items: flex-end; }
+.live-clock .eyebrow { font-size: 9px; }
+.live-clock strong { font-family: var(--font-title); font-size: 38px; font-weight: 700; color: var(--brand); line-height: 1.1; }
+
+.live-body { padding-top: 26px; display: flex; flex-direction: column; gap: 20px; }
+
+/* Bloqueos */
+.bans { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 14px 16px; flex-wrap: wrap; }
+.ban-group { display: flex; align-items: center; gap: 12px; }
+.ban-group.reverse { flex-direction: row-reverse; }
+.ban-label { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; white-space: nowrap; }
+.ban-group.blue .ban-label { color: var(--blue); }
+.ban-group.red .ban-label { color: var(--red); }
+.ban-list { list-style: none; margin: 0; padding: 0; display: flex; gap: 8px; }
+.ban {
+  position: relative;
+  padding: 1px;
+  border-radius: 8px;
+  border: 1px solid var(--border-2);
+  background: #141c24;
+}
+.ban-group.red .ban { background: #22171a; border-color: #3a2427; }
+.ban .dd { border-radius: 6px; filter: grayscale(1) brightness(.7); }
+.ban::after {
+  content: "";
+  position: absolute;
+  left: 4px; right: 4px; top: 50%;
+  height: 1.5px;
+  background: var(--text-2);
+  transform: rotate(-35deg);
+  opacity: .8;
+}
+
+/* Equipos */
+.teams { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.team { overflow: hidden; min-width: 0; }
+.team-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  font-size: 11px;
+}
+.team-head h2 { font-size: 15px; font-weight: 600; }
+.team-head strong { color: var(--text); }
+.team-blue .team-head { background: #0f1620; }
+.team-blue .team-head h2 { color: var(--blue); }
+.team-red .team-head { background: #1c1214; }
+.team-red .team-head h2 { color: var(--red); }
+
+.team-list { list-style: none; margin: 0; padding: 0; }
+.live-player {
+  display: grid;
+  grid-template-columns: 40px 18px 30px minmax(0, 1fr) auto 64px;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  min-height: 64px;
+}
+.live-player + .live-player { border-top: 1px solid var(--border); }
+.live-player.me { background: #0f1c17; }
+.live-player .dd { border-radius: 10px; }
+.live-spells { display: flex; flex-direction: column; gap: 3px; }
+.live-spells .dd { border-radius: 4px; }
+.live-runes { position: relative; width: 30px; height: 30px; }
+.live-runes .keystone { border: 1px solid #5a4724; background: #15110a; }
+.live-runes .secondary { position: absolute; right: -2px; bottom: -2px; background: var(--bg); border: 1px solid var(--border-2); padding: 1px; }
+.live-name { display: flex; flex-direction: column; min-width: 0; font-size: 11px; }
+.live-name strong { font-size: 13px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block; }
+.live-name a:hover strong { text-decoration: underline; }
+.live-rank, .live-wr { display: flex; flex-direction: column; align-items: flex-end; text-align: right; font-size: 10px; white-space: nowrap; }
+.live-rank strong { font-size: 11px; font-weight: 600; }
+.live-wr strong { font-size: 14px; font-weight: 700; }
+
+/* Aviso de la app */
+.notify {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  background: #0f1a16;
+  border-color: #1f3a2f;
+}
+.notify p { margin: 0; flex: 1; font-size: 13px; }
+
+@media (max-width: 960px) {
+  .teams { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 600px) {
+  .live-hero-inner { align-items: flex-start; }
+  .live-clock { align-items: flex-start; }
+  .bans { flex-direction: column; align-items: flex-start; }
+  .ban-group.reverse { flex-direction: row; }
+  /* La lista hace scroll horizontal dentro de su caja en vez de esconder datos */
+  .team-list { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .live-player { min-width: 440px; gap: 8px; padding: 10px 12px; }
+  .notify { flex-wrap: wrap; }
+  .notify .btn { width: 100%; }
+}
