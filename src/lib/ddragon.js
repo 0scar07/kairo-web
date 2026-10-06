@@ -103,6 +103,18 @@ export function championIcon(championId, championKey) {
   return key ? img(`champion/${key}.png`) : null;
 }
 
+/**
+ * Arte del campeón para el fondo de la cabecera del perfil (sin versión en la URL):
+ * `wide` es el splash (1215 px), `narrow` el arte vertical de carga, mucho más liviano, para celulares.
+ */
+export function championSplash(championId, championKey) {
+  const key = champs[championId]?.id || championKey;
+  return key ? {
+    wide: `${CDN}/cdn/img/champion/splash/${key}_0.jpg`,
+    narrow: `${CDN}/cdn/img/champion/loading/${key}_0.jpg`,
+  } : null;
+}
+
 export const itemIcon = id => (id ? img(`item/${id}.png`) : null);
 export const itemName = id => items[id] || "";
 export const profileIcon = id => (id || id === 0 ? img(`profileicon/${id}.png`) : null);

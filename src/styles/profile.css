@@ -1,5 +1,37 @@
 /* ─── Cabecera del perfil ──────────────────────────────── */
-.profile-head { border-bottom: 1px solid var(--border); }
+.profile-head { position: relative; overflow: hidden; isolation: isolate; border-bottom: 1px solid var(--border); }
+
+/* Splash del campeón más jugado: oscurecido, difuminado y fundido hacia el fondo para no restar contraste */
+.profile-splash {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity .6s ease;
+  pointer-events: none;
+}
+.profile-splash.loaded { opacity: 1; }
+.profile-splash img {
+  position: absolute;
+  inset: -12px;
+  width: calc(100% + 24px);
+  height: calc(100% + 24px);
+  object-fit: cover;
+  object-position: center 22%;
+  filter: blur(4px) brightness(.62) saturate(1.15);
+  opacity: .85;
+}
+.profile-splash::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(10, 15, 13, .88) 0%, rgba(10, 15, 13, .5) 38%, rgba(10, 15, 13, .2) 65%, rgba(10, 15, 13, .55) 100%),
+    linear-gradient(180deg, rgba(10, 15, 13, .15) 0%, rgba(10, 15, 13, .4) 60%, var(--bg) 100%);
+}
+@media (prefers-reduced-motion: reduce) {
+  .profile-splash { transition: none; }
+}
 .profile-id {
   display: flex;
   align-items: center;

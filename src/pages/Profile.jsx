@@ -9,7 +9,7 @@ import { ChampionsCard, FlexCard, LpChart, SoloCard } from "./profile/Sidebar";
 import MatchRow from "./profile/MatchRow";
 import { REGIONS, livePath, parseRiotIdSlug, profilePath, regionBySlug } from "../lib/regions";
 import { QUEUE_FILTERS, championStats, formatKda, formatNumber, rankLabel, summarize, timeAgo } from "../lib/lol";
-import { championIcon, championName, profileIcon, useDDragon } from "../lib/ddragon";
+import { championIcon, championName, championSplash, profileIcon, useDDragon } from "../lib/ddragon";
 import { addRecent, isFavorite, toggleFavorite, useFavorites } from "../lib/library";
 import { useNow, useTitle } from "../lib/hooks";
 import { NotFound } from "./Misc";
@@ -45,6 +45,14 @@ function ProfilePage({ region, gameName, tagLine }) {
   const name = data?.account?.gameName || gameName;
   const tag = data?.account?.tagLine || tagLine;
   useTitle(`${name}#${tag}`);
+
+  // Fondo de la cabecera: el campeón más jugado de la primera carga (no cambia al filtrar por cola)
+  const [splashChamp, setSplashChamp] = useState(null);
+  useEffect(() => {
+    if (splashChamp || matches.loading || !matches.matches.length) return;
+    const top = championStats(matches.matches, puuid)[0];
+    if (top) setSplashChamp({ id: top.championId, key: top.championName });
+  }, [splashChamp, matches.loading, matches.matches, puuid]);
 
   const solo = data?.ranked.find(r => r.queueType === "RANKED_SOLO_5x5") || null;
   const flex = data?.ranked.find(r => r.queueType === "RANKED_FLEX_SR") || null;
@@ -87,6 +95,7 @@ function ProfilePage({ region, gameName, tagLine }) {
         tab={tab}
         setTab={setTab}
         inGame={Boolean(data?.live?.inGame)}
+        splash={splashChamp ? championSplash(splashChamp.id, splashChamp.key) : null}
       />
 
       <div className="container profile-body">
@@ -117,7 +126,7 @@ function ProfilePage({ region, gameName, tagLine }) {
 }
 
 // ─── Cabecera ─────────────────────────────────────────────────────────────
-function ProfileHeader({ loading, name, tag, region, summoner, updatedAt, refreshing, onRefresh, puuid, tab, setTab, inGame }) {
+function ProfileHeader({ loading, name, tag, region, summoner, updatedAt, refreshing, onRefresh, puuid, tab, setTab, inGame, splash }) {
   const now = useNow(30_000);
   const favorites = useFavorites();
   const player = { region: region.slug, gameName: name, tagLine: tag };
@@ -125,6 +134,7 @@ function ProfileHeader({ loading, name, tag, region, summoner, updatedAt, refres
 
   return (
     <div className="profile-head">
+      {splash && <ProfileSplash src={splash} />}
       <div className="container">
         <div className="profile-id">
           <div className="profile-icon">
@@ -171,6 +181,19 @@ function ProfileHeader({ loading, name, tag, region, summoner, updatedAt, refres
           </Link>
         </nav>
       </div>
+    </div>
+  );
+}
+
+/** Splash art oscurecido y difuminado, con degradado hacia el fondo. Aparece con un fundido cuando termina de cargar. */
+function ProfileSplash({ src }) {
+  const [loaded, setLoaded] = useState(false);
+  return (
+    <div className={`profile-splash${loaded ? " loaded" : ""}`} aria-hidden="true">
+      <picture>
+        <source media="(max-width: 700px)" srcSet={src.narrow} />
+        <img src={src.wide} alt="" decoding="async" onLoad={() => setLoaded(true)} />
+      </picture>
     </div>
   );
 }
