@@ -1,5 +1,48 @@
 /* ─── Portada ──────────────────────────────────────────── */
-.hero { border-bottom: 1px solid var(--border); }
+.hero { position: relative; overflow: hidden; border-bottom: 1px solid var(--border); isolation: isolate; }
+
+/* Fondo del hero: cuadrícula tenue que se desvanece hacia abajo y deriva muy lento, y un resplandor verde detrás del
+   título. La máscara va en el contenedor (fijo) y lo que se mueve es la capa interior, solo con transform. */
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, rgba(0, 0, 0, .6) 45%, transparent 92%);
+  mask-image: linear-gradient(to bottom, #000 0%, rgba(0, 0, 0, .6) 45%, transparent 92%);
+}
+.hero-grid {
+  position: absolute;
+  inset: -48px 0 0 0;   /* una celda de más arriba para que el desplazamiento no deje huecos */
+  background-image:
+    linear-gradient(rgba(154, 173, 164, .07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(154, 173, 164, .07) 1px, transparent 1px);
+  background-size: 48px 48px;
+  background-position: center top;
+  animation: hero-grid-drift 24s linear infinite;
+  will-change: transform;
+}
+.hero-glow {
+  position: absolute;
+  left: 50%;
+  top: 70px;
+  width: min(760px, 120vw);
+  height: 300px;
+  margin-left: calc(min(760px, 120vw) / -2);
+  background: radial-gradient(closest-side, rgba(53, 224, 161, .22), rgba(53, 224, 161, .06) 55%, rgba(53, 224, 161, 0));
+  animation: hero-glow 9s ease-in-out infinite;
+  will-change: opacity, transform;
+}
+@keyframes hero-grid-drift {
+  to { transform: translateY(48px); }
+}
+@keyframes hero-glow {
+  0%, 100% { opacity: .75; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.06); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-grid, .hero-glow { animation: none; }
+}
 .hero-inner {
   display: flex;
   flex-direction: column;

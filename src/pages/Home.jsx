@@ -19,6 +19,10 @@ export default function Home() {
   return (
     <Layout header={{ variant: "nav" }}>
       <section className="hero">
+        <div className="hero-bg" aria-hidden="true">
+          <div className="hero-grid" />
+          <div className="hero-glow" />
+        </div>
         <div className="container hero-inner">
           <p className="eyebrow hero-eyebrow">Estadísticas de 9 juegos en un solo lugar</p>
           <h1 className="hero-title">Cada partida cuenta.</h1>
