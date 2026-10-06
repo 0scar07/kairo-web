@@ -43,6 +43,11 @@ Busca a cualquier jugador de **League of Legends** y mira su rango, su historial
 
 ## Qué hace
 
+**Header (en todas las páginas)**
+- Logo animado de Kairo y selector de juego con los logos reales de los 9 juegos (LoL disponible; el resto, próximamente).
+- Inicio, En vivo (con un contador de favoritos en partida), Favoritos, Clasificación y App.
+- Buscador compacto, una campanita con los favoritos que están jugando ahora y el enlace a GitHub.
+
 **Inicio**
 - Buscador grande con región (LAN, LAS, NA, EUW, KR, BR) y `Nombre#TAG`. Autocompleta con tus favoritos y búsquedas recientes, con ícono, Riot ID y rango, y se maneja con el teclado (flechas, Enter, Esc).
 - *Tus favoritos en partida*: qué favoritos están jugando ahora, con campeón, cola y cronómetro. Se revisa cada minuto.
@@ -50,9 +55,15 @@ Busca a cualquier jugador de **League of Legends** y mira su rango, su historial
 
 **Perfil** · `/lol/:region/:Nombre-TAG`
 - Cabecera con ícono, nivel y el splash del campeón más jugado de fondo. Botones Actualizar y Favorito.
-- Rango Solo/Duo y Flex con el color y el emblema de su liga, gráfico de LP de 30 días y campeones de las partidas cargadas.
-- Historial: resumen de las últimas partidas, filtros por cola y filas con resultado, campeón, hechizos, runas, K/D/A, KDA, CS por minuto, participación, objetos y tiempo. El detalle muestra los 10 jugadores. Botón "Cargar más".
+- Pestañas de cola al estilo op.gg: Todo, Solo/Duo, Flex, ARAM (incluye ARAM: Caos) y Arena.
+- Tarjetas de rango Solo/Dúo y flexible con el emblema y el color de la liga, victorias, derrotas, winrate y el *mejor nivel* de los últimos 30 días cuando supera al actual.
+- **Partidas recientes**: dona de winrate, K/D/A medio, KDA, participación en kills, los 3 campeones más jugados con su récord y el rol preferido. Tiene búsqueda por campeón.
+- Gráfico de LP de 30 días y campeones de las partidas cargadas.
+- Historial con resultado, campeón, hechizos, runas, K/D/A, KDA, CS por minuto, participación, objetos y tiempo. El detalle muestra los 10 jugadores. Botón "Cargar más".
 - Pestañas Campeones (tabla completa) y Maestría (top 10).
+
+**Favoritos** · `/favoritos`
+- Tus favoritos con ícono, región y rango; quién está jugando ahora (campeón, cola y cronómetro), acceso a su partida y botón para quitarlo.
 
 **En vivo** · `/lol/:region/:Nombre-TAG/en-vivo`
 - Cola, mapa y un cronómetro que avanza. Bloqueos de ambos equipos.
@@ -62,7 +73,7 @@ Busca a cualquier jugador de **League of Legends** y mira su rango, su historial
 **En todas las páginas**
 - Los enlaces se comparten y cargan directo. Hay skeletons mientras carga y mensajes claros para "jugador no encontrado", el límite de la API y "Despertando el servidor…" cuando Render está dormido.
 - Funciona en celular: las columnas se apilan y las tablas hacen scroll dentro de su caja.
-- Animaciones sutiles (entrada escalonada, números que cuentan, logo que respira). Se apagan si el sistema pide `prefers-reduced-motion` y solo usan `transform` y `opacity`.
+- Animaciones sutiles (entrada escalonada, números que cuentan, logo que respira, barras de rol). Se apagan si el sistema pide `prefers-reduced-motion` y solo usan `transform` y `opacity`.
 - Imágenes reales de Data Dragon (campeones, objetos, hechizos, runas e íconos) y emblemas oficiales de rango. Sin emojis.
 
 TFT, Brawl Stars, Clash Royale, Clash of Clans, Dota 2, Fortnite, Apex Legends y PUBG aparecen como *Próximamente*: ya están en la [app](https://github.com/0scar07/Kairo).
@@ -92,7 +103,7 @@ Para el backend local: `cd server && npm install && npm start` en el repo de Kai
 | `npm run build` | Build de producción en `dist/` (con `404.html` y `.nojekyll`) |
 | `npm run preview` | Sirve el build en local |
 | `npm run lint` | ESLint (reglas de React Hooks incluidas) |
-| `npm test` | Pruebas con Vitest: Riot ID en la URL, rangos, KDA, partidas, sugerencias |
+| `npm test` | Pruebas con Vitest (29): Riot ID en la URL, rangos, KDA, partidas, filtros de cola, roles y sugerencias |
 | `npm run check` | Lint, pruebas y build: lo mismo que corre la CI |
 
 ## Despliegue
@@ -128,12 +139,14 @@ flowchart LR
 ```
 src/
   api/         client.js (fetch, caché, errores, servidor dormido) · server.js · lol.js (endpoints)
-  lib/         ddragon.js · lol.js (colas, rangos, KDA, compactMatch) · regions.js · library.js
+  lib/         ddragon.js · lol.js (colas, rangos, KDA, roles, compactMatch) · regions.js · library.js
+               liveFavorites.js (favoritos en partida, compartido por header y portada) · gameLogos.js
                storage.js · hooks.js · games.js · config.js · *.test.js
-  components/  Layout (header, footer, aviso del servidor) · SearchForm (autocompletado) · CountUp · Icon · ui
-  pages/       Home · Profile (+ profile/) · Live · Misc (próximamente, 404)
+  components/  Layout (header, selector de juego, campanita, footer) · SearchForm (autocompletado) · GameLogo
+               CountUp · Icon · ui
+  pages/       Home · Profile (+ profile/: RecentCard, Sidebar, MatchRow) · Live · Favorites · Misc
   styles/      tokens · global · components · home · profile · live
-public/        logo, favicon, ranks/ (emblemas oficiales) y _redirects
+public/        logo, favicon, ranks/ (emblemas oficiales), games/ (logos de Supercell y Apex) y _redirects
 docs/          capturas del README
 ```
 
@@ -165,6 +178,7 @@ Cuando el backend los agregue, la web los empieza a usar sola, sin otro desplieg
 - [ ] Clasificación Challenger real (endpoint `/lol/leaderboard`)
 - [ ] Filtros de cola en el servidor (`?queue=` en `/lol/matches`)
 - [ ] Comparar dos jugadores (ya existe en la app)
+- [ ] Rango de temporadas pasadas (la API de Riot no lo ofrece: habría que guardarlo en el backend)
 - [ ] TFT y los demás juegos de Kairo
 - [ ] Más idiomas (la app tiene 5)
 
