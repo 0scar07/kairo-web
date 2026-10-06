@@ -35,5 +35,5 @@ export const SVG_LOGOS = {
   }
 };
 
-// Íconos a color de Supercell y la "A" de Apex (PNG en public/games/)
-export const IMAGE_LOGOS = { brawlstars: "brawlstars.png", clashroyale: "clashroyale.png", clashofclans: "clashofclans.png", apex: "apex.png" };
+// Íconos a color de Supercell y la "A" de Apex (WebP en public/games/)
+export const IMAGE_LOGOS = { brawlstars: "brawlstars.webp", clashroyale: "clashroyale.webp", clashofclans: "clashofclans.webp", apex: "apex.webp" };

@@ -1,6 +1,6 @@
 import { IMAGE_LOGOS, SVG_LOGOS } from "../lib/gameLogos";
 
-// Logo real de un juego. Los SVG toman `color`; los PNG de Supercell van a color y la "A" de Apex se tiñe con una
+// Logo real de un juego. Los SVG toman `color`; los de Supercell (WebP) van a color y la "A" de Apex se tiñe con una
 // máscara (es de una sola tinta, como en la app).
 export default function GameLogo({ game, size = 18, color = "currentColor", className = "" }) {
   const svg = SVG_LOGOS[game];
@@ -26,5 +26,5 @@ export default function GameLogo({ game, size = 18, color = "currentColor", clas
       />
     );
   }
-  return <img src={src} width={size} height={size} alt="" className={`game-logo ${className}`} style={{ borderRadius: size / 4.5 }} />;
+  return <img src={src} width={size} height={size} alt="" loading="lazy" decoding="async" className={`game-logo ${className}`} style={{ borderRadius: size / 4.5 }} />;
 }

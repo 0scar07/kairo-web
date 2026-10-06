@@ -148,7 +148,7 @@ src/
                CountUp · Icon · ui
   pages/       Home · Profile (+ profile/: RecentCard, Sidebar, MatchRow) · Live · Favorites · Misc
   styles/      tokens · global · components · home · profile · live
-public/        logo, favicon, ranks/ (emblemas oficiales), games/ (logos de Supercell y Apex) y _redirects
+public/        logo, favicon, ranks/ (emblemas oficiales), games/ (logos y arte de los pósters, en WebP) y _redirects
 docs/          capturas del README
 ```
 
