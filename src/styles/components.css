@@ -15,15 +15,57 @@
   padding-bottom: 8px;
 }
 .logo { display: inline-flex; align-items: center; gap: 10px; flex: none; }
+/* Ícono real de la app con un resplandor que respira y un brillo que lo recorre cada ~4,5 s.
+   Solo se animan transform y opacity (no repintan); sin movimiento con prefers-reduced-motion. */
 .logo-mark {
-  width: 26px; height: 26px;
-  display: grid; place-items: center;
-  border-radius: 7px;
-  background: var(--brand);
-  color: var(--on-brand);
-  font-family: var(--font-title);
-  font-weight: 700;
-  font-size: 14px;
+  position: relative;
+  width: 30px;
+  height: 30px;
+  flex: none;
+  display: block;
+}
+.logo-mark img { position: relative; z-index: 1; display: block; width: 30px; height: 30px; border-radius: 8px; }
+.logo-glow {
+  position: absolute;
+  inset: -9px;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(53, 224, 161, .55), rgba(53, 224, 161, 0));
+  opacity: .3;
+  transform: scale(.9);
+  animation: logo-breathe 5s ease-in-out infinite;
+  will-change: opacity, transform;
+}
+.logo-shine {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: 8px;
+  overflow: hidden;
+  pointer-events: none;
+}
+.logo-shine::after {
+  content: "";
+  position: absolute;
+  top: -20%;
+  bottom: -20%;
+  left: 0;
+  width: 45%;
+  background: linear-gradient(100deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, .38), rgba(255, 255, 255, 0));
+  transform: translateX(-160%) skewX(-18deg);
+  animation: logo-shine 4.5s ease-in-out infinite;
+  will-change: transform;
+}
+@keyframes logo-breathe {
+  0%, 100% { opacity: .25; transform: scale(.88); }
+  50% { opacity: .8; transform: scale(1.08); }
+}
+@keyframes logo-shine {
+  0%, 72% { transform: translateX(-160%) skewX(-18deg); }
+  100% { transform: translateX(300%) skewX(-18deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .logo-glow { animation: none; opacity: .35; transform: none; }
+  .logo-shine::after { animation: none; display: none; }
 }
 .logo-word {
   font-family: var(--font-title);

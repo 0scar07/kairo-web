@@ -8,7 +8,11 @@ import { useServerState } from "../api/server";
 export function Logo() {
   return (
     <Link to="/" className="logo" aria-label="Kairo, inicio">
-      <span className="logo-mark" aria-hidden="true">K</span>
+      <span className="logo-mark" aria-hidden="true">
+        <span className="logo-glow" />
+        <img src={`${import.meta.env.BASE_URL}logo.png`} alt="" width="30" height="30" />
+        <span className="logo-shine" />
+      </span>
       <span className="logo-word">KAIRO</span>
     </Link>
   );
