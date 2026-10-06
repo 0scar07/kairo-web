@@ -121,6 +121,8 @@
 .ladder-name { font-weight: 500; white-space: nowrap; }
 a.ladder-name:hover { text-decoration: underline; }
 .ladder-tier { color: var(--gold); font-weight: 500; }
+.ladder-tier-in { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+.ladder-avatar { border-radius: 7px; border: 1px solid var(--border-2); }
 .wr-bar-wrap { display: flex; align-items: center; gap: 8px; font-weight: 500; }
 .wr-bar { display: block; width: 98px; height: 5px; border-radius: 3px; background: #3a1c1f; overflow: hidden; flex: none; }
 .wr-bar span { display: block; height: 100%; background: var(--win); border-radius: 3px; }
@@ -199,6 +201,7 @@ a.ladder-name:hover { text-decoration: underline; }
   font-size: 8px;
   font-weight: 700;
 }
+.recent-badge .game-logo { display: block; }
 .recent-text { display: flex; flex-direction: column; min-width: 0; flex: 1; }
 .recent-name { font-weight: 600; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .recent-sub { color: var(--text-3); font-size: 10px; }

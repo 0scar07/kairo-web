@@ -1,19 +1,20 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Layout from "../components/Layout";
 import SearchForm from "../components/SearchForm";
 import Icon from "../components/Icon";
-import { DDImg, Initials, Skeleton, StateBox } from "../components/ui";
+import { DDImg, Initials, RankEmblem, Skeleton, StateBox } from "../components/ui";
+import GameLogo from "../components/GameLogo";
 import HeroArt from "./home/HeroArt";
 import GameCards from "./home/GameCards";
-import { getLeaderboard } from "../api/lol";
+import { getLeaderboard, getProfileIconId } from "../api/lol";
 import { errorMessage } from "../api/client";
 import { useAsync, useNow, useTitle } from "../lib/hooks";
 import { clearRecents, useFavorites, useRecents } from "../lib/library";
 import { useLiveFavorites } from "../lib/liveFavorites";
 import { REGIONS, livePath, profilePath, regionBySlug, savedRegion } from "../lib/regions";
 import { formatDuration, formatNumber, queueLong, rankLabel, winrate } from "../lib/lol";
-import { championIcon, championName, useDDragon } from "../lib/ddragon";
+import { championIcon, championName, profileIcon, useDDragon } from "../lib/ddragon";
 import { gameById } from "../lib/games";
 import { APK_URL } from "../lib/config";
 
@@ -188,6 +189,20 @@ function LadderPreview() {
   );
 }
 
+/** Ícono de perfil de un jugador de la clasificación (con sus iniciales mientras carga o si falla) */
+function LadderAvatar({ puuid, region, name }) {
+  const [iconId, setIconId] = useState(null);
+  useEffect(() => {
+    if (!puuid) return undefined;
+    let alive = true;
+    getProfileIconId(puuid, regionBySlug(region)?.id).then(id => { if (alive) setIconId(id); }, () => {});
+    return () => { alive = false; };
+  }, [puuid, region]);
+  return iconId != null
+    ? <DDImg src={profileIcon(iconId)} size={26} alt="" className="ladder-avatar" />
+    : <Initials text={name} size={26} />;
+}
+
 function LadderTable({ rows, region }) {
   return (
     <div className="table-scroll">
@@ -220,13 +235,13 @@ function LadderTable({ rows, region }) {
                   <td className={`col-pos num${i < 3 ? " top" : ""}`}>{i + 1}</td>
                   <td>
                     <div className="ladder-player">
-                      <Initials text={p.gameName} size={24} />
+                      <LadderAvatar puuid={p.puuid} region={region} name={p.gameName} />
                       {p.gameName
                         ? <Link to={profilePath(region, p.gameName, p.tagLine)} className="ladder-name">{name}</Link>
                         : <span className="ladder-name muted">{name}</span>}
                     </div>
                   </td>
-                  <td className="ladder-tier">Challenger</td>
+                  <td className="ladder-tier"><span className="ladder-tier-in"><RankEmblem tier="CHALLENGER" rank="I" size={20} /> Challenger</span></td>
                   <td className="col-lp num">{formatNumber(p.leaguePoints)}</td>
                   <td className="col-wr">
                     <div className="wr-bar-wrap" title={`${p.wins} V · ${p.losses} D`}>
@@ -262,7 +277,10 @@ function Recents() {
               return (
                 <li key={`${r.game}:${r.region}:${r.gameName}#${r.tagLine}`} className="reveal" style={{ "--i": i }}>
                   <Link to={profilePath(r.region, r.gameName, r.tagLine)} className="recent">
-                    <span className="recent-badge" style={{ color: game?.color }}>{game?.short}</span>
+                    <span className="recent-badge" title={game?.name}>
+                      <GameLogo game={r.game} size={16} color={game?.color} />
+                      <span className="sr-only">{game?.name}</span>
+                    </span>
                     <span className="recent-text">
                       <span className="recent-name">{r.gameName}#{r.tagLine}</span>
                       <span className="recent-sub">{r.subtitle || game?.name}</span>

@@ -29,6 +29,13 @@ export const getAccount = (gameName, tagLine, region, force) =>
 export const getSummoner = (puuid, region, force) =>
   request(`/lol/summoner/${puuid}`, { params: { region }, ttl: TTL.summoner, persist: true, force });
 
+/**
+ * Solo el ícono de perfil (para listas como la clasificación). Cambia muy poco, así que se guarda 12 h: volver a la
+ * portada no repite las consultas.
+ */
+export const getProfileIconId = (puuid, region) =>
+  get(`/lol/summoner/${puuid}`, { params: { region }, ttl: 12 * 60 * MIN, persist: true, version: "icon", map: s => s.profileIconId ?? null });
+
 /** Entradas de league-v4: [{ queueType, tier, rank, leaguePoints, wins, losses }] */
 export const getRanked = (puuid, region, force) =>
   get(`/lol/ranked/${puuid}`, { params: { region }, ttl: TTL.ranked, persist: true, force });
