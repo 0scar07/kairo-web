@@ -1,0 +1,191 @@
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+#root { min-height: 100vh; display: flex; flex-direction: column; }
+main { flex: 1; }
+
+a { color: inherit; text-decoration: none; }
+button, input, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+img { display: block; }
+h1, h2, h3 { font-family: var(--font-title); margin: 0; letter-spacing: -0.01em; }
+
+:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+
+.container {
+  width: 100%;
+  max-width: var(--container);
+  margin: 0 auto;
+  padding: 0 var(--gutter);
+}
+
+/* ─── Tarjetas ─────────────────────────────────────────── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+}
+.card-pad { padding: 20px; }
+
+.eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+
+.section-title { font-size: 20px; font-weight: 600; }
+
+/* ─── Botones ──────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 16px;
+  border-radius: var(--radius-btn);
+  border: 1px solid var(--border-2);
+  background: transparent;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: background-color .15s, border-color .15s, opacity .15s;
+}
+.btn:hover:not(:disabled) { background: var(--surface-2); }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.btn-primary { background: var(--brand); border-color: var(--brand); color: var(--on-brand); }
+.btn-primary:hover:not(:disabled) { background: #4be8ae; }
+.btn-icon { width: 40px; padding: 0; }
+.btn-block { width: 100%; }
+
+/* ─── Pestañas segmentadas ─────────────────────────────── */
+.segmented {
+  display: inline-flex;
+  gap: 2px;
+  padding: 4px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-btn);
+}
+.segmented button {
+  border: 0;
+  background: transparent;
+  color: var(--text-2);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 7px;
+  white-space: nowrap;
+}
+.segmented button:hover { color: var(--text); }
+.segmented button[aria-pressed="true"] { background: var(--surface-2); color: var(--text); }
+
+/* ─── Varios ───────────────────────────────────────────── */
+.muted { color: var(--text-2); }
+.faint { color: var(--text-3); }
+.win { color: var(--win); }
+.loss { color: var(--loss); }
+.brand { color: var(--brand); }
+.num { font-variant-numeric: tabular-nums; }
+
+.live-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--live);
+  box-shadow: 0 0 0 3px rgba(255, 90, 90, .18);
+  flex: none;
+}
+.live-dot.pulse { animation: pulse 1.6s ease-in-out infinite; }
+@keyframes pulse { 50% { box-shadow: 0 0 0 6px rgba(255, 90, 90, 0); } }
+
+/* Imágenes de Data Dragon: cuadro de color mientras cargan o si fallan */
+.dd {
+  background: var(--surface-2);
+  border-radius: 8px;
+  object-fit: cover;
+  flex: none;
+  overflow: hidden;
+}
+.dd.round { border-radius: 50%; }
+.dd-empty { display: inline-block; }
+
+.skeleton {
+  background: linear-gradient(90deg, var(--surface-2) 25%, #1d2823 50%, var(--surface-2) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.3s linear infinite;
+  border-radius: 8px;
+}
+@keyframes shimmer { to { background-position: -200% 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton, .live-dot.pulse { animation: none; }
+}
+
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+}
+
+/* Estados vacío / error */
+.state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 10px;
+  padding: 40px 20px;
+}
+.state-icon {
+  width: 48px; height: 48px;
+  display: grid; place-items: center;
+  border-radius: 14px;
+  background: var(--surface-2);
+  border: 1px solid var(--border-2);
+  color: var(--text-2);
+}
+.state h3 { font-size: 16px; font-weight: 600; }
+.state p { margin: 0; color: var(--text-2); max-width: 420px; }
+.state .btn { margin-top: 6px; }
+.state.compact { padding: 24px 16px; }
+
+/* Aviso del servidor despertando */
+.server-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px var(--gutter);
+  background: #10201a;
+  border-bottom: 1px solid #1f3a2f;
+  color: var(--text);
+  font-size: 13px;
+}
+.spinner {
+  width: 14px; height: 14px;
+  border: 2px solid rgba(53, 224, 161, .25);
+  border-top-color: var(--brand);
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+  flex: none;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Tablas con scroll horizontal dentro de su caja */
+.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }

@@ -1,0 +1,47 @@
+/* Tokens de diseño de Kairo Web (ver el PDF aprobado) */
+:root {
+  --bg: #0A0F0D;
+  --header: #0C1210;
+  --surface: #111815;
+  --surface-2: #17201C;
+  --border: #1E2A25;
+  --border-2: #2A3A33;
+
+  --text: #E8F0EC;
+  --text-2: #9AADA4;
+  --text-3: #8FA39A;
+
+  --brand: #35E0A1;
+  --on-brand: #06120D;
+  --win: #4FC97A;
+  --loss: #E05555;
+  --win-bg: #0F1C17;
+  --loss-bg: #1A1214;
+  --blue: #7FB0FF;
+  --red: #FF9A7A;
+  --live: #FF5A5A;
+  --gold: #E8B65A;
+
+  --game-lol: #C89B3C;
+  --game-tft: #0BC4E3;
+  --game-brawlstars: #FFCE1F;
+  --game-clashroyale: #3F8CFF;
+  --game-clashofclans: #79C942;
+  --game-dota2: #E4572E;
+  --game-fortnite: #A855F7;
+  --game-apex: #E23E57;
+  --game-pubg: #F5A623;
+
+  --font-title: "Sora", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --radius-card: 16px;
+  --radius-btn: 10px;
+  --radius-input: 12px;
+  --container: 1280px;
+  --gutter: 24px;
+}
+
+@media (max-width: 640px) {
+  :root { --gutter: 16px; }
+}
