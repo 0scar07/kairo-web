@@ -2,6 +2,7 @@ import { useRef } from "react";
 import { Link, useParams } from "react-router-dom";
 import Layout from "../components/Layout";
 import Icon from "../components/Icon";
+import CountUp from "../components/CountUp";
 import { DDImg, Skeleton, StateBox } from "../components/ui";
 import { errorMessage } from "../api/client";
 import { getAccount, getLive } from "../api/lol";
@@ -167,20 +168,20 @@ function Team({ teamId, players, puuid, region }) {
         {avg && <span className="muted">Rango medio <strong>{avg}</strong></span>}
       </header>
       <ul className="team-list">
-        {players.map((p, i) => <LivePlayer key={p.puuid || i} p={p} me={p.puuid === puuid} region={region} />)}
+        {players.map((p, i) => <LivePlayer key={p.puuid || i} p={p} me={p.puuid === puuid} region={region} index={i} />)}
       </ul>
     </section>
   );
 }
 
-function LivePlayer({ p, me, region }) {
+function LivePlayer({ p, me, region, index }) {
   const champ = championName(p.championId, "Campeón");
   const id = p.riotId ? parseRiotId(p.riotId) : null;
   const r = p.ranked;
   const games = r ? r.wins + r.losses : 0;
   const wr = r ? winrate(r.wins, r.losses) : null;
   return (
-    <li className={`live-player${me ? " me" : ""}`} aria-current={me ? "true" : undefined}>
+    <li className={`live-player reveal${me ? " me" : ""}`} style={{ "--i": index }} aria-current={me ? "true" : undefined}>
       <DDImg src={championIcon(p.championId)} size={40} alt={champ} />
       <div className="live-spells">
         <DDImg src={spellIcon(p.spell1Id)} size={18} alt={spellName(p.spell1Id)} />
@@ -200,14 +201,14 @@ function LivePlayer({ p, me, region }) {
         {r ? (
           <>
             <strong style={{ color: tierColor(r.tier) }}>{rankLabel(r.tier, r.rank)}</strong>
-            <span className="faint num">{r.leaguePoints} LP</span>
+            <span className="faint num"><CountUp value={r.leaguePoints} /> LP</span>
           </>
         ) : <span className="faint">Sin clasificar</span>}
       </div>
       <div className="live-wr">
         {r && wr !== null ? (
           <>
-            <strong className={`num ${wr >= 50 ? "win" : "loss"}`}>{wr}%</strong>
+            <strong className={`num ${wr >= 50 ? "win" : "loss"}`}><CountUp value={wr} suffix="%" /></strong>
             <span className="faint num">{games} part.</span>
           </>
         ) : <span className="faint">—</span>}

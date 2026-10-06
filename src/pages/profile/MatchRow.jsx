@@ -31,7 +31,7 @@ function Items({ items, size = 22 }) {
   );
 }
 
-export default function MatchRow({ match, puuid, region }) {
+export default function MatchRow({ match, puuid, region, index = 0 }) {
   const [open, setOpen] = useState(false);
   const me = findMe(match, puuid);
   if (!me) return null;
@@ -42,7 +42,8 @@ export default function MatchRow({ match, puuid, region }) {
   const kda = kdaText(me.kills, me.deaths, me.assists);
 
   return (
-    <article className={`match match-${result}`}>
+    // Entrada escalonada: cada página nueva (20 primeras, luego de 10 en 10) vuelve a empezar desde 0
+    <article className={`match match-${result} reveal`} style={{ "--i": index < 20 ? index + 1 : (index - 20) % 10 }}>
       <div className="match-row">
         <span className="match-bar" aria-hidden="true" />
         <div className="match-result">

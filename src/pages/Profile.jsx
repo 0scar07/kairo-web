@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import Layout from "../components/Layout";
 import Icon from "../components/Icon";
+import CountUp from "../components/CountUp";
 import { DDImg, Skeleton, StateBox } from "../components/ui";
 import { errorMessage } from "../api/client";
 import { useProfile, useMatches } from "./profile/useProfile";
@@ -207,22 +208,22 @@ function ProfileSplash({ src }) {
 function MatchSummary({ matches, puuid, filter, setFilter }) {
   const s = summarize(matches.matches, puuid);
   return (
-    <div className="card summary">
+    <div className="card summary reveal" style={{ "--i": 0 }}>
       <div className="summary-block">
         <p className="eyebrow">{matches.loading ? "Últimas partidas" : `Últimas ${matches.matches.length} partidas`}</p>
         {matches.loading ? <Skeleton w={120} h={22} /> : (
           <strong className="summary-big num">
-            {s ? <>{s.wins}V {s.losses}D · <span className={s.wr >= 50 ? "win" : "loss"}>{s.wr}%</span></> : "—"}
+            {s ? <>{s.wins}V {s.losses}D · <span className={s.wr >= 50 ? "win" : "loss"}><CountUp value={s.wr} suffix="%" /></span></> : "—"}
           </strong>
         )}
       </div>
       <div className="summary-block">
         <span className="summary-label">KDA medio</span>
-        {matches.loading ? <Skeleton w={70} h={16} /> : <strong className="summary-val num">{s ? formatKda(s.kda) : "—"}</strong>}
+        {matches.loading ? <Skeleton w={70} h={16} /> : <strong className="summary-val num">{!s ? "—" : s.kda === Infinity ? formatKda(s.kda) : <CountUp value={s.kda} decimals={2} suffix=" : 1" />}</strong>}
       </div>
       <div className="summary-block">
         <span className="summary-label">Participación</span>
-        {matches.loading ? <Skeleton w={50} h={16} /> : <strong className="summary-val num">{s ? `${s.kp}%` : "—"}</strong>}
+        {matches.loading ? <Skeleton w={50} h={16} /> : <strong className="summary-val num">{s ? <CountUp value={s.kp} suffix="%" /> : "—"}</strong>}
       </div>
       <div className="segmented summary-filters" role="group" aria-label="Filtrar por cola">
         {QUEUE_FILTERS.map(f => (
@@ -256,7 +257,7 @@ function MatchList({ matches, puuid, region, queue }) {
   }
   return (
     <div className="match-list">
-      {matches.matches.map(m => <MatchRow key={m.id} match={m} puuid={puuid} region={region} />)}
+      {matches.matches.map((m, i) => <MatchRow key={m.id} match={m} puuid={puuid} region={region} index={i} />)}
       {matches.failed > 0 && <p className="list-note faint">{matches.failed === 1 ? "Una partida no se pudo cargar." : `${matches.failed} partidas no se pudieron cargar.`}</p>}
       {matches.error && <p className="list-note loss" role="alert">{errorMessage(matches.error)}</p>}
       {matches.hasMore && <LoadMore matches={matches} />}
@@ -340,7 +341,7 @@ function MasteryTab({ mastery, error }) {
           {mastery.top.map((m, i) => {
             const name = championName(m.championId, "Campeón");
             return (
-              <li key={m.championId} className="card mastery-card">
+              <li key={m.championId} className="card mastery-card reveal" style={{ "--i": i }}>
                 <span className="mastery-rank num">{i + 1}</span>
                 <DDImg src={championIcon(m.championId)} size={56} alt="" />
                 <strong>{name}</strong>

@@ -90,19 +90,19 @@ function LiveFavorites() {
           Revisamos de nuevo cada minuto mientras tengas esta página abierta.
         </StateBox></div>
       ) : (
-        <div className="fav-grid">{visible.map(x => <FavoriteLiveCard key={x.fav.puuid} {...x} />)}</div>
+        <div className="fav-grid">{visible.map((x, i) => <FavoriteLiveCard key={x.fav.puuid} {...x} index={i} />)}</div>
       )}
     </section>
   );
 }
 
-function FavoriteLiveCard({ fav, live }) {
+function FavoriteLiveCard({ fav, live, index }) {
   const now = useNow(1000);
   const me = live.participants.find(p => p.puuid === fav.puuid);
   const champ = me ? championName(me.championId) : "";
   const r = me?.ranked;
   return (
-    <article className="card fav-card">
+    <article className="card fav-card reveal" style={{ "--i": index }}>
       <div className="fav-top">
         <DDImg src={me ? championIcon(me.championId) : null} size={40} alt={champ} />
         <div className="fav-info">
@@ -196,7 +196,7 @@ function LadderTable({ rows, region }) {
               const wr = winrate(p.wins, p.losses) ?? 0;
               const name = p.gameName ? `${p.gameName}#${p.tagLine}` : "Jugador oculto";
               return (
-                <tr key={p.puuid || i}>
+                <tr key={p.puuid || i} className="reveal" style={{ "--i": i }}>
                   <td className={`col-pos num${i < 3 ? " top" : ""}`}>{i + 1}</td>
                   <td>
                     <div className="ladder-player">
@@ -237,10 +237,10 @@ function Recents() {
           <StateBox compact icon="history" title="Sin búsquedas todavía">Los jugadores que busques aparecerán aquí.</StateBox>
         ) : (
           <ul className="recents">
-            {recents.map(r => {
+            {recents.map((r, i) => {
               const game = gameById(r.game);
               return (
-                <li key={`${r.game}:${r.region}:${r.gameName}#${r.tagLine}`}>
+                <li key={`${r.game}:${r.region}:${r.gameName}#${r.tagLine}`} className="reveal" style={{ "--i": i }}>
                   <Link to={profilePath(r.region, r.gameName, r.tagLine)} className="recent">
                     <span className="recent-badge" style={{ color: game?.color }}>{game?.short}</span>
                     <span className="recent-text">

@@ -1,4 +1,5 @@
 import { DDImg, RankEmblem, Skeleton } from "../../components/ui";
+import CountUp from "../../components/CountUp";
 import { isApex, rankLabel, tierColor, winrate } from "../../lib/lol";
 import { championIcon, championName } from "../../lib/ddragon";
 
@@ -8,7 +9,7 @@ const wrClass = wr => (wr >= 50 ? "win" : "loss");
 export function SoloCard({ entry, error }) {
   const wr = entry ? winrate(entry.wins, entry.losses) : null;
   return (
-    <section className="card card-pad rank-card" aria-label="Clasificatoria Solo/Duo">
+    <section className="card card-pad rank-card reveal" style={{ "--i": 0 }} aria-label="Clasificatoria Solo/Duo">
       <p className="eyebrow">Clasificatoria Solo/Duo</p>
       {entry ? (
         <>
@@ -16,9 +17,9 @@ export function SoloCard({ entry, error }) {
             <RankEmblem tier={entry.tier} rank={entry.rank} size={44} />
             <div className="rank-text">
               <strong className="rank-name" style={{ color: tierColor(entry.tier) }}>{rankLabel(entry.tier, entry.rank)}</strong>
-              <span className="faint num">{entry.leaguePoints} LP · {entry.wins}V {entry.losses}D</span>
+              <span className="faint num"><CountUp value={entry.leaguePoints} /> LP · {entry.wins}V {entry.losses}D</span>
             </div>
-            {wr !== null && <span className={`rank-wr num ${wrClass(wr)}`}>{wr}%</span>}
+            {wr !== null && <span className={`rank-wr num ${wrClass(wr)}`}><CountUp value={wr} suffix="%" /></span>}
           </div>
           {!isApex(entry.tier) && (
             <div className="lp-bar" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={entry.leaguePoints} aria-label="LP de la división">
@@ -43,13 +44,13 @@ export function SoloCard({ entry, error }) {
 export function FlexCard({ entry }) {
   const wr = entry ? winrate(entry.wins, entry.losses) : null;
   return (
-    <section className="card flex-card" aria-label="Clasificatoria Flex 5v5">
+    <section className="card flex-card reveal" style={{ "--i": 2 }} aria-label="Clasificatoria Flex 5v5">
       <RankEmblem tier={entry?.tier} rank={entry?.rank} size={34} />
       <div className="rank-text">
         <p className="eyebrow">Flex 5v5</p>
-        <strong className="flex-name">{entry ? `${rankLabel(entry.tier, entry.rank)} · ${entry.leaguePoints} LP` : "Sin clasificar"}</strong>
+        <strong className="flex-name">{entry ? <>{rankLabel(entry.tier, entry.rank)} · <CountUp value={entry.leaguePoints} /> LP</> : "Sin clasificar"}</strong>
       </div>
-      {wr !== null && <span className="flex-wr num">{wr}%</span>}
+      {wr !== null && <span className="flex-wr num"><CountUp value={wr} suffix="%" /></span>}
     </section>
   );
 }
@@ -75,10 +76,10 @@ export function LpChart({ history, soloEntry }) {
   const change = series.length >= 2 ? last.score - first.score : null;
 
   return (
-    <section className="card card-pad lp-card" aria-label="LP de los últimos 30 días">
+    <section className="card card-pad lp-card reveal" style={{ "--i": 1 }} aria-label="LP de los últimos 30 días">
       <div className="lp-head">
         <p className="eyebrow">LP · Últimos 30 días</p>
-        {change !== null && <span className={`lp-change num ${change >= 0 ? "brand" : "loss"}`}>{change >= 0 ? "+" : ""}{change} LP</span>}
+        {change !== null && <span className={`lp-change num ${change >= 0 ? "brand" : "loss"}`}><CountUp value={change} prefix={change >= 0 ? "+" : ""} suffix=" LP" /></span>}
       </div>
       {body || (
         <>
@@ -113,7 +114,7 @@ function Sparkline({ points }) {
 // ─── Campeones de las partidas cargadas ──────────────────────────────────
 export function ChampionsCard({ stats, games, loading }) {
   return (
-    <section className="card card-pad champs-card" aria-label="Campeones">
+    <section className="card card-pad champs-card reveal" style={{ "--i": 3 }} aria-label="Campeones">
       <p className="eyebrow">Campeones · {games ? `Últimas ${games} partidas` : "Partidas recientes"}</p>
       {loading ? (
         <ul className="champ-list">{[0, 1, 2, 3, 4].map(i => (
@@ -123,16 +124,16 @@ export function ChampionsCard({ stats, games, loading }) {
         <p className="chart-note">Sin partidas para calcular estadísticas.</p>
       ) : (
         <ul className="champ-list">
-          {stats.slice(0, 5).map(c => {
+          {stats.slice(0, 5).map((c, i) => {
             const name = championName(c.championId, c.championName);
             return (
-              <li key={c.championId}>
+              <li key={c.championId} className="reveal" style={{ "--i": i + 4 }}>
                 <DDImg src={championIcon(c.championId, c.championName)} size={30} alt={name} />
                 <div className="champ-text">
                   <strong>{name}</strong>
                   <span className="faint num">{c.kda === Infinity ? "KDA perfecto" : `${c.kda.toFixed(1)} KDA`} · {c.games} {c.games === 1 ? "partida" : "partidas"}</span>
                 </div>
-                <span className={`champ-wr num ${wrClass(c.wr)}`}>{c.wr}%</span>
+                <span className={`champ-wr num ${wrClass(c.wr)}`}><CountUp value={c.wr} suffix="%" /></span>
               </li>
             );
           })}
