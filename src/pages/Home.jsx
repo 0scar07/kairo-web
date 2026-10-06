@@ -138,11 +138,14 @@ function Leaderboard() {
     <section className="home-section leaderboard" aria-labelledby="ladder-title">
       <div className="section-head">
         <h2 className="section-title" id="ladder-title">Clasificación · Solo/Duo</h2>
-        <div className="segmented region-tabs" role="group" aria-label="Región de la clasificación">
-          {REGIONS.map(r => (
-            <button key={r.slug} type="button" aria-pressed={r.slug === region} onClick={() => setRegion(r.slug)}>{r.label}</button>
-          ))}
-        </div>
+        {/* Las regiones solo tienen sentido cuando el backend ya ofrece la clasificación */}
+        {data !== null && (
+          <div className="segmented region-tabs" role="group" aria-label="Región de la clasificación">
+            {REGIONS.map(r => (
+              <button key={r.slug} type="button" aria-pressed={r.slug === region} onClick={() => setRegion(r.slug)}>{r.label}</button>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="card ladder-card">
@@ -153,9 +156,7 @@ function Leaderboard() {
             {errorMessage(error)}
           </StateBox>
         ) : data === null ? (
-          <StateBox compact icon="trophy" title="Disponible pronto">
-            La clasificación Challenger de cada región llegará en una próxima actualización de Kairo.
-          </StateBox>
+          <LadderPreview />
         ) : !data.length ? (
           <StateBox compact icon="trophy" title="Sin jugadores en Challenger">
             Riot todavía no publica la clasificación de esta región (pasa al inicio de cada temporada).
@@ -165,6 +166,32 @@ function Leaderboard() {
         )}
       </div>
     </section>
+  );
+}
+
+/** Clasificación aún no disponible: la forma de la tabla, tenue y quieta, con el aviso encima */
+function LadderPreview() {
+  const widths = [132, 118, 146, 104, 126, 112];
+  return (
+    <div className="ladder-preview">
+      <div className="ladder-ghost" aria-hidden="true">
+        {widths.map((w, i) => (
+          <div key={i} className="ghost-row">
+            <span className={`ghost-pos${i < 3 ? " top" : ""}`}>{i + 1}</span>
+            <span className="ghost-avatar" />
+            <span className="ghost-bar" style={{ width: w }} />
+            <span className="ghost-bar ghost-tier" />
+            <span className="ghost-bar ghost-lp" />
+            <span className="ghost-wr"><span style={{ width: `${62 - i * 2}%` }} /></span>
+          </div>
+        ))}
+      </div>
+      <div className="ladder-soon">
+        <span className="soon-badge"><Icon name="trophy" size={14} /> Disponible pronto</span>
+        <h3>Los mejores Challenger de cada región</h3>
+        <p>LAN, LAS, NA, EUW, KR y BR con LP y winrate. Llega en una próxima actualización de Kairo.</p>
+      </div>
+    </div>
   );
 }
 

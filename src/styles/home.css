@@ -124,6 +124,63 @@ a.ladder-name:hover { text-decoration: underline; }
 .wr-bar { display: block; width: 98px; height: 5px; border-radius: 3px; background: #3a1c1f; overflow: hidden; flex: none; }
 .wr-bar span { display: block; height: 100%; background: var(--win); border-radius: 3px; }
 
+/* Clasificación pendiente: vista previa tenue de la tabla con el aviso encima */
+.ladder-preview { position: relative; min-height: 300px; }
+.ladder-ghost {
+  padding: 8px 0;
+  opacity: .7;
+  -webkit-mask-image: linear-gradient(to bottom, #000 10%, transparent 95%);
+  mask-image: linear-gradient(to bottom, #000 10%, transparent 95%);
+}
+.ghost-row {
+  display: grid;
+  grid-template-columns: 40px 24px minmax(0, 1fr) 80px 56px 130px;
+  align-items: center;
+  gap: 14px;
+  height: 46px;
+  padding: 0 18px;
+  border-bottom: 1px solid var(--border);
+}
+.ghost-pos { color: var(--text-3); font-weight: 600; font-size: 12px; }
+.ghost-pos.top { color: var(--brand); opacity: .7; }
+.ghost-avatar { width: 24px; height: 24px; border-radius: 7px; background: var(--surface-2); border: 1px solid var(--border-2); }
+.ghost-bar { display: block; height: 9px; border-radius: 5px; background: #222e29; max-width: 100%; }
+.ghost-tier { width: 70px; background: color-mix(in srgb, var(--gold) 30%, var(--surface-2)); }
+.ghost-lp { width: 40px; justify-self: end; }
+.ghost-wr { display: block; height: 5px; border-radius: 3px; background: #2a1a1c; overflow: hidden; }
+.ghost-wr span { display: block; height: 100%; background: color-mix(in srgb, var(--win) 55%, transparent); }
+.ladder-soon {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 8px;
+  padding: 24px;
+  background: radial-gradient(60% 70% at 50% 50%, rgba(10, 15, 13, .92), rgba(10, 15, 13, .55) 70%, transparent);
+}
+.soon-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--gold) 40%, transparent);
+  background: color-mix(in srgb, var(--gold) 12%, transparent);
+  color: var(--gold);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .04em;
+}
+.ladder-soon h3 { font-size: 17px; font-weight: 600; }
+.ladder-soon p { margin: 0; color: var(--text-2); font-size: 13px; max-width: 380px; }
+@media (max-width: 600px) {
+  .ghost-row { grid-template-columns: 24px 22px minmax(0, 1fr) 60px; gap: 10px; padding: 0 14px; }
+  .ghost-lp, .ghost-wr { display: none; }
+}
+
 /* Recientes */
 .recents { list-style: none; margin: 0; padding: 0; }
 .recents li + li { border-top: 1px solid var(--border); }
