@@ -1,0 +1,118 @@
+/* ─── Portada ──────────────────────────────────────────── */
+.hero { border-bottom: 1px solid var(--border); }
+.hero-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding-top: 64px;
+  padding-bottom: 52px;
+}
+.hero-eyebrow { color: var(--brand); font-size: 10px; letter-spacing: .2em; margin: 0 0 18px; }
+.hero-title { font-size: clamp(32px, 5.4vw, 44px); font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; }
+.hero-sub { color: var(--text-2); font-size: 15px; max-width: 400px; margin: 18px 0 24px; }
+.hero-search { width: 100%; max-width: 544px; margin-bottom: 20px; }
+.hero .game-chips { max-width: 620px; }
+
+.home-body { padding-top: 40px; }
+.home-section { margin-bottom: 40px; min-width: 0; }
+.section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+.live-title { display: inline-flex; align-items: center; gap: 10px; }
+.link-btn {
+  border: 0;
+  background: none;
+  padding: 4px 0;
+  color: var(--brand);
+  font-size: 12px;
+  font-weight: 600;
+}
+.link-btn:hover { text-decoration: underline; }
+
+/* Favoritos en partida */
+.fav-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.fav-card { padding: 14px; display: flex; flex-direction: column; }
+.fav-top { display: flex; align-items: center; gap: 10px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+.fav-info { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+.fav-name { font-weight: 600; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fav-name:hover { text-decoration: underline; }
+.fav-sub { color: var(--text-3); font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fav-timer { color: var(--brand); font-weight: 600; font-size: 13px; }
+.fav-bottom { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding-top: 12px; font-size: 11px; }
+.fav-link { font-weight: 600; font-size: 11px; color: var(--text); }
+.fav-link:hover { color: var(--brand); }
+
+/* Clasificación + lateral */
+.home-grid { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 16px 18px; align-items: start; }
+.home-aside { display: flex; flex-direction: column; min-width: 0; }
+.home-aside .home-section { margin-bottom: 16px; }
+.ladder-card { overflow: hidden; }
+.region-tabs button { padding: 5px 12px; font-size: 11px; }
+
+.ladder { width: 100%; border-collapse: collapse; min-width: 560px; }
+.ladder th {
+  text-align: left;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.ladder td { padding: 10px 16px; border-bottom: 1px solid var(--border); font-size: 12px; height: 43px; }
+.ladder tbody tr:last-child td { border-bottom: 0; }
+.ladder tbody tr:hover td { background: rgba(255, 255, 255, .015); }
+.ladder .col-pos { width: 56px; color: var(--text-2); font-weight: 600; }
+.ladder .col-pos.top { color: var(--brand); }
+.ladder .col-lp { text-align: right; font-weight: 600; width: 90px; }
+.ladder .col-wr { width: 170px; }
+.ladder-player { display: flex; align-items: center; gap: 8px; }
+.ladder-name { font-weight: 500; white-space: nowrap; }
+a.ladder-name:hover { text-decoration: underline; }
+.ladder-tier { color: var(--gold); font-weight: 500; }
+.wr-bar-wrap { display: flex; align-items: center; gap: 8px; font-weight: 500; }
+.wr-bar { display: block; width: 98px; height: 5px; border-radius: 3px; background: #3a1c1f; overflow: hidden; flex: none; }
+.wr-bar span { display: block; height: 100%; background: var(--win); border-radius: 3px; }
+
+/* Recientes */
+.recents { list-style: none; margin: 0; padding: 0; }
+.recents li + li { border-top: 1px solid var(--border); }
+.recent { display: flex; align-items: center; gap: 12px; padding: 12px 14px; transition: background-color .15s; }
+.recent:hover { background: var(--surface-2); }
+.recents li:first-child .recent { border-radius: var(--radius-card) var(--radius-card) 0 0; }
+.recents li:last-child .recent { border-radius: 0 0 var(--radius-card) var(--radius-card); }
+.recent-badge {
+  width: 28px; height: 28px;
+  display: grid; place-items: center;
+  flex: none;
+  border-radius: 7px;
+  border: 1px solid var(--border-2);
+  background: var(--bg);
+  font-size: 8px;
+  font-weight: 700;
+}
+.recent-text { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+.recent-name { font-weight: 600; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.recent-sub { color: var(--text-3); font-size: 10px; }
+
+.pocket { padding: 16px; background: #0f1a16; border-color: #1f3a2f; }
+.pocket h3 { font-size: 13px; font-weight: 600; margin-bottom: 8px; }
+.pocket p { margin: 0 0 12px; color: var(--text-2); font-size: 11px; line-height: 1.55; }
+.pocket .btn { height: 30px; font-size: 11px; padding: 0 12px; border-radius: 7px; }
+
+@media (max-width: 960px) {
+  .home-grid { grid-template-columns: minmax(0, 1fr); }
+  .fav-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 600px) {
+  .fav-grid { grid-template-columns: minmax(0, 1fr); }
+  .hero-inner { padding-top: 40px; padding-bottom: 36px; }
+  .region-tabs { overflow-x: auto; max-width: 100%; }
+}
