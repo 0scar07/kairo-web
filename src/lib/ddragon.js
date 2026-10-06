@@ -13,6 +13,7 @@ let version = readJSON(VERSION_KEY)?.v || FALLBACK_VERSION;
 let champs = {};   // championId numérico -> { id: "MonkeyKing", name: "Wukong" }
 let spells = {};   // id -> { image, name }
 let perks = {};    // id de runa o de estilo -> { icon, name }
+let items = {};    // id de objeto -> nombre
 let ready = false;
 let loading = null;
 
@@ -54,7 +55,7 @@ async function loadList(name, url, compact) {
 async function load() {
   await loadVersion();
   const base = `${CDN}/cdn/${version}/data/${LOCALE}`;
-  const [c, s, r] = await Promise.allSettled([
+  const [c, s, r, it] = await Promise.allSettled([
     loadList("champions", `${base}/champion.json`, json =>
       Object.fromEntries(Object.values(json.data).map(x => [x.key, { id: x.id, name: x.name }]))),
     loadList("spells", `${base}/summoner.json`, json =>
@@ -67,10 +68,13 @@ async function load() {
       });
       return out;
     }),
+    loadList("items", `${base}/item.json`, json =>
+      Object.fromEntries(Object.entries(json.data).map(([id, x]) => [id, x.name]))),
   ]);
   if (c.status === "fulfilled") champs = c.value;
   if (s.status === "fulfilled") spells = s.value;
   if (r.status === "fulfilled") perks = r.value;
+  if (it.status === "fulfilled") items = it.value;
   ready = true;
   notify();
 }
@@ -100,6 +104,7 @@ export function championIcon(championId, championKey) {
 }
 
 export const itemIcon = id => (id ? img(`item/${id}.png`) : null);
+export const itemName = id => items[id] || "";
 export const profileIcon = id => (id || id === 0 ? img(`profileicon/${id}.png`) : null);
 export const spellIcon = id => (spells[id] ? img(`spell/${spells[id].image}`) : null);
 export const spellName = id => spells[id]?.name || "";

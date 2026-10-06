@@ -73,11 +73,12 @@ async function fetchWithWake(url) {
  * GET al backend con caché.
  *   ttl: ms de caché (0 = sin caché) · persist: también en localStorage (sobrevive a recargar)
  *   force: ignora lo guardado (botón Actualizar) · map: transforma la respuesta antes de guardarla
+ *   version: se suma a la clave de caché (cambiarla invalida lo guardado con un `map` anterior)
  * Devuelve { data, at } (at = cuándo se obtuvo el dato).
  */
-export async function request(path, { params, ttl = 0, persist = false, force = false, map } = {}) {
+export async function request(path, { params, ttl = 0, persist = false, force = false, map, version } = {}) {
   const url = buildUrl(path, params);
-  const key = url.slice(API_URL.length);
+  const key = url.slice(API_URL.length) + (version ? `#v${version}` : "");
 
   if (!force && ttl > 0) {
     const hit = memory.get(key);

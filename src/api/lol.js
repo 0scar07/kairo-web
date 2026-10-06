@@ -48,9 +48,10 @@ export const getMastery = (puuid, region, force) =>
 export const getMatchIds = (puuid, region, { start = 0, count = MATCH_PAGE_FIRST, queue = null, force = false } = {}) =>
   get(`/lol/matches/${puuid}`, { params: { region, start, count, queue }, ttl: TTL.matchIds, persist: true, force });
 
-/** Una partida, ya compactada (ver compactMatch) */
+/** Una partida, ya compactada (ver compactMatch). Subir MATCH_FORMAT al cambiar compactMatch. */
+const MATCH_FORMAT = 2;
 export const getMatch = (matchId, region) =>
-  get(`/lol/match/${matchId}`, { params: { region }, ttl: TTL.match, persist: true, map: compactMatch });
+  get(`/lol/match/${matchId}`, { params: { region }, ttl: TTL.match, persist: true, map: compactMatch, version: MATCH_FORMAT });
 
 /** Varias partidas en orden; las que fallan se omiten (la primera que falle por límite se informa) */
 export async function getMatches(ids, region) {

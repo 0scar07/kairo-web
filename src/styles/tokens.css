@@ -39,7 +39,7 @@
   --radius-btn: 10px;
   --radius-input: 12px;
   --container: 1280px;
-  --gutter: 24px;
+  --gutter: 32px;
 }
 
 @media (max-width: 640px) {

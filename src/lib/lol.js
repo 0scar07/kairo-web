@@ -15,7 +15,7 @@ const QUEUES = {
   1020: ["Un solo campeón", "Un solo campeón"],
   1300: ["Nexus Blitz", "Nexus Blitz"],
   1400: ["Libro de hechizos", "Libro de hechizos definitivo"],
-  1700: ["Arena", "Arena"], 1710: ["Arena", "Arena"],
+  1700: ["Arena", "Arena"], 1710: ["Arena", "Arena"], 1740: ["Arena", "Arena"], 1750: ["Arena", "Arena"],
 };
 
 export const queueShort = id => QUEUES[id]?.[0] || "Otro modo";
@@ -95,8 +95,11 @@ export const kdaText = (k, d, a) => {
  */
 export function compactMatch(m) {
   const info = m.info || {};
+  // En Arena los equipos son parejas (playerSubteamId) y el resultado es el puesto final
+  const arena = info.gameMode === "CHERRY";
   return {
     id: m.metadata?.matchId,
+    arena,
     queueId: info.queueId,
     mapId: info.mapId,
     creation: info.gameCreation,
@@ -111,7 +114,7 @@ export function compactMatch(m) {
       championId: p.championId,
       championName: p.championName,
       champLevel: p.champLevel,
-      teamId: p.teamId,
+      teamId: arena && p.playerSubteamId ? 1000 + p.playerSubteamId : p.teamId,
       position: p.teamPosition || p.individualPosition || "",
       win: Boolean(p.win),
       remake: Boolean(p.gameEndedInEarlySurrender),
@@ -126,7 +129,7 @@ export function compactMatch(m) {
       spells: [p.summoner1Id, p.summoner2Id],
       keystone: p.perks?.styles?.[0]?.selections?.[0]?.perk ?? null,
       secondary: p.perks?.styles?.[1]?.style ?? null,
-      placement: p.placement || p.subteamPlacement || null,
+      placement: p.subteamPlacement || p.placement || null,
     })),
   };
 }
@@ -216,4 +219,6 @@ export function timeAgo(ms, now = Date.now()) {
 export const formatNumber = n => new Intl.NumberFormat("es-MX").format(Math.round(n || 0)).replace(/,/g, " ");
 
 const POSITIONS = { TOP: "Superior", JUNGLE: "Jungla", MIDDLE: "Central", BOTTOM: "Inferior", UTILITY: "Soporte" };
+export const placementLabel = n => (n ? `${n}.º lugar` : "");
+
 export const positionName = pos => POSITIONS[pos] || "";
