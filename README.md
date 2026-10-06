@@ -1,92 +1,177 @@
-# Kairo Web
+<div align="center">
 
-**Web publicada: <https://0scar07.github.io/kairo-web/>**
+<img src="docs/icon.png" alt="Kairo" width="96" />
 
-Versión web de [Kairo](https://github.com/0scar07/Kairo): busca jugadores de **League of Legends** y mira su rango, su historial y su partida en vivo, estilo op.gg / porofessor.gg.
+# KAIRO WEB
 
-Los demás juegos de Kairo (TFT, Brawl Stars, Clash Royale, Clash of Clans, Dota 2, Fortnite, Apex Legends y PUBG) aparecen como "Próximamente".
+**Cada partida cuenta.** Ahora también en el navegador.
 
-- React 18 + Vite 5 + React Router 6. CSS propio con los tokens del diseño (`src/styles/tokens.css`), sin librerías de UI.
-- **Solo habla con el backend de Kairo** (`VITE_API_URL`). Nunca llama a Riot ni lleva API keys. Las imágenes de campeones, objetos, hechizos y runas salen de Data Dragon (CDN público de Riot).
+Busca a cualquier jugador de **League of Legends** y mira su rango, su historial y su **partida en vivo**, estilo op.gg / porofessor.gg. Es la versión web de [Kairo](https://github.com/0scar07/Kairo).
 
-## Páginas
+[![Deploy](https://github.com/0scar07/kairo-web/actions/workflows/deploy.yml/badge.svg)](https://github.com/0scar07/kairo-web/actions/workflows/deploy.yml)
+[![CI](https://github.com/0scar07/kairo-web/actions/workflows/ci.yml/badge.svg)](https://github.com/0scar07/kairo-web/actions/workflows/ci.yml)
+![Licencia](https://img.shields.io/badge/licencia-MIT-35E0A1)
+![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black)
+![Vite](https://img.shields.io/badge/Vite-5-646CFF?logo=vite&logoColor=white)
+![Node](https://img.shields.io/badge/Node-20%2B-339933?logo=node.js&logoColor=white)
 
-| Ruta | Qué muestra |
-|---|---|
-| `/` | Buscador con región, chips de juegos, favoritos en partida, clasificación Challenger y búsquedas recientes |
-| `/lol/:region/:Nombre-TAG` | Perfil: rango Solo/Duo y Flex, LP de 30 días, campeones, historial con filtros, detalle de partidas. Pestañas `?tab=campeones` y `?tab=maestria` |
-| `/lol/:region/:Nombre-TAG/en-vivo` | Partida en curso: cola, mapa, cronómetro, bloqueos y los dos equipos con rango y winrate |
-| `/juegos`, `/juegos/:juego` | Juegos que todavía no están en la web |
+### [Abrir la web: 0scar07.github.io/kairo-web](https://0scar07.github.io/kairo-web/)
 
-Regiones en la URL: `lan`, `las`, `na`, `euw`, `kr`, `br`. El Riot ID va como `Nombre-TAG` (se corta por el último guion), por ejemplo <https://0scar07.github.io/kairo-web/lol/kr/Hide%20on%20bush-KR1>. Los enlaces se pueden compartir y cargan directo.
+[Capturas](#capturas) · [Qué hace](#qué-hace) · [Correr en local](#correr-en-local) · [Despliegue](#despliegue) · [Arquitectura](#arquitectura) · [Hoja de ruta](#hoja-de-ruta)
 
-Las rutas de la tabla son relativas a la base `/kairo-web/` (ver *Despliegue*).
+<br />
 
-## Correr en local
+<img src="docs/screenshots/inicio.webp" alt="Portada de Kairo Web: buscador, favoritos en partida, clasificación y búsquedas recientes" width="100%" />
 
-Requisitos: Node 20 o más nuevo (el despliegue usa Node 22, ver `.nvmrc`).
-
-```bash
-npm install
-cp .env.example .env     # y ajusta VITE_API_URL
-npm run dev              # http://localhost:5173/kairo-web/
-```
-
-**Contra el backend local** (repo de Kairo, carpeta `server/`, con su propio `.env` con `RIOT_API_KEY`):
-
-```bash
-# terminal 1, en el repo de Kairo
-cd server && npm install && npm start     # http://localhost:3000
-
-# terminal 2, aquí
-# .env -> VITE_API_URL=http://localhost:3000
-npm run dev
-```
-
-**Contra el backend de producción**: `VITE_API_URL=https://kairo-api-nqts.onrender.com`. Para eso, el CORS del backend debe aceptar `http://localhost:5173` (si `CORS_ORIGINS` está vacío, acepta cualquier origen).
-
-Si cambias `.env`, reinicia `npm run dev`: Vite lee las variables al arrancar.
-
-## Comportamiento
-
-- **Caché en el navegador**: cuenta 10 min, invocador y rango 3 min, IDs de partidas 2 min, historial de LP y maestría 10 min, clasificación 10 min. Las partidas terminadas se guardan 7 días, compactadas (unos 3 KB cada una) en `localStorage`. La partida en vivo solo se guarda 20 s, en memoria. **Actualizar** ignora la caché.
-- **Servidor dormido** (Render gratis): si `/health` no contesta en unos segundos, aparece "Despertando el servidor…", se espera hasta 90 s y se reintenta la consulta.
-- **Filtros de cola**: se manda `?queue=420|440|450` a `/lol/matches` y además se filtra en local por `queueId`. Mientras el backend no soporte el parámetro, el filtro funciona sobre las partidas cargadas.
-- **Clasificación**: se pide `/lol/leaderboard`. Si responde `ROUTE_NOT_FOUND`, se muestra "Disponible pronto". Forma esperada: `[{ puuid, gameName, tagLine, leaguePoints, wins, losses }]`.
-- **Favoritos y recientes**: en `localStorage` de este navegador, sin cuenta. Los favoritos en partida se revisan cada minuto con `/lol/live` (máximo 6).
-- **Campeones**: calculados con las partidas cargadas ("últimas N partidas"). Riot no ofrece estadísticas por temporada.
-
-## Despliegue
-
-### GitHub Pages (actual)
-
-Cada push a `main` ejecuta [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml): `npm ci`, `npm run build` con `VITE_API_URL=https://kairo-api-nqts.onrender.com` y publicación de `dist/` con `actions/deploy-pages`. En *Settings → Pages* la fuente es **GitHub Actions**.
-
-- La web vive en `/kairo-web/`: `base` en `vite.config.js` (el `basename` de React Router se toma de ahí) y los assets de `public/` usan `import.meta.env.BASE_URL`.
-- GitHub Pages no reescribe rutas. Por eso el build copia `index.html` a `404.html`: al recargar un perfil o abrir un link directo, Pages sirve esa copia, la SPA arranca y muestra la página pedida. El build también crea `.nojekyll`.
-- El backend debe aceptar el origen `https://0scar07.github.io` en CORS. Es el mismo origen que la PWA de la app.
-
-### Cloudflare Pages (alternativa)
-
-1. *Workers & Pages → Create → Pages → Connect to Git* y elige este repo.
-2. Build command `npm run build`, output directory `dist`.
-3. Variables de entorno: `VITE_API_URL=https://kairo-api-nqts.onrender.com` y **`BASE_PATH=/`** (la web queda en la raíz del dominio en vez de `/kairo-web/`).
-4. Las rutas SPA funcionan al recargar gracias a `public/_redirects` (`/* /index.html 200`). En GitHub Pages ese archivo se ignora.
-5. Agrega el dominio de Pages a `CORS_ORIGINS` del backend.
-
-## Estructura
-
-```
-src/
-  api/        client.js (fetch, caché, errores, servidor dormido) · server.js (/health) · lol.js (endpoints)
-  lib/        ddragon.js · lol.js (colas, rangos, KDA, compactMatch) · regions.js · library.js (favoritos/recientes)
-              storage.js · hooks.js · games.js · config.js
-  components/ Layout (header, footer, aviso del servidor) · SearchForm · Icon (SVG) · ui (imágenes, emblemas, estados)
-  pages/      Home · Profile (+ profile/) · Live · Misc (próximamente, 404)
-  styles/     tokens · global · components · home · profile · live
-public/       ranks/ (emblemas oficiales, los mismos de la app) · favicon.svg · _redirects
-```
+</div>
 
 ---
 
-Kairo no está respaldada por Riot Games, Supercell, Valve, Epic Games, Electronic Arts ni KRAFTON. Todas las marcas pertenecen a sus dueños.
+## Capturas
+
+<table>
+  <tr>
+    <td width="75%"><img src="docs/screenshots/perfil.webp" alt="Perfil de Hide on bush#KR1: rango Challenger, campeones e historial de partidas" /></td>
+    <td width="25%"><img src="docs/screenshots/celular.webp" alt="El mismo perfil en un celular" /></td>
+  </tr>
+  <tr>
+    <td colspan="2"><img src="docs/screenshots/en-vivo.webp" alt="Partida en vivo: equipos azul y rojo con rango, winrate y el jugador buscado resaltado" /></td>
+  </tr>
+</table>
+
+<sub>Capturas de la web corriendo contra el backend real de Kairo (Corea, octubre de 2026).</sub>
+
+## Qué hace
+
+**Inicio**
+- Buscador grande con región (LAN, LAS, NA, EUW, KR, BR) y `Nombre#TAG`. Autocompleta con tus favoritos y búsquedas recientes, con ícono, Riot ID y rango, y se maneja con el teclado (flechas, Enter, Esc).
+- *Tus favoritos en partida*: qué favoritos están jugando ahora, con campeón, cola y cronómetro. Se revisa cada minuto.
+- Clasificación Challenger por región (ver [backend](#backend)) y búsquedas recientes.
+
+**Perfil** · `/lol/:region/:Nombre-TAG`
+- Cabecera con ícono, nivel y el splash del campeón más jugado de fondo. Botones Actualizar y Favorito.
+- Rango Solo/Duo y Flex con el color y el emblema de su liga, gráfico de LP de 30 días y campeones de las partidas cargadas.
+- Historial: resumen de las últimas partidas, filtros por cola y filas con resultado, campeón, hechizos, runas, K/D/A, KDA, CS por minuto, participación, objetos y tiempo. El detalle muestra los 10 jugadores. Botón "Cargar más".
+- Pestañas Campeones (tabla completa) y Maestría (top 10).
+
+**En vivo** · `/lol/:region/:Nombre-TAG/en-vivo`
+- Cola, mapa y un cronómetro que avanza. Bloqueos de ambos equipos.
+- Equipos azul y rojo con campeón, hechizos, runas, rango, LP, winrate y partidas, más el rango medio de cada equipo. El jugador buscado va resaltado.
+- Si no está jugando, lo dice claro y vuelve a revisar solo.
+
+**En todas las páginas**
+- Los enlaces se comparten y cargan directo. Hay skeletons mientras carga y mensajes claros para "jugador no encontrado", el límite de la API y "Despertando el servidor…" cuando Render está dormido.
+- Funciona en celular: las columnas se apilan y las tablas hacen scroll dentro de su caja.
+- Animaciones sutiles (entrada escalonada, números que cuentan, logo que respira). Se apagan si el sistema pide `prefers-reduced-motion` y solo usan `transform` y `opacity`.
+- Imágenes reales de Data Dragon (campeones, objetos, hechizos, runas e íconos) y emblemas oficiales de rango. Sin emojis.
+
+TFT, Brawl Stars, Clash Royale, Clash of Clans, Dota 2, Fortnite, Apex Legends y PUBG aparecen como *Próximamente*: ya están en la [app](https://github.com/0scar07/Kairo).
+
+## Correr en local
+
+Requisitos: **Node 20 o más nuevo** (el despliegue usa Node 22, ver `.nvmrc`).
+
+```bash
+npm install
+cp .env.example .env          # ajusta VITE_API_URL
+npm run dev                   # http://localhost:5173/kairo-web/
+```
+
+| Contra qué backend | `VITE_API_URL` |
+|---|---|
+| Producción (Render) | `https://kairo-api-nqts.onrender.com` |
+| Local (`server/` del repo de Kairo, con su `.env` y `RIOT_API_KEY`) | `http://localhost:3000` |
+
+Para el backend local: `cd server && npm install && npm start` en el repo de Kairo. Si cambias `.env`, reinicia `npm run dev`.
+
+### Scripts
+
+| Comando | Qué hace |
+|---|---|
+| `npm run dev` | Servidor de desarrollo con recarga en caliente |
+| `npm run build` | Build de producción en `dist/` (con `404.html` y `.nojekyll`) |
+| `npm run preview` | Sirve el build en local |
+| `npm run lint` | ESLint (reglas de React Hooks incluidas) |
+| `npm test` | Pruebas con Vitest: Riot ID en la URL, rangos, KDA, partidas, sugerencias |
+| `npm run check` | Lint, pruebas y build: lo mismo que corre la CI |
+
+## Despliegue
+
+### GitHub Pages (el actual)
+
+Cada push a `main` ejecuta [`deploy.yml`](.github/workflows/deploy.yml): `npm ci`, lint, pruebas, build con `VITE_API_URL` de producción y publicación de `dist/` con `actions/deploy-pages`. **Si el lint o las pruebas fallan, no se publica nada.** Los pull requests pasan por [`ci.yml`](.github/workflows/ci.yml).
+
+- La web vive en `/kairo-web/`. Lo define `base` en `vite.config.js`; el `basename` de React Router y las rutas de `public/` salen de `import.meta.env.BASE_URL`.
+- GitHub Pages no reescribe rutas, así que el build copia `index.html` a `404.html`: al abrir un link directo, Pages sirve esa copia y la SPA muestra la página pedida. Esas URLs responden con código 404, aunque se ven bien.
+
+### Cloudflare Pages (alternativa)
+
+Build `npm run build`, salida `dist` y las variables `VITE_API_URL` y **`BASE_PATH=/`** (para servir en la raíz del dominio). Las rutas SPA funcionan con `public/_redirects`, que GitHub Pages ignora.
+
+En los dos casos, el dominio debe estar en `CORS_ORIGINS` del backend (o esa variable vacía, que acepta cualquier origen).
+
+## Arquitectura
+
+```mermaid
+flowchart LR
+  B[Navegador<br/>Kairo Web] -- "/lol/... ?region=" --> K[Backend de Kairo<br/>Express en Render]
+  K -- "API key (solo en el servidor)" --> R[API de Riot]
+  B -- "imágenes y listas" --> D[Data Dragon<br/>CDN público de Riot]
+  B <-- "favoritos, recientes, caché" --> L[(localStorage)]
+```
+
+- **La web solo habla con el backend de Kairo.** Nunca llama a Riot y no tiene ninguna API key. La URL del backend se configura con `VITE_API_URL`.
+- **Caché en el navegador** (`src/api/client.js`): la cuenta se guarda 10 min, invocador y rango 3, IDs de partidas 2, LP, maestría y clasificación 10. Las partidas terminadas se guardan 7 días, compactadas a unos 3 KB cada una (`compactMatch`). La partida en vivo, solo 20 s en memoria. *Actualizar* ignora la caché.
+- **Servidor dormido**: si `/health` no contesta en unos segundos, aparece "Despertando el servidor…", se espera hasta 90 s y se reintenta la consulta.
+- **Sin cuenta**: favoritos y recientes viven en el `localStorage` de cada navegador.
+
+```
+src/
+  api/         client.js (fetch, caché, errores, servidor dormido) · server.js · lol.js (endpoints)
+  lib/         ddragon.js · lol.js (colas, rangos, KDA, compactMatch) · regions.js · library.js
+               storage.js · hooks.js · games.js · config.js · *.test.js
+  components/  Layout (header, footer, aviso del servidor) · SearchForm (autocompletado) · CountUp · Icon · ui
+  pages/       Home · Profile (+ profile/) · Live · Misc (próximamente, 404)
+  styles/      tokens · global · components · home · profile · live
+public/        logo, favicon, ranks/ (emblemas oficiales) y _redirects
+docs/          capturas del README
+```
+
+### Backend
+
+La web usa estos endpoints de `server/` del repo de Kairo:
+
+| Endpoint | Para qué |
+|---|---|
+| `GET /lol/account/:nombre/:tag` | Riot ID → puuid |
+| `GET /lol/summoner/:puuid` | Ícono y nivel |
+| `GET /lol/ranked/:puuid` | Solo/Duo y Flex |
+| `GET /lol/history/:puuid?days=30` | Gráfico de LP |
+| `GET /lol/matches/:puuid?start&count&queue` | Historial (`queue` lo usan los filtros) |
+| `GET /lol/match/:id` | Detalle de cada partida |
+| `GET /lol/mastery/:puuid?count=10` | Pestaña Maestría |
+| `GET /lol/live/:puuid` | Partida en vivo y favoritos en partida |
+| `GET /lol/leaderboard?region&queue&limit` | Clasificación Challenger: `[{ puuid, gameName, tagLine, leaguePoints, wins, losses }]` |
+| `GET /health` | Saber si el servidor está despierto |
+
+`/lol/leaderboard` y el parámetro `queue` de `/lol/matches` **todavía no existen** en el backend, pero la web ya está lista para ellos:
+- Mientras no exista `/lol/leaderboard`, la clasificación muestra "Disponible pronto".
+- Mientras no exista `queue`, los filtros trabajan sobre las partidas ya cargadas.
+
+Cuando el backend los agregue, la web los empieza a usar sola, sin otro despliegue.
+
+## Hoja de ruta
+
+- [ ] Clasificación Challenger real (endpoint `/lol/leaderboard`)
+- [ ] Filtros de cola en el servidor (`?queue=` en `/lol/matches`)
+- [ ] Comparar dos jugadores (ya existe en la app)
+- [ ] TFT y los demás juegos de Kairo
+- [ ] Más idiomas (la app tiene 5)
+
+## Licencia
+
+[MIT](LICENSE) © 2026 0scar07
+
+---
+
+<sub>Kairo no está respaldada por Riot Games, Supercell, Valve, Epic Games, Electronic Arts ni KRAFTON. Todas las marcas pertenecen a sus dueños.</sub>
