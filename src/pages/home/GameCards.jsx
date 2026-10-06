@@ -57,17 +57,24 @@ function Poster({ game, index }) {
               // Fondo gráfico propio: color del juego, rayas y el logo real en grande (sin arte de terceros)
               <span className="poster-graphic" aria-hidden="true">
                 <span className="poster-watermark"><GameLogo game={game.id} size={190} color={game.color} /></span>
-                <span className="poster-emblem"><GameLogo game={game.id} size={64} color={game.color} /></span>
+                {/* Con personaje, el logo grande sobra: queda solo la marca de agua */}
+                {!art?.char && <span className="poster-emblem"><GameLogo game={game.id} size={64} color={game.color} /></span>}
               </span>
             )}
           </span>
           {art?.char && (
+            // Contenedor del tamaño de la tarjeta: en modo free recorta los costados (el personaje no invade la
+            // tarjeta vecina) y deja libre la parte de arriba
+            <span className={`poster-pop${art.mode === "free" ? " clip-x" : ""}`}>
             <span
-              className="poster-char"
-              style={{ "--char-h": `${art.charHeight}%`, "--char-l": `${art.charLeft || 0}%`, "--char-r": `${art.charRight || 0}%` }}
+              className={`poster-char ${art.mode === "free" ? "free" : "aligned"}`}
+              style={art.mode === "free"
+                ? { "--char-w": `${art.charWidth}%`, "--char-b": `${art.charBottom}%`, "--char-x": `${art.charX || 0}%` }
+                : { "--char-h": `${art.charHeight}%`, "--char-l": `${art.charLeft || 0}%`, "--char-r": `${art.charRight || 0}%` }}
               aria-hidden="true"
             >
               <img src={asset(art.char)} alt="" loading="lazy" decoding="async" />
+            </span>
             </span>
           )}
           <span className="poster-shade" aria-hidden="true" />

@@ -422,22 +422,36 @@ a.ladder-name:hover { text-decoration: underline; }
    sobresale por arriba. Se desvanece hacia abajo para que, al moverse, se funda con el fondo sin costura. */
 .poster-char {
   position: absolute;
-  /* Más ancho que la tarjeta por los márgenes laterales del recorte (solo tienen píxeles en la parte que sobresale) */
-  left: calc(var(--char-l, 0%) * -1);
-  right: calc(var(--char-r, 0%) * -1);
-  bottom: 0;
-  height: var(--char-h, 100%);
   pointer-events: none;
   transform-origin: 50% 100%;
   transition: transform .6s cubic-bezier(.2, .7, .2, 1);
   -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 58%, transparent 82%);
   mask-image: linear-gradient(180deg, #000 0%, #000 58%, transparent 82%);
 }
+.poster-pop { position: absolute; inset: 0; pointer-events: none; }
+/* overflow-x: clip deja overflow-y visible (con hidden/auto no se podría): corta los costados, no la parte de arriba */
+.poster-pop.clip-x { overflow-x: clip; }
+/* aligned: recorte del mismo splash que el fondo. Más ancho que la tarjeta por los márgenes laterales del recorte
+   (solo tienen píxeles en la parte que sobresale) */
+.poster-char.aligned {
+  left: calc(var(--char-l, 0%) * -1);
+  right: calc(var(--char-r, 0%) * -1);
+  bottom: 0;
+  height: var(--char-h, 100%);
+}
+.poster-char.aligned img { height: 100%; object-fit: fill; }
+/* free: render suelto, apoyado en --char-b y centrado (con --char-x de corrección) */
+.poster-char.free {
+  width: var(--char-w, 100%);
+  left: calc(50% - var(--char-w, 100%) / 2 + var(--char-x, 0%));
+  bottom: var(--char-b, 0%);
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 70%, transparent 96%);
+  mask-image: linear-gradient(180deg, #000 0%, #000 70%, transparent 96%);
+}
+.poster-char.free img { height: auto; }
 .poster-char img {
   display: block;
   width: 100%;
-  height: 100%;
-  object-fit: fill;
   transform-origin: 50% 100%;
   animation: poster-breathe 5s ease-in-out calc(var(--i) * -1.3s) infinite;
   filter: drop-shadow(0 6px 14px rgba(0, 0, 0, .45));
