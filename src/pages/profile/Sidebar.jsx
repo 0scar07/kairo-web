@@ -1,8 +1,11 @@
-import { DDImg, RankEmblem, Skeleton } from "../../components/ui";
+import { Link } from "react-router-dom";
+import { DDImg, Initials, RankEmblem, Skeleton } from "../../components/ui";
 import CountUp from "../../components/CountUp";
 import Icon from "../../components/Icon";
 import { rankLabel, rankScore, tierColor, winrate } from "../../lib/lol";
-import { championIcon, championName } from "../../lib/ddragon";
+import { champion, championIcon, championName, profileIcon } from "../../lib/ddragon";
+import { championPath } from "../../lib/champions";
+import { profilePath } from "../../lib/regions";
 
 const wrClass = wr => (wr >= 50 ? "win" : "loss");
 
@@ -131,7 +134,7 @@ function Sparkline({ points }) {
 }
 
 // ─── Campeones de las partidas cargadas ──────────────────────────────────
-export function ChampionsCard({ stats, games, loading }) {
+export function ChampionsCard({ stats, games, loading, player }) {
   return (
     <section className="card card-pad champs-card reveal" style={{ "--i": 3 }} aria-label="Campeones">
       <p className="eyebrow">Campeones · {games ? `Últimas ${games} partidas` : "Partidas recientes"}</p>
@@ -149,7 +152,7 @@ export function ChampionsCard({ stats, games, loading }) {
               <li key={c.championId} className="reveal" style={{ "--i": i + 4 }}>
                 <DDImg src={championIcon(c.championId, c.championName)} size={30} alt={name} />
                 <div className="champ-text">
-                  <strong>{name}</strong>
+                  <Link to={championPath(champion(c.championId)?.id || c.championName, player)} className="champ-link">{name}</Link>
                   <span className="faint num">{c.kda === Infinity ? "KDA perfecto" : `${c.kda.toFixed(1)} KDA`} · {c.games} {c.games === 1 ? "partida" : "partidas"}</span>
                 </div>
                 <span className={`champ-wr num ${wrClass(c.wr)}`}><CountUp value={c.wr} suffix="%" /></span>
@@ -162,3 +165,34 @@ export function ChampionsCard({ stats, games, loading }) {
   );
 }
 
+
+// ─── Con quién juega ─────────────────────────────────────────────────────
+/** Compañeros que se repiten en las partidas cargadas, con las partidas y el winrate juntos */
+export function TeammatesCard({ list, games, loading, region }) {
+  if (!loading && !list.length) return null;
+  return (
+    <section className="card card-pad champs-card mates-card reveal" style={{ "--i": 4 }} aria-label="Con quién juega">
+      <p className="eyebrow">Con quién juega · {games ? `Últimas ${games} partidas` : "Partidas recientes"}</p>
+      {loading ? (
+        <ul className="champ-list">{[0, 1, 2].map(i => (
+          <li key={i}><Skeleton w={30} h={30} r={15} /><div style={{ flex: 1 }}><Skeleton w="55%" h={12} /><Skeleton w="40%" h={10} style={{ marginTop: 5 }} /></div></li>
+        ))}</ul>
+      ) : (
+        <ul className="champ-list">
+          {list.slice(0, 5).map((m, i) => (
+            <li key={m.puuid} className="reveal" style={{ "--i": i + 5 }}>
+              {m.icon != null ? <DDImg src={profileIcon(m.icon)} size={30} alt="" round /> : <Initials text={m.gameName} size={30} />}
+              <div className="champ-text">
+                {m.gameName && m.tagLine
+                  ? <Link to={profilePath(region, m.gameName, m.tagLine)} className="mate-name">{m.gameName}<span className="faint">#{m.tagLine}</span></Link>
+                  : <strong>{m.gameName || "Jugador"}</strong>}
+                <span className="faint num">{m.games} partidas juntos · {m.wins}V {m.games - m.wins}D</span>
+              </div>
+              <span className={`champ-wr num ${wrClass(m.wr)}`}><CountUp value={m.wr} suffix="%" /></span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+  );
+}

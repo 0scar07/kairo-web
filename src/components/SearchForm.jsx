@@ -9,9 +9,10 @@ import { profileIcon } from "../lib/ddragon";
 /**
  * Buscador de jugadores: región + "Nombre#TAG", con autocompletado de favoritos y búsquedas recientes.
  *   size="large" (portada) o "compact" (header del perfil)
+ *   onPick({ gameName, tagLine, region }): en vez de abrir el perfil, entrega el jugador elegido (Comparar)
  * Accesible como combobox (patrón ARIA 1.2): flechas para moverse, Enter para abrir, Esc para cerrar.
  */
-export default function SearchForm({ size = "large", initialRegion, autoFocus = false }) {
+export default function SearchForm({ size = "large", initialRegion, autoFocus = false, onPick, placeholder }) {
   const navigate = useNavigate();
   const uid = useId();
   const listId = `${uid}-list`;
@@ -34,7 +35,8 @@ export default function SearchForm({ size = "large", initialRegion, autoFocus = 
     setText("");
     close();
     saveRegion(regionSlug);
-    navigate(profilePath(regionSlug, gameName, tagLine));
+    if (onPick) onPick({ gameName, tagLine, region: regionSlug });
+    else navigate(profilePath(regionSlug, gameName, tagLine));
   }
 
   function submit(e) {
@@ -105,7 +107,7 @@ export default function SearchForm({ size = "large", initialRegion, autoFocus = 
             onFocus={() => setOpen(true)}
             onClick={() => setOpen(true)}
             onKeyDown={onKeyDown}
-            placeholder={size === "large" ? "Nombre#TAG" : "Buscar Nombre#TAG"}
+            placeholder={placeholder || (size === "large" ? "Nombre#TAG" : "Buscar Nombre#TAG")}
             autoComplete="off"
             spellCheck="false"
             autoFocus={autoFocus}

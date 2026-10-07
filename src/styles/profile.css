@@ -482,7 +482,7 @@
 .champ-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
 .champ-list li { display: flex; align-items: center; gap: 10px; }
 .champ-text { display: flex; flex-direction: column; min-width: 0; flex: 1; font-size: 10px; }
-.champ-text strong { font-size: 13px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.champ-text strong, .champ-text .champ-link { font-size: 13px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .champ-wr { font-weight: 600; font-size: 13px; }
 
 /* Filas de partida */
@@ -613,7 +613,7 @@
   font-size: 12px;
 }
 .mastery-card .dd { border-radius: 14px; margin-bottom: 6px; }
-.mastery-card strong { font-size: 14px; font-weight: 600; }
+.mastery-card strong, .mastery-card .champ-link { font-size: 14px; font-weight: 600; }
 .mastery-level { color: var(--game-lol); font-weight: 600; }
 .mastery-card .faint { font-size: 11px; }
 .mastery-rank { position: absolute; top: 10px; left: 12px; font-size: 11px; color: var(--text-3); font-weight: 600; }
@@ -659,3 +659,16 @@
 }
 
 .ranked-emblem .rank-emblem-none { display: none; }
+
+/* Con quién juega */
+.mates-card .dd.round, .mates-card .initials { border-radius: 50%; }
+.mate-name { font-weight: 600; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mate-name:hover { color: var(--brand); }
+.mate-name .faint { font-weight: 400; }
+
+/* Enlaces a la página del campeón */
+.champ-link { font-weight: 600; color: var(--text); }
+.champ-link:hover { color: var(--game-lol); }
+.mastery-card { position: relative; }
+.champ-link.stretched::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }
+.mastery-card:hover { border-color: color-mix(in srgb, var(--game-lol) 50%, var(--border)); }

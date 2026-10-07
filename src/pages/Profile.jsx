@@ -6,12 +6,13 @@ import CountUp from "../components/CountUp";
 import { DDImg, Skeleton, StateBox } from "../components/ui";
 import { errorMessage } from "../api/client";
 import { useProfile, useMatches } from "./profile/useProfile";
-import { ChampionsCard, FlexCard, LpChart, SoloCard } from "./profile/Sidebar";
+import { ChampionsCard, FlexCard, LpChart, SoloCard, TeammatesCard } from "./profile/Sidebar";
 import LastMatchCard from "./profile/LastMatchCard";
 import MatchRow from "./profile/MatchRow";
-import { REGIONS, livePath, parseRiotIdSlug, profilePath, regionBySlug } from "../lib/regions";
-import { QUEUE_FILTERS, championStats, findMe, formatNumber, rankLabel, timeAgo } from "../lib/lol";
-import { championIcon, championName, championSplash, profileIcon, useDDragon } from "../lib/ddragon";
+import { REGIONS, comparePath, livePath, parseRiotIdSlug, playerKey, profilePath, regionBySlug } from "../lib/regions";
+import { QUEUE_FILTERS, championStats, findMe, formatNumber, rankLabel, teammates, timeAgo } from "../lib/lol";
+import { champion, championIcon, championName, championSplash, profileIcon, useDDragon } from "../lib/ddragon";
+import { championPath } from "../lib/champions";
 import { addRecent, isFavorite, toggleFavorite, updateFavorite, useFavorites } from "../lib/library";
 import { useNow, useTitle } from "../lib/hooks";
 import { NotFound } from "./Misc";
@@ -121,9 +122,9 @@ function ProfilePage({ region, gameName, tagLine }) {
         {!data ? (
           <ProfileSkeleton />
         ) : tab === "campeones" ? (
-          <ChampionsTab matches={matches} puuid={puuid} />
+          <ChampionsTab matches={matches} puuid={puuid} player={playerKey(region.slug, name, tag)} />
         ) : tab === "maestria" ? (
-          <MasteryTab mastery={data.mastery} error={data.masteryError} />
+          <MasteryTab mastery={data.mastery} error={data.masteryError} player={playerKey(region.slug, name, tag)} />
         ) : (
           <>
             <nav className="queue-tabs" aria-label="Filtrar por cola">
@@ -138,7 +139,8 @@ function ProfilePage({ region, gameName, tagLine }) {
                 <SoloCard entry={solo} error={data.rankedError} history={data.history} />
                 <FlexCard entry={flex} history={data.history} />
                 <LpChart history={data.history} soloEntry={solo} />
-                <ChampionsCard stats={championStats(shown, puuid)} games={shown.length} loading={matches.loading} />
+                <ChampionsCard stats={championStats(shown, puuid)} games={shown.length} loading={matches.loading} player={playerKey(region.slug, name, tag)} />
+                <TeammatesCard list={teammates(shown, puuid)} games={shown.length} loading={matches.loading} region={region.slug} />
               </aside>
               <section className="profile-main" aria-label="Historial de partidas">
                 <LastMatchCard matches={shown} puuid={puuid} loading={matches.loading} />
@@ -198,9 +200,9 @@ function ProfileHeader({ loading, name, tag, region, summoner, updatedAt, refres
             >
               <Icon name="star" size={16} filled={fav} />
             </button>
-            <button type="button" className="btn" disabled title="Próximamente" aria-describedby="compare-soon">
-              Comparar <span className="soon-pill" id="compare-soon">Próximamente</span>
-            </button>
+            <Link className="btn compare-btn" to={comparePath(playerKey(region.slug, name, tag))}>
+              <Icon name="compare" size={15} /> Comparar
+            </Link>
           </div>
         </div>
 
@@ -274,7 +276,7 @@ const LoadMore = ({ matches }) => (
 );
 
 // ─── Pestaña Campeones ────────────────────────────────────────────────────
-function ChampionsTab({ matches, puuid }) {
+function ChampionsTab({ matches, puuid, player }) {
   const stats = useMemo(() => championStats(matches.matches, puuid), [matches.matches, puuid]);
   return (
     <section className="tab-section" aria-labelledby="champs-title">
@@ -306,7 +308,7 @@ function ChampionsTab({ matches, puuid }) {
                   const name = championName(c.championId, c.championName);
                   return (
                     <tr key={c.championId}>
-                      <td><div className="cell-champ"><DDImg src={championIcon(c.championId, c.championName)} size={30} alt="" /><strong>{name}</strong></div></td>
+                      <td><div className="cell-champ"><DDImg src={championIcon(c.championId, c.championName)} size={30} alt="" /><Link to={championPath(champion(c.championId)?.id || c.championName, player)} className="champ-link">{name}</Link></div></td>
                       <td className="r num">{c.games}</td>
                       <td className={`r num ${c.wr >= 50 ? "win" : "loss"}`}>{c.wr}% <span className="faint">({c.wins}V {c.games - c.wins}D)</span></td>
                       <td className="r num">{c.kda === Infinity ? "Perfecto" : c.kda.toFixed(2)}</td>
@@ -327,7 +329,7 @@ function ChampionsTab({ matches, puuid }) {
 }
 
 // ─── Pestaña Maestría ─────────────────────────────────────────────────────
-function MasteryTab({ mastery, error }) {
+function MasteryTab({ mastery, error, player }) {
   return (
     <section className="tab-section" aria-labelledby="mastery-title">
       <div className="section-head">
@@ -346,7 +348,7 @@ function MasteryTab({ mastery, error }) {
               <li key={m.championId} className="card mastery-card reveal" style={{ "--i": i }}>
                 <span className="mastery-rank num">{i + 1}</span>
                 <DDImg src={championIcon(m.championId)} size={56} alt="" />
-                <strong>{name}</strong>
+                {champion(m.championId) ? <Link to={championPath(champion(m.championId).id, player)} className="champ-link stretched">{name}</Link> : <strong>{name}</strong>}
                 <span className="mastery-level">Nivel {m.level}</span>
                 <span className="num">{formatNumber(m.points)} pts</span>
                 {m.lastPlayTime ? <span className="faint">Jugado {timeAgo(m.lastPlayTime)}</span> : null}
