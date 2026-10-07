@@ -1,0 +1,119 @@
+/* ─── Lista de campeones ───────────────────────────────────────────────── */
+.champs-hero { padding: 30px 0 22px; border-bottom: 1px solid var(--border); background: radial-gradient(60% 140% at 0% 0%, color-mix(in srgb, var(--game-lol) 14%, transparent), transparent 60%); }
+.champs-hero .eyebrow { margin: 0 0 8px; }
+.champs-hero .muted { margin: 8px 0 0; }
+.champs-tools { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 18px; }
+.champs-tools .champ-search { width: 260px; }
+.role-filter { flex-wrap: wrap; }
+.champs-page { padding-top: 22px; padding-bottom: 48px; }
+.champ-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 12px; }
+.champ-tile {
+  position: relative;
+  display: block;
+  aspect-ratio: 308 / 560;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  transition: transform .3s cubic-bezier(.2, .7, .2, 1), border-color .2s;
+}
+.champ-tile-art { position: absolute; inset: 0; }
+.champ-tile-art img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s cubic-bezier(.2, .7, .2, 1); }
+.champ-tile::after { content: ""; position: absolute; inset: 0; background: linear-gradient(transparent 50%, rgba(5, 8, 7, .92)); }
+.champ-tile:hover { transform: translateY(-4px); border-color: color-mix(in srgb, var(--game-lol) 60%, var(--border)); }
+.champ-tile:hover img { transform: scale(1.06); }
+.champ-tile-text { position: absolute; left: 10px; right: 10px; bottom: 10px; z-index: 1; display: flex; flex-direction: column; gap: 2px; }
+.champ-tile-text strong { font-family: var(--font-title); font-size: 14px; line-height: 1.2; }
+.champ-tile-text span { font-size: 10px; color: var(--text-2); }
+.free-badge {
+  position: absolute; top: 8px; left: 8px; z-index: 1;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 10px; font-weight: 700; letter-spacing: .04em;
+  color: var(--on-brand);
+  background: var(--brand);
+}
+.free-badge.inline { position: static; margin-left: 10px; vertical-align: middle; }
+
+/* ─── Ficha ─────────────────────────────────────────────────────────────── */
+.champ-hero { position: relative; overflow: hidden; border-bottom: 1px solid var(--border); min-height: 380px; display: flex; align-items: flex-end; }
+.champ-hero-art { position: absolute; inset: 0; }
+.champ-hero-art img { width: 100%; height: 100%; object-fit: cover; object-position: center 20%; animation: hero-fade .6s ease both; }
+.champ-hero-art::after {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(90deg, rgba(10, 15, 13, .95) 0%, rgba(10, 15, 13, .65) 45%, rgba(10, 15, 13, .15) 100%), linear-gradient(transparent 55%, var(--bg));
+}
+@keyframes hero-fade { from { opacity: 0; transform: scale(1.03); } }
+.champ-hero-inner { position: relative; width: 100%; padding-top: 26px; padding-bottom: 28px; display: flex; flex-direction: column; gap: 18px; }
+.back-link { display: inline-flex; align-items: center; gap: 4px; font-size: 13px; color: var(--text-2); align-self: flex-start; }
+.back-link:hover { color: var(--text); }
+.champ-hero-id { display: flex; align-items: center; gap: 16px; }
+.champ-hero-id .dd { border-radius: 18px; border: 1px solid color-mix(in srgb, var(--game-lol) 60%, var(--border-2)); }
+.champ-hero-id .eyebrow { margin: 0 0 4px; }
+.champ-name { font-size: 44px; font-weight: 800; line-height: 1.05; letter-spacing: -.01em; }
+.champ-title { margin: 4px 0 0; color: var(--text-2); font-size: 16px; text-transform: capitalize; }
+.champ-bars { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 140px)); gap: 14px; }
+.champ-bars li { display: flex; flex-direction: column; gap: 6px; font-size: 12px; }
+.champ-bar { height: 6px; border-radius: 3px; background: rgba(255, 255, 255, .1); overflow: hidden; }
+.champ-bar span { display: block; height: 100%; background: linear-gradient(90deg, var(--game-lol), #F0D58A); transform: scaleX(var(--w)); transform-origin: left; animation: bar-grow .8s cubic-bezier(.2, .7, .2, 1) both; animation-delay: calc(var(--i) * 80ms + 200ms); }
+
+.champ-page { display: flex; flex-direction: column; gap: 18px; padding-top: 22px; padding-bottom: 48px; }
+.champ-grid-2 { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+.champ-section { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+.section-title svg { color: var(--game-lol); }
+.champ-lore .section-title, .abilities .section-title { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+.champ-lore p { margin: 0 0 10px; color: var(--text-2); font-size: 14px; line-height: 1.65; }
+.champ-tips { display: grid; gap: 14px; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--border); }
+.champ-tips .eyebrow { margin: 0 0 6px; }
+.champ-tips ul { margin: 0; padding-left: 18px; color: var(--text-2); font-size: 13px; line-height: 1.55; }
+
+/* Habilidades */
+.ability-tabs { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+.ability-tab { position: relative; padding: 0; border: 2px solid var(--border-2); border-radius: 12px; background: none; cursor: pointer; overflow: hidden; transition: border-color .2s, transform .2s; }
+.ability-tab img { display: block; filter: grayscale(.5) brightness(.75); transition: filter .2s; }
+.ability-tab:hover img, .ability-tab.active img { filter: none; }
+.ability-tab.active { border-color: var(--game-lol); transform: translateY(-2px); box-shadow: 0 6px 18px color-mix(in srgb, var(--game-lol) 30%, transparent); }
+.ability-key { position: absolute; right: 2px; bottom: 2px; min-width: 16px; padding: 0 3px; border-radius: 4px; font-size: 10px; font-weight: 800; color: var(--text); background: rgba(0, 0, 0, .75); }
+.ability-body { animation: menu-in .2s ease; }
+.ability-body h3 { font-size: 17px; margin-bottom: 6px; }
+.ability-body p { margin: 0 0 8px; color: var(--text-2); font-size: 14px; line-height: 1.6; }
+.ability-body .ability-meta { display: flex; gap: 14px; font-size: 12px; }
+.ability-meta span { display: inline-flex; align-items: center; gap: 4px; }
+
+/* Aspectos */
+.skin-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; }
+.skin { width: 100%; padding: 0; border: 2px solid var(--border); border-radius: 12px; overflow: hidden; background: var(--surface); color: var(--text); cursor: pointer; text-align: left; transition: border-color .2s, transform .25s cubic-bezier(.2, .7, .2, 1); }
+.skin img { display: block; width: 100%; aspect-ratio: 308 / 460; object-fit: cover; object-position: top; }
+.skin span { display: block; padding: 8px 10px; font-size: 12px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.skin:hover { transform: translateY(-3px); }
+.skin.active { border-color: var(--game-lol); }
+
+/* Un jugador con este campeón */
+.champ-player { padding: 16px 18px; }
+.champ-player.empty { display: grid; grid-template-columns: 1fr minmax(260px, 360px); gap: 16px; align-items: center; }
+.champ-player.empty .muted { margin: 6px 0 0; font-size: 13px; }
+.champ-player-id { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+.champ-player-id .eyebrow { margin: 0; }
+.champ-player-name { font-family: var(--font-title); font-size: 18px; font-weight: 700; }
+.champ-player-name:hover { color: var(--brand); }
+.champ-player-stats { margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; }
+.champ-player-stats > div { padding: 10px 12px; border-radius: 12px; background: var(--surface-2); }
+.champ-player-stats dt { font-size: 11px; color: var(--text-3); }
+.champ-player-stats dd { margin: 2px 0 0; font-family: var(--font-title); font-size: 20px; font-weight: 700; }
+.champ-player-none { margin: 0; }
+
+@media (max-width: 900px) {
+  .champ-grid-2 { grid-template-columns: 1fr; }
+  .champ-player.empty { grid-template-columns: 1fr; }
+}
+@media (max-width: 640px) {
+  .champ-name { font-size: 32px; }
+  .champ-hero { min-height: 320px; }
+  .champ-bars { grid-template-columns: repeat(2, 1fr); }
+  .champs-tools .champ-search { width: 100%; }
+  .champ-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .champ-hero-art img, .champ-bar span, .ability-body { animation: none; }
+  .champ-tile, .champ-tile img, .skin, .ability-tab { transition: none; }
+}

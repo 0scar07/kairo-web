@@ -123,3 +123,32 @@ export const spellName = id => spells[id]?.name || "";
 // Las imágenes de runas no llevan versión en la URL
 export const perkIcon = id => (perks[id] ? `${CDN}/cdn/img/${perks[id].icon}` : null);
 export const perkName = id => perks[id]?.name || "";
+
+// ─── Campeones (páginas de campeón) ──────────────────────────────────────
+/** Id de Data Dragon ("MonkeyKing") -> id numérico ("62") */
+export const championNumericId = key => Object.keys(champs).find(n => champs[n].id.toLowerCase() === String(key).toLowerCase()) || null;
+
+const detailCache = new Map();
+
+/** Lista completa con título, roles y dificultad: [{ id, key, name, title, tags, difficulty }] (se guarda por versión) */
+export async function getChampionList() {
+  await ensureDDragon();
+  return loadList("champlist", `${CDN}/cdn/${version}/data/${LOCALE}/champion.json`, json =>
+    Object.values(json.data).map(x => ({ id: x.id, key: x.key, name: x.name, title: x.title, tags: x.tags, difficulty: x.info?.difficulty ?? 0 }))
+      .sort((a, b) => a.name.localeCompare(b.name, "es")));
+}
+
+/** Detalle de un campeón: historia, habilidades, aspectos y consejos (solo en memoria: pesa unos 20 KB) */
+export async function getChampionDetail(key) {
+  await ensureDDragon();
+  const url = `${CDN}/cdn/${version}/data/${LOCALE}/champion/${encodeURIComponent(key)}.json`;
+  if (!detailCache.has(url)) {
+    detailCache.set(url, getJSON(url).then(json => Object.values(json.data)[0]).catch(e => { detailCache.delete(url); throw e; }));
+  }
+  return detailCache.get(url);
+}
+
+export const spellImage = file => img(`spell/${file}`);
+export const passiveImage = file => img(`passive/${file}`);
+export const skinSplash = (key, num) => `${CDN}/cdn/img/champion/splash/${key}_${num}.jpg`;
+export const skinLoading = (key, num) => `${CDN}/cdn/img/champion/loading/${key}_${num}.jpg`;

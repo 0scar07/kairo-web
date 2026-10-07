@@ -6,6 +6,9 @@ import Live from "./pages/Live";
 import Favorites from "./pages/Favorites";
 import GamePage from "./pages/GamePage";
 import GameProfile from "./pages/GameProfile";
+import Match from "./pages/Match";
+import Compare from "./pages/Compare";
+import { ChampionList, ChampionPage } from "./pages/Champions";
 import { ComingSoon, NotFound } from "./pages/Misc";
 import { probe } from "./api/server";
 import { ensureDDragon } from "./lib/ddragon";
@@ -15,6 +18,9 @@ import "./styles/home.css";
 import "./styles/profile.css";
 import "./styles/live.css";
 import "./styles/games.css";
+import "./styles/match.css";
+import "./styles/compare.css";
+import "./styles/champions.css";
 
 // Al cambiar de página se vuelve arriba (salvo al ir atrás/adelante, que el navegador restaura)
 function ScrollToTop() {
@@ -44,6 +50,10 @@ export default function App() {
       <ScrollToTop />
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/lol/partida/:matchId" element={<Match />} />
+        <Route path="/lol/comparar" element={<Compare />} />
+        <Route path="/lol/campeones" element={<ChampionList />} />
+        <Route path="/lol/campeones/:key" element={<ChampionPage />} />
         <Route path="/lol/:region/:riotId" element={<Profile />} />
         <Route path="/lol/:region/:riotId/en-vivo" element={<Live />} />
         <Route path="/favoritos" element={<Favorites />} />

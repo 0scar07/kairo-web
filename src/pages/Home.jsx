@@ -1,20 +1,21 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import Layout from "../components/Layout";
+import Layout, { InstallButton } from "../components/Layout";
 import SearchForm from "../components/SearchForm";
 import Icon from "../components/Icon";
 import { DDImg, Initials, RankEmblem, Skeleton, StateBox } from "../components/ui";
 import GameLogo from "../components/GameLogo";
 import HeroShowcase from "./home/HeroShowcase";
 import GameCards from "./home/GameCards";
-import { getLeaderboard, getProfileIconId } from "../api/lol";
+import { getLeaderboard, getProfileIconId, getRotation } from "../api/lol";
 import { errorMessage } from "../api/client";
 import { useAsync, useNow, useTitle } from "../lib/hooks";
 import { clearRecents, useFavorites, useRecents } from "../lib/library";
 import { useLiveFavorites } from "../lib/liveFavorites";
 import { REGIONS, livePath, profilePath, regionBySlug, savedRegion } from "../lib/regions";
 import { formatDuration, formatNumber, queueLong, rankLabel, winrate } from "../lib/lol";
-import { championIcon, championName, profileIcon, useDDragon } from "../lib/ddragon";
+import { champion, championIcon, championName, profileIcon, skinLoading, useDDragon } from "../lib/ddragon";
+import { championPath } from "../lib/champions";
 import { gameById } from "../lib/games";
 import { gameProfilePath } from "../games/registry";
 import { APK_URL } from "../lib/config";
@@ -42,6 +43,7 @@ export default function Home() {
 
       <div className="container home-body">
         <LiveFavorites />
+        <FreeRotation />
         <div className="home-grid">
           <Leaderboard />
           <aside className="home-aside">
@@ -123,6 +125,38 @@ const FavoriteSkeleton = () => (
     <div className="fav-bottom"><Skeleton w="40%" h={11} /></div>
   </div>
 );
+
+// ─── Rotación gratuita de la semana ───────────────────────────────────────
+function FreeRotation() {
+  useDDragon();
+  const region = savedRegion();
+  const { data, loading } = useAsync(() => getRotation(region.id), [region.id]);
+  const free = (data?.free || []).filter(id => champion(id));
+  if (!loading && !free.length) return null;   // sin datos (o Riot no respondió): la sección no aparece
+  return (
+    <section className="home-section" aria-labelledby="rotation-title">
+      <div className="section-head">
+        <h2 className="section-title" id="rotation-title">Gratis esta semana</h2>
+        <Link to="/lol/campeones" className="link-btn">Ver todos los campeones <Icon name="chevronRight" size={14} /></Link>
+      </div>
+      <ul className="rotation">
+        {loading && !free.length
+          ? Array.from({ length: 10 }, (_, i) => <li key={i}><Skeleton h={150} r={14} /></li>)
+          : free.map((id, i) => {
+            const c = champion(id);
+            return (
+              <li key={id} className="reveal" style={{ "--i": i }}>
+                <Link to={championPath(c.id)} className="rotation-card">
+                  <img src={skinLoading(c.id, 0)} alt="" loading="lazy" decoding="async" />
+                  <span>{c.name}</span>
+                </Link>
+              </li>
+            );
+          })}
+      </ul>
+    </section>
+  );
+}
 
 // ─── Clasificación Challenger ─────────────────────────────────────────────
 function Leaderboard() {
@@ -302,6 +336,9 @@ const PocketCard = () => (
   <div className="card pocket">
     <h3>Llévalo en el bolsillo</h3>
     <p>Avisos cuando un favorito entra en partida, en la app de Kairo.</p>
-    <a className="btn btn-primary" href={APK_URL} rel="noopener"><Icon name="download" size={15} /> Descargar APK</a>
+    <div className="pocket-actions">
+      <a className="btn btn-primary" href={APK_URL} rel="noopener"><Icon name="download" size={15} /> Descargar APK</a>
+      <InstallButton label />
+    </div>
   </div>
 );
