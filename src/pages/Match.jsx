@@ -3,6 +3,8 @@ import { Link, useParams, useSearchParams } from "react-router-dom";
 import Layout from "../components/Layout";
 import Icon from "../components/Icon";
 import ShareButton from "../components/ShareButton";
+import ShareImageButton from "../components/ShareImageButton";
+import { matchCard } from "../lib/shareCard";
 import { DDImg, Skeleton, StateBox } from "../components/ui";
 import { MatchDetail } from "./profile/MatchRow";
 import { errorMessage } from "../api/client";
@@ -138,6 +140,7 @@ function MatchHeader({ match, me, region }) {
           {me && region && (
             <Link className="btn" to={profilePath(region.slug, me.gameName, me.tagLine)}><Icon name="chevronLeft" size={15} /> Perfil</Link>
           )}
+          {me && <ShareImageButton build={() => matchCard({ match, me })} filename={`kairo-partida-${match.id}.png`} title={`${me.gameName} en Kairo`} />}
           <ShareButton title="Partida en Kairo" text={text} className="btn btn-primary" />
         </div>
       </div>
