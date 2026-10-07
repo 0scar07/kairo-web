@@ -12,6 +12,7 @@ import { championIcon, championName, useDDragon } from "../lib/ddragon";
 import { formatDuration, queueShort } from "../lib/lol";
 import { APK_URL, GITHUB_URL, PRIVACY_URL } from "../lib/config";
 import { useServerState } from "../api/server";
+import { promptInstall, useCanInstall, useOnline } from "../lib/pwa";
 
 export function Logo() {
   return (
@@ -155,10 +156,12 @@ export function Header({ variant = "nav", back, region }) {
           </Link>
           <Link to="/favoritos" className={cls(pathname === "/favoritos")} aria-current={pathname === "/favoritos" ? "page" : undefined}><Icon name="star" size={15} /> Favoritos</Link>
           <Link to={{ pathname: "/", hash: "#clasificacion" }} className={cls(at("/", "#clasificacion"))}><Icon name="trophy" size={15} /> Clasificación</Link>
+          <Link to="/lol/campeones" className={cls(pathname.startsWith("/lol/campeones"))} aria-current={pathname === "/lol/campeones" ? "page" : undefined}><Icon name="grid" size={15} /> Campeones</Link>
           <a href={APK_URL} rel="noopener" className="nav-item"><Icon name="phone" size={15} /> App <span className="nav-new">Nuevo</span></a>
         </nav>
         {variant !== "nav" && <div className="header-search"><SearchForm size="compact" initialRegion={region} /></div>}
         <div className="header-tools">
+          <InstallButton />
           <LiveBell />
           <a className="btn btn-icon tool-btn" href={GITHUB_URL} rel="noopener" aria-label="Código en GitHub" title="Código en GitHub"><Icon name="github" size={17} /></a>
         </div>
@@ -194,6 +197,8 @@ export function Footer() {
           </p>
         </div>
         <nav className="footer-links" aria-label="Enlaces">
+          <Link to="/lol/campeones">Campeones</Link>
+          <Link to="/lol/comparar">Comparar jugadores</Link>
           <a href={PRIVACY_URL} rel="noopener">Privacidad</a>
           <a href={GITHUB_URL} rel="noopener">GitHub</a>
         </nav>
@@ -224,9 +229,34 @@ export function ServerBanner() {
   return null;
 }
 
+/** "Instalar": aparece solo cuando el navegador ofrece instalar la web (PWA) */
+export function InstallButton({ label = false }) {
+  const can = useCanInstall();
+  if (!can) return null;
+  return label ? (
+    <button type="button" className="btn" onClick={promptInstall}><Icon name="download" size={15} /> Instalar la web</button>
+  ) : (
+    <button type="button" className="btn btn-icon tool-btn install-btn" onClick={promptInstall} aria-label="Instalar Kairo" title="Instalar Kairo en este dispositivo">
+      <Icon name="download" size={17} />
+    </button>
+  );
+}
+
+/** Aviso sin conexión: la web sigue mostrando lo último que guardó */
+function OfflineBar() {
+  const online = useOnline();
+  if (online) return null;
+  return (
+    <div className="offline-bar" role="status">
+      <Icon name="wifiOff" size={15} /> Sin conexión: estás viendo lo último que se guardó en este dispositivo.
+    </div>
+  );
+}
+
 export default function Layout({ header, children }) {
   return (
     <>
+      <OfflineBar />
       <ServerBanner />
       <Header {...header} />
       <main>{children}</main>

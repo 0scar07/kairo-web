@@ -418,3 +418,15 @@
 .soon-tag.on { color: var(--brand); }
 .games-app-note { margin-top: 16px; font-size: 13px; }
 .games-app-note a { color: var(--brand); text-decoration: underline; }
+
+/* Sin conexión */
+.offline-bar {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 8px 16px;
+  font-size: 13px;
+  color: var(--gold);
+  background: color-mix(in srgb, var(--gold) 12%, var(--bg));
+  border-bottom: 1px solid color-mix(in srgb, var(--gold) 30%, transparent);
+}
+.install-btn { color: var(--brand); }
+.pocket-actions { display: flex; gap: 8px; flex-wrap: wrap; }

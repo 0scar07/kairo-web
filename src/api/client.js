@@ -1,5 +1,5 @@
 import { API_URL } from "../lib/config";
-import { cacheRead, cacheWrite } from "../lib/storage";
+import { cacheRead, cacheReadStale, cacheWrite } from "../lib/storage";
 import { markOk, probe, wake } from "./server";
 
 // Error de la API con el formato del backend: { error, code, retryAfter }
@@ -54,6 +54,10 @@ async function fetchOnce(url) {
 }
 
 async function fetchWithWake(url) {
+  // Sin internet no tiene sentido esperar a que despierte el servidor
+  if (typeof navigator !== "undefined" && navigator.onLine === false) {
+    throw new ApiError(0, "Estás sin conexión. Conéctate a internet y vuelve a intentarlo.", { code: "OFFLINE" });
+  }
   try {
     return await fetchOnce(url);
   } catch (e) {
@@ -75,7 +79,8 @@ async function fetchWithWake(url) {
  *   force: ignora lo guardado (botón Actualizar) · map: transforma la respuesta antes de guardarla
  *   version: se suma a la clave de caché (cambiarla invalida lo guardado con un `map` anterior)
  *   cacheIf: si devuelve false para la respuesta, se usa pero no se guarda (p. ej. una respuesta incompleta)
- * Devuelve { data, at } (at = cuándo se obtuvo el dato).
+ * Devuelve { data, at } (at = cuándo se obtuvo el dato). Sin conexión, si hay una copia guardada (aunque haya
+ * caducado) devuelve esa con `stale: true` en vez de fallar.
  */
 export async function request(path, { params, ttl = 0, persist = false, force = false, map, version, cacheIf } = {}) {
   const url = buildUrl(path, params);
@@ -100,6 +105,11 @@ export async function request(path, { params, ttl = 0, persist = false, force = 
       if (persist) cacheWrite(key, data, ttl);
     }
     return { data, at };
+  }).catch(e => {
+    const offline = e instanceof ApiError && (e.code === "OFFLINE" || e.code === "SERVER_DOWN");
+    const stale = offline && persist && ttl > 0 ? cacheReadStale(key) : null;
+    if (stale) return { data: stale.data, at: stale.at, stale: true };
+    throw e;
   }).finally(() => inflight.delete(key));
 
   inflight.set(key, promise);

@@ -34,3 +34,35 @@ describe("request y la caché", () => {
     expect(fetch).toHaveBeenCalledTimes(2);
   });
 });
+
+describe("sin conexión", () => {
+  // localStorage mínimo en memoria (las pruebas corren en Node)
+  function memoryStorage() {
+    const map = new Map();
+    return {
+      getItem: k => (map.has(k) ? map.get(k) : null),
+      setItem: (k, v) => map.set(k, String(v)),
+      removeItem: k => map.delete(k),
+      key: i => [...map.keys()][i] ?? null,
+      get length() { return map.size; },
+    };
+  }
+
+  it("devuelve la última copia guardada aunque haya caducado", async () => {
+    vi.stubGlobal("localStorage", memoryStorage());
+    // Copia caducada hace un minuto, dentro del margen de 7 días
+    localStorage.setItem("kc:/prueba/offline", JSON.stringify({ at: 1, exp: Date.now() - 60_000, data: { name: "guardado" } }));
+    vi.stubGlobal("navigator", { onLine: false });
+    const fetch = mockFetch({ name: "nuevo" });
+    const res = await request("/prueba/offline", { ttl: 60_000, persist: true });
+    expect(res).toMatchObject({ data: { name: "guardado" }, stale: true });
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
+  it("sin copia guardada informa que no hay conexión", async () => {
+    vi.stubGlobal("localStorage", memoryStorage());
+    vi.stubGlobal("navigator", { onLine: false });
+    mockFetch({});
+    await expect(request("/prueba/offline-vacio", { ttl: 60_000, persist: true })).rejects.toMatchObject({ code: "OFFLINE" });
+  });
+});

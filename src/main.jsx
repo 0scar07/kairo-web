@@ -5,6 +5,9 @@ import { BrowserRouter } from "react-router-dom";
 import "./styles/tokens.css";
 import "./styles/global.css";
 import App from "./App";
+import { setupPwa } from "./lib/pwa";
+
+setupPwa();
 
 // Misma base que vite.config.js ("/kairo-web/" en GitHub Pages, "/" en la raíz de un dominio)
 const basename = import.meta.env.BASE_URL.replace(/\/$/, "") || "/";
