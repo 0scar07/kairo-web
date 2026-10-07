@@ -5,8 +5,9 @@ import { resolve } from "node:path";
 import { prerender } from "./scripts/prerender.js";
 
 // Ruta base de la web. GitHub Pages la sirve en https://0scar07.github.io/kairo-web/.
-// Para un dominio en la raíz (p. ej. Cloudflare Pages) se construye con BASE_PATH=/
-const base = process.env.BASE_PATH || "/kairo-web/";
+// En Cloudflare (Workers Builds pone WORKERS_CI y Pages pone CF_PAGES) va en la raíz; BASE_PATH lo fuerza a mano.
+const onCloudflare = Boolean(process.env.WORKERS_CI || process.env.CF_PAGES);
+const base = process.env.BASE_PATH || (onCloudflare ? "/" : "/kairo-web/");
 
 // GitHub Pages no tiene reescrituras de rutas: si se recarga /kairo-web/lol/..., sirve 404.html.
 // Como 404.html es una copia de index.html, la SPA arranca y React Router muestra la página pedida.

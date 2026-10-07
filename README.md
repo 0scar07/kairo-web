@@ -160,9 +160,9 @@ Cada push a `main` ejecuta [`deploy.yml`](.github/workflows/deploy.yml): `npm ci
 - La web vive en `/kairo-web/`. Lo define `base` en `vite.config.js`; el `basename` de React Router y las rutas de `public/` salen de `import.meta.env.BASE_URL`.
 - GitHub Pages no reescribe rutas, así que el build copia `index.html` a `404.html`: al abrir un link directo, Pages sirve esa copia y la SPA muestra la página pedida. Esas URLs responden con código 404, aunque se ven bien.
 
-### Cloudflare Pages (alternativa)
+### Cloudflare (alternativa)
 
-Build `npm run build`, salida `dist` y las variables `VITE_API_URL` y **`BASE_PATH=/`** (para servir en la raíz del dominio). Las rutas SPA funcionan con `public/_redirects`, que GitHub Pages ignora.
+Conecta el repo en Cloudflare (**Workers & Pages → Create → Import a repository**) con build `npm run build` y deploy `npx wrangler deploy`. [`wrangler.jsonc`](wrangler.jsonc) sirve `dist/` y responde `index.html` en las rutas de la web. El build detecta Cloudflare (`WORKERS_CI` o `CF_PAGES`) y se construye en la raíz `/`; el backend por defecto en producción es el de Render. Opcional: `SITE_URL` con la dirección final para las imágenes de la vista previa de enlaces.
 
 En los dos casos, el dominio debe estar en `CORS_ORIGINS` del backend (o esa variable vacía, que acepta cualquier origen).
 

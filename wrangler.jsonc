@@ -1,0 +1,12 @@
+// Cloudflare (Workers con archivos estáticos): sirve dist/ y, para las rutas de la web (/lol/lan/Nombre-TAG…),
+// responde index.html para que React Router muestre la página. El build lo hace `npm run build` (vite.config.js
+// detecta WORKERS_CI y construye en la raíz "/").
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "kairo-web",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "single-page-application"
+  }
+}
