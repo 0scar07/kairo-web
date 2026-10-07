@@ -6,7 +6,8 @@ import ShareButton from "../components/ShareButton";
 import { DDImg, Skeleton, StateBox } from "../components/ui";
 import { MatchDetail } from "./profile/MatchRow";
 import { errorMessage } from "../api/client";
-import { getMatch } from "../api/lol";
+import { getMatch, getTimeline } from "../api/lol";
+import GoldChart from "./match/GoldChart";
 import { useAsync, useTitle } from "../lib/hooks";
 import { parseRiotIdSlug, profilePath, regionOfMatchId } from "../lib/regions";
 import { formatDuration, formatNumber, mapName, queueLong } from "../lib/lol";
@@ -43,6 +44,8 @@ export default function Match() {
   useDDragon();
   const region = regionOfMatchId(matchId);
   const { data: match, error, loading, reload } = useAsync(() => getMatch(matchId, region?.id || "la1"), [matchId]);
+  // La línea de tiempo es opcional (llega después; si el backend no la tiene, el gráfico no aparece)
+  const { data: timeline } = useAsync(() => getTimeline(matchId, region?.id || "la1"), [matchId]);
 
   // Jugador resaltado: el de ?jugador=Nombre-TAG (si está en la partida)
   const me = useMemo(() => {
@@ -80,6 +83,7 @@ export default function Match() {
       <MatchHeader match={match} me={me} region={region} />
       <div className="container match-page">
         {!match.arena && <Objectives match={match} />}
+        {!match.arena && timeline?.frames?.length > 2 && <GoldChart timeline={timeline} match={match} />}
         <Compare match={match} me={me} />
         <section aria-labelledby="board-title">
           <h2 className="section-title match-section-title" id="board-title">Marcador</h2>

@@ -137,3 +137,36 @@
 }
 .match-page > * { min-width: 0; }
 .match-board { overflow: hidden; }
+
+/* Oro minuto a minuto */
+.gold-chart { padding: 16px 18px 12px; }
+.gold-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 8px; }
+.gold-summary { margin: 0; font-size: 12px; }
+.gold-summary .blue, .gold-tip .blue { color: var(--blue); }
+.gold-summary .red { color: var(--red); }
+.gold-svg-wrap { position: relative; touch-action: pan-y; }
+.gold-svg { display: block; width: 100%; height: auto; overflow: visible; }
+.gold-grid line { stroke: var(--border); stroke-dasharray: 3 4; }
+.gold-grid text, .gold-min { fill: var(--text-3); font-size: 10px; font-family: var(--font-body); }
+.gold-line { fill: none; stroke: var(--text); stroke-width: 1.6; stroke-dasharray: 1; stroke-dashoffset: 1; animation: gold-draw 1.2s cubic-bezier(.4, 0, .2, 1) forwards; }
+.gold-area { opacity: 0; animation: gold-fade .8s ease .5s forwards; }
+@keyframes gold-draw { to { stroke-dashoffset: 0; } }
+@keyframes gold-fade { to { opacity: 1; } }
+.gold-event circle { stroke-width: 1.5; }
+.gold-event.blue circle { fill: color-mix(in srgb, var(--blue) 25%, var(--bg)); stroke: var(--blue); }
+.gold-event.red circle { fill: color-mix(in srgb, var(--red) 25%, var(--bg)); stroke: var(--red); }
+.gold-event text { font-size: 7px; font-weight: 800; fill: var(--text); font-family: var(--font-body); pointer-events: none; }
+.gold-hover line { stroke: var(--text-2); stroke-width: 1; }
+.gold-hover circle { fill: var(--brand); stroke: var(--bg); stroke-width: 2; }
+.gold-tip {
+  position: absolute; top: 0; transform: translateX(-50%);
+  padding: 4px 8px; border-radius: 8px;
+  font-size: 11px; white-space: nowrap; pointer-events: none;
+  background: var(--surface-2); border: 1px solid var(--border-2);
+}
+.gold-legend { list-style: none; display: flex; flex-wrap: wrap; gap: 12px; margin: 6px 0 0; padding: 0; font-size: 11px; }
+.gold-key { display: inline-grid; place-items: center; width: 14px; height: 14px; border-radius: 50%; border: 1px solid var(--border-2); font-size: 8px; font-weight: 800; color: var(--text); }
+@media (prefers-reduced-motion: reduce) {
+  .gold-line { animation: none; stroke-dashoffset: 0; }
+  .gold-area { animation: none; opacity: 1; }
+}

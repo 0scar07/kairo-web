@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   QUEUE_FILTERS, championStats, compactMatch, currentStreak, matchHighlights, formatDuration, kdaText, kdaTone, killParticipation, matchesFilter,
   queueLong, queueShort, rankFromScore, rankLabel, rankScore, rankShort, roleStats, summarize, timeAgo, winrate,
-  averages, sharedMatches, teammates,
+  averages, goldDiff, sharedMatches, teammates,
 } from "./lol";
 
 describe("rangos", () => {
@@ -237,5 +237,12 @@ describe("con quién juega y comparar", () => {
     });
     expect(m.teams[0]).toEqual({ teamId: 100, win: true, objectives: { dragon: 3, baron: 1 } });
     expect(m.participants[0]).toMatchObject({ icon: 29, taken: 900, wards: 7 });
+  });
+});
+
+describe("línea de tiempo", () => {
+  it("goldDiff resta el oro del equipo rojo al del azul en cada minuto", () => {
+    const frames = [{ t: 0, gold: [500, 500, 500, 500] }, { t: 1, gold: [900, 700, 600, 600] }];
+    expect(goldDiff(frames, [100, 100, 200, 200])).toEqual([{ t: 0, diff: 0 }, { t: 1, diff: 400 }]);
   });
 });

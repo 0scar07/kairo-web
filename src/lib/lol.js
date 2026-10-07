@@ -309,6 +309,14 @@ export function sharedMatches(listA, puuidA, listB, puuidB) {
   return out;
 }
 
+/** Diferencia de oro azul − rojo en cada minuto. teamOf: índice de jugador -> 100 | 200 */
+export function goldDiff(frames, teamOf) {
+  return frames.map(f => ({
+    t: f.t,
+    diff: f.gold.reduce((s, g, i) => s + (teamOf[i] === 100 ? g : teamOf[i] === 200 ? -g : 0), 0),
+  }));
+}
+
 /** Color del KDA como en op.gg: 5+ dorado, 4+ azul, 3+ verde; el resto, normal */
 export const kdaTone = v => (v >= 5 ? "kda-5" : v >= 4 ? "kda-4" : v >= 3 ? "kda-3" : "");
 
