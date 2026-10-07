@@ -7,7 +7,7 @@ import { DDImg, Initials, Skeleton, StateBox } from "../components/ui";
 import HeroShowcase from "./home/HeroShowcase";
 import GameCards from "./home/GameCards";
 import { PROFILES, gameProfilePath } from "../games/registry";
-import { bsProfileIcon, cleanName, getTop, tagOf } from "../games/supercell";
+import { COUNTRIES, bsProfileIcon, cleanName, getTop, tagOf } from "../games/supercell";
 import { errorMessage } from "../api/client";
 import { gameById } from "../lib/games";
 import { useAsync, useTitle } from "../lib/hooks";
@@ -129,10 +129,26 @@ const TOP_INFO = {
 
 function TopPlayers({ game }) {
   const info = TOP_INFO[game.id];
-  const { data, error, loading, reload } = useAsync(() => getTop(game.id, 10), [game.id]);
+  const bs = game.id === "brawlstars";
+  const [country, setCountry] = useState("global");   // solo Brawl Stars tiene ranking por país
+  const { data, error, loading, reload } = useAsync(() => getTop(game.id, 10, bs ? { country } : {}), [game.id, country]);
+  const countryName = COUNTRIES.find(c => c.code === country)?.name;
   return (
     <section className="home-section" aria-labelledby="top-title">
-      <div className="section-head"><h2 className="section-title" id="top-title">{info.title}</h2></div>
+      <div className="section-head">
+        <h2 className="section-title" id="top-title">{bs && country !== "global" ? `Mejores jugadores de ${countryName}` : info.title}</h2>
+        {bs && (
+          <div className="top-tools">
+            <label className="country-select">
+              <span className="sr-only">País</span>
+              <select value={country} onChange={e => setCountry(e.target.value)}>
+                {COUNTRIES.map(c => <option key={c.code} value={c.code}>{c.name}</option>)}
+              </select>
+            </label>
+            <Link className="btn" to="/juegos/brawlstars/brawlers"><Icon name="grid" size={15} /> Brawlers</Link>
+          </div>
+        )}
+      </div>
       <div className="card ladder-card">
         {loading ? (
           <div className="card-pad">{[0, 1, 2, 3, 4].map(i => <Skeleton key={i} h={38} style={{ marginBottom: 8 }} />)}</div>

@@ -1,8 +1,10 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { DDImg } from "../components/ui";
 import { formatNumber, winrate } from "../lib/lol";
 import { StatCard, BattleList, BattleRow } from "./ui";
 import {
+  brawlerPath,
   averageElixir, brawlerIcon, bsBattleView, cardIcon, clanRole, cleanName, crBattleView, displayLevel, tagOf, titleCase,
 } from "./supercell";
 
@@ -41,7 +43,7 @@ export function BrawlStarsBody({ data }) {
               {shown.map(b => (
                 <li key={b.id}>
                   <DDImg src={brawlerIcon(b.id)} size={38} alt={titleCase(b.name)} className="gp-row-img" />
-                  <span className="gp-row-text"><strong>{titleCase(b.name)}</strong><span className="faint">Poder {b.power} · Rango {b.rank}</span></span>
+                  <span className="gp-row-text"><Link to={brawlerPath(b.id)} className="gp-row-link">{titleCase(b.name)}</Link><span className="faint">Poder {b.power} · Rango {b.rank}</span></span>
                   <span className="gp-row-value"><strong className="num accent">{formatNumber(b.trophies)}</strong><span className="faint num">máx. {formatNumber(b.highestTrophies)}</span></span>
                 </li>
               ))}

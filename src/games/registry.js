@@ -5,6 +5,12 @@ import { bsProfileIcon, cleanName, getBattles, getPlayer, isTag, tagOf } from ".
 import { Dota2Body } from "./Dota2Profile";
 import * as dota from "./dota2";
 
+// Club (Brawl Stars) o clan (Clash Royale, Clash of Clans) del jugador, para el botón de su página
+const clubOf = (game, p) => {
+  const c = game === "brawlstars" ? p.club : p.clan;
+  return c?.tag ? { tag: c.tag, label: game === "brawlstars" ? "Ver club" : "Ver clan" } : null;
+};
+
 const supercell = (game, { battles, avatar, subtitle }) => ({
   // La búsqueda es por #TAG
   parse: text => (isTag(text) ? tagOf(text) : null),
@@ -21,6 +27,7 @@ const supercell = (game, { battles, avatar, subtitle }) => ({
     tag: `#${tagOf(data.player.tag)}`,
     avatar: avatar?.(data.player) || null,
     subtitle: subtitle(data.player),
+    club: clubOf(game, data.player),
   }),
 });
 

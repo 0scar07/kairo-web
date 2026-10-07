@@ -6,6 +6,7 @@ import GameLogo from "../components/GameLogo";
 import { DDImg, Initials, Skeleton, StateBox } from "../components/ui";
 import { errorMessage } from "../api/client";
 import { PROFILES } from "../games/registry";
+import { clubPath } from "../games/supercell";
 import { gameById } from "../lib/games";
 import { addRecent } from "../lib/library";
 import { useAsync, useNow, useTitle } from "../lib/hooks";
@@ -55,6 +56,7 @@ function GameProfilePage({ game, def, id }) {
                   <button type="button" className="btn btn-primary" onClick={() => reload(true)} disabled={loading}>
                     <Icon name="refresh" size={15} className={loading && data ? "spin" : ""} /> {loading && data ? "Actualizando" : "Actualizar"}
                   </button>
+                  {head?.club && <Link className="btn" to={clubPath(game.id, head.club.tag)}><Icon name="users" size={15} /> {head.club.label}</Link>}
                   <Link className="btn" to={`/juegos/${game.id}`}><GameLogo game={game.id} size={15} color={game.color} /> Buscar otro</Link>
                 </div>
               </>

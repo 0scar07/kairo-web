@@ -34,14 +34,44 @@ export const getPlayer = (game, tag, force) =>
 export const getBattles = (game, tag, force) =>
   get(`/${game}/battles/${tagOf(tag)}`, { ttl: 30_000, force, map: r => r.items || [] });
 
-/** Mejores jugadores del mundo de cada juego (el backend usa el ranking oficial) */
-export const getTop = (game, limit = 10) =>
-  get(`/${game}/top`, { params: { limit }, ttl: 10 * MIN, persist: true, map: r => r.items || [] });
+/**
+ * Mejores jugadores de cada juego (ranking oficial). Brawl Stars acepta además country ("co", "mx"… o "global")
+ * y brawler (id) para el ranking de un país o de un brawler.
+ */
+export const getTop = (game, limit = 10, { country, brawler } = {}) =>
+  get(`/${game}/top`, {
+    params: { limit, country: country && country !== "global" ? country : brawler ? "global" : undefined, brawler },
+    ttl: 10 * MIN, persist: true, map: r => r.items || [],
+  });
+
+/** Club (Brawl Stars) o clan (Clash Royale, Clash of Clans): { club, war } */
+export const getClub = (game, tag, force) =>
+  get(`/${game}/club/${tagOf(tag)}`, { ttl: 2 * MIN, persist: true, force });
+
+/** Brawlers con sus habilidades estelares y gadgets (cambian con cada actualización del juego: 1 día) */
+export const getBrawlers = () =>
+  get("/brawlstars/brawlers", { ttl: 24 * 60 * MIN, persist: true, map: r => (r.items || []).sort((a, b) => a.id - b.id) });
+
+export const clubPath = (game, tag) => `/juegos/${game}/club/${tagOf(tag)}`;
+export const brawlerPath = id => `/juegos/brawlstars/brawlers/${id}`;
+
+/** Países para los rankings: los de habla hispana primero y luego los grandes, con su nombre en español */
+const COUNTRY_CODES = ["co", "mx", "ar", "cl", "pe", "ve", "ec", "bo", "uy", "py", "es", "us", "br", "gt", "cr", "do", "pa", "hn", "sv", "ni"];
+let regionNames = null;
+try { regionNames = new Intl.DisplayNames(["es"], { type: "region" }); } catch { /* navegador viejo */ }
+export const COUNTRIES = [
+  { code: "global", name: "Mundial" },
+  ...COUNTRY_CODES.map(code => ({ code, name: regionNames?.of(code.toUpperCase()) || code.toUpperCase() })),
+];
 
 // ─── Brawl Stars ─────────────────────────────────────────────────────────
 // Imágenes de Brawlify (CDN comunitario con los íconos del juego; la API de Supercell no trae imágenes), como la app
 export const brawlerIcon = id => `https://cdn.brawlify.com/brawlers/borderless/${id}.png`;
 export const bsProfileIcon = id => `https://cdn.brawlify.com/profile-icons/regular/${id}.png`;
+export const brawlerPortrait = id => `https://cdn.brawlify.com/brawlers/portraits/${id}.png`;
+export const starPowerIcon = id => `https://cdn.brawlify.com/star-powers/borderless/${id}.png`;
+export const gadgetIcon = id => `https://cdn.brawlify.com/gadgets/borderless/${id}.png`;
+export const clubBadge = id => (id ? `https://cdn.brawlify.com/club-badges/regular/${id}.png` : null);
 
 /** Una batalla del registro de Brawl Stars: modos por equipos traen `result`; Showdown trae `rank` (puesto) */
 export function bsBattleView(item, myTag) {
