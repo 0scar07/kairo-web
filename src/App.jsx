@@ -14,11 +14,14 @@ import GameCompare from "./pages/GameCompare";
 import Club from "./pages/Club";
 import { BrawlerList, BrawlerPage } from "./pages/Brawlers";
 import DotaMatch from "./pages/DotaMatch";
+import DotaHeroes from "./pages/DotaHeroes";
 import { ChampionList, ChampionPage } from "./pages/Champions";
 import { ComingSoon, NotFound } from "./pages/Misc";
 import { probe } from "./api/server";
 import { ensureDDragon } from "./lib/ddragon";
 import { sweepCache } from "./lib/storage";
+import { startSync } from "./lib/sync";
+import { startWebPushSync } from "./lib/webPush";
 import "./styles/components.css";
 import "./styles/home.css";
 import "./styles/profile.css";
@@ -50,6 +53,10 @@ export default function App() {
     probe();          // si el servidor está dormido, avisa enseguida
     ensureDDragon();
     sweepCache();
+    // Favoritos: se sincronizan entre dispositivos (si hay código) y se mantienen al día para los avisos del navegador
+    const stopSync = startSync();
+    const stopPush = startWebPushSync();
+    return () => { stopSync(); stopPush(); };
   }, []);
 
   return (
@@ -74,6 +81,7 @@ export default function App() {
         <Route path="/juegos/brawlstars/brawlers" element={<BrawlerList />} />
         <Route path="/juegos/brawlstars/brawlers/:id" element={<BrawlerPage />} />
         <Route path="/juegos/dota2/partida/:id" element={<DotaMatch />} />
+        <Route path="/juegos/dota2/heroes" element={<DotaHeroes />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </>

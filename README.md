@@ -94,6 +94,14 @@ Los que aún no tienen búsqueda tienen su página con el motivo exacto y ya est
 
 **Favoritos** · `/favoritos`
 - Tus favoritos con ícono, región y rango; quién está jugando ahora (campeón, cola y cronómetro), acceso a su partida y botón para quitarlo.
+- **Avisos en el navegador** (Web Push): cuando un favorito de LoL entra en partida y cómo le fue, aunque la pestaña esté cerrada.
+- **Sincronizar entre dispositivos** con un código de 12 caracteres, sin cuenta.
+
+**Más de LoL**
+- **Multi-búsqueda** (`/lol/multi`): pega el chat del lobby y ve a los 5 con rango, forma y campeones.
+- **Comparar** (`/lol/comparar`), **Clasificación** completa (`/lol/clasificacion`), **página de partida** con oro minuto a minuto, **Récords** y mapa de actividad en el perfil, y **tarjeta para compartir como imagen**.
+- **Campeones** (`/lol/campeones`): habilidades, aspectos, historia y la **build de los Challenger** (objetos, runas y hechizos más usados en Solo/Dúo Challenger de KR, EUW, NA y LAN).
+- Etiquetas en la partida en vivo (OTP, Main, Primera vez…) y aviso cuando Riot tiene mantenimiento en la región.
 
 **Página de cada juego** · `/juegos/:juego`
 - Su propio hero con la palabra del juego y solo personajes de ese juego: Poro y Jinx chibi (TFT), Shelly y Poco (Brawl Stars), la Mosquetera y la Arquera (Clash Royale), el Mago y la Reina Arquera (Clash of Clans). Dota 2, Fortnite, Apex y PUBG muestran solo la palabra.
@@ -213,6 +221,14 @@ La web usa estos endpoints de `server/` del repo de Kairo:
 | `GET /dota2/search?q` | Buscar jugadores de Dota 2 por nombre |
 | `GET /dota2/player/:id` | Perfil, medalla, héroes y partidas de Dota 2 |
 | `GET /dota2/heroes` | Nombres e imágenes de los héroes |
+| `GET /lol/live/:puuid/insights` | Etiquetas de la partida en vivo (maestría de los 10) |
+| `GET /lol/match/:id/timeline` | Oro minuto a minuto y objetivos |
+| `GET /lol/builds` · `/lol/builds/:championId` | Meta y build de los Challenger |
+| `GET /lol/status` | Mantenimientos e incidencias de Riot |
+| `GET /:juego/club/:tag` · `/brawlstars/brawlers` · `/brawlstars/events` | Clubes y clanes, brawlers y eventos |
+| `GET /dota2/match/:id` · `/dota2/items` · `/dota2/herostats` | Partida, objetos y héroes de Dota 2 |
+| `POST /devices` (platform `web`) · `GET /devices/webpush-key` | Avisos en el navegador |
+| `POST /sync` · `GET`/`PUT /sync/:code` | Favoritos sincronizados |
 | `GET /health` | Saber si el servidor está despierto |
 
 El parámetro `queue` de `/lol/matches` **todavía no existe** en el backend: mientras tanto, los filtros de cola trabajan sobre las partidas ya cargadas, y cuando el backend lo agregue la web lo usa sola. Si el backend no tuviera `/lol/leaderboard` (por ejemplo, una versión vieja), la clasificación muestra "Disponible pronto" en vez de un error.
@@ -236,12 +252,14 @@ Los recortes de personajes se hacen con [rembg](https://github.com/danielgatis/r
 - [x] Brawl Stars, Clash Royale y Clash of Clans con perfil, batallas y ranking mundial
 - [x] Dota 2 con búsqueda por nombre o ID
 - [x] Hero propio para cada juego
+- [x] Multi-búsqueda, Comparar, partida, récords, builds de Challenger, avisos en el navegador y favoritos sincronizados
 - [ ] TFT (cuando Riot habilite la API para la key de Kairo)
 - [ ] Fortnite, Apex Legends y PUBG (cuando el servidor tenga keys válidas)
 - [ ] Filtros de cola en el servidor (`?queue=` en `/lol/matches`)
 - [ ] Comparar dos jugadores (ya existe en la app)
 - [ ] Rango de temporadas pasadas (la API de Riot no lo ofrece: habría que guardarlo en el backend)
 - [ ] Más idiomas (la app tiene 5)
+- [ ] Vista previa de enlaces de cada jugador (hoy la tienen los campeones, los juegos y las páginas fijas)
 
 ## Licencia
 
