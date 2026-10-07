@@ -181,7 +181,7 @@
   font-size: 13px;
 }
 .game-option:hover { background: var(--surface-2); }
-.game-option.current { background: color-mix(in srgb, var(--game-lol) 9%, transparent); }
+.game-option.current { background: var(--surface-2); box-shadow: inset 2px 0 0 var(--brand); }
 .game-option-logo { width: 28px; height: 28px; display: grid; place-items: center; border-radius: 8px; background: var(--bg); border: 1px solid var(--border); flex: none; }
 .game-option-name { flex: 1; font-weight: 500; }
 .game-option-tag { font-size: 10px; font-weight: 600; color: var(--text-3); }

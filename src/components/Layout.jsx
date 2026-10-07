@@ -4,7 +4,7 @@ import Icon from "./Icon";
 import GameLogo from "./GameLogo";
 import SearchForm from "./SearchForm";
 import { DDImg } from "./ui";
-import { GAMES, gamePath } from "../lib/games";
+import { GAMES, gameById, gamePath } from "../lib/games";
 import { useLiveFavorites } from "../lib/liveFavorites";
 import { useNow } from "../lib/hooks";
 import { livePath } from "../lib/regions";
@@ -45,11 +45,13 @@ function usePopover() {
 function GamePicker() {
   const pop = usePopover();
   const id = useId();
+  const { pathname } = useLocation();
+  const current = gameById(pathname.match(/^\/juegos\/([^/]+)/)?.[1]) || gameById("lol");
   return (
     <div className="popover game-picker" ref={pop.ref}>
       <button type="button" className="game-pill" aria-expanded={pop.open} aria-controls={id} onClick={pop.toggle}>
-        <GameLogo game="lol" size={16} color="var(--game-lol)" />
-        <span className="game-pill-name">League of Legends</span>
+        <GameLogo game={current.id} size={16} color={current.color} />
+        <span className="game-pill-name">{current.name}</span>
         <Icon name="chevronDown" size={14} style={{ transform: pop.open ? "rotate(180deg)" : undefined, transition: "transform .15s" }} />
       </button>
       {pop.open && (
@@ -58,10 +60,10 @@ function GamePicker() {
           <ul>
             {GAMES.map(g => (
               <li key={g.id}>
-                <Link to={gamePath(g)} className={`game-option${g.available ? " current" : ""}`} onClick={pop.close}>
+                <Link to={gamePath(g)} className={`game-option${g.id === current.id ? " current" : ""}`} onClick={pop.close} aria-current={g.id === current.id ? "page" : undefined}>
                   <span className="game-option-logo"><GameLogo game={g.id} size={18} color={g.color} /></span>
                   <span className="game-option-name">{g.name}</span>
-                  <span className={`game-option-tag${g.available ? " on" : ""}`}>{g.available ? "Disponible" : "Próximamente"}</span>
+                  <span className={`game-option-tag${g.available ? " on" : ""}`}>{g.available ? "Disponible" : "Búsqueda pronto"}</span>
                 </Link>
               </li>
             ))}

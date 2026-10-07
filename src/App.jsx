@@ -4,6 +4,7 @@ import Home from "./pages/Home";
 import Profile from "./pages/Profile";
 import Live from "./pages/Live";
 import Favorites from "./pages/Favorites";
+import GamePage from "./pages/GamePage";
 import { ComingSoon, NotFound } from "./pages/Misc";
 import { probe } from "./api/server";
 import { ensureDDragon } from "./lib/ddragon";
@@ -45,7 +46,7 @@ export default function App() {
         <Route path="/lol/:region/:riotId/en-vivo" element={<Live />} />
         <Route path="/favoritos" element={<Favorites />} />
         <Route path="/juegos" element={<ComingSoon />} />
-        <Route path="/juegos/:game" element={<ComingSoon />} />
+        <Route path="/juegos/:game" element={<GamePage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </>
