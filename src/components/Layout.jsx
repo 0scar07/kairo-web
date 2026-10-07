@@ -13,6 +13,9 @@ import { formatDuration, queueShort } from "../lib/lol";
 import { APK_URL, GITHUB_URL, PRIVACY_URL } from "../lib/config";
 import { useServerState } from "../api/server";
 import { promptInstall, useCanInstall, useOnline } from "../lib/pwa";
+import { getServerStatus } from "../api/lol";
+import { useAsync } from "../lib/hooks";
+import { regionBySlug, savedRegion } from "../lib/regions";
 
 export function Logo() {
   return (
@@ -199,6 +202,7 @@ export function Footer() {
         <nav className="footer-links" aria-label="Enlaces">
           <Link to="/lol/campeones">Campeones</Link>
           <Link to="/lol/comparar">Comparar jugadores</Link>
+          <Link to="/lol/multi">Multi-búsqueda</Link>
           <a href={PRIVACY_URL} rel="noopener">Privacidad</a>
           <a href={GITHUB_URL} rel="noopener">GitHub</a>
         </nav>
@@ -227,6 +231,31 @@ export function ServerBanner() {
     );
   }
   return null;
+}
+
+/**
+ * Aviso de Riot: mantenimiento o incidencia en el servidor de LoL de la región que se está viendo. Solo en las páginas
+ * de LoL y en la portada; si todo funciona (o no se pudo consultar) no aparece nada.
+ */
+function RiotStatusBar({ region }) {
+  const { pathname } = useLocation();
+  const r = regionBySlug(region) || savedRegion();
+  const relevant = pathname === "/" || pathname.startsWith("/lol");
+  const { data } = useAsync(() => (relevant ? getServerStatus(r.id) : Promise.resolve(null)), [r.id, relevant]);
+  const [hidden, setHidden] = useState(null);
+  const notes = [
+    ...(data?.maintenances || []).map(m => ({ id: `m${m.id}`, kind: m.status === "scheduled" ? "Mantenimiento programado" : "Mantenimiento", title: m.title })),
+    ...(data?.incidents || []).map(i => ({ id: `i${i.id}`, kind: i.severity === "critical" ? "Incidencia grave" : "Incidencia", title: i.title })),
+  ];
+  const key = notes.map(n => n.id).join(",");
+  if (!relevant || !notes.length || hidden === key) return null;
+  return (
+    <div className="riot-status" role="status">
+      <Icon name="alert" size={15} />
+      <span><strong>{notes[0].kind} en LoL {r.label}:</strong> {notes[0].title || "Riot está revisando un problema en el servidor."}{notes.length > 1 ? ` (+${notes.length - 1} más)` : ""}</span>
+      <button type="button" className="btn btn-icon riot-status-close" onClick={() => setHidden(key)} aria-label="Ocultar aviso"><Icon name="close" size={13} /></button>
+    </div>
+  );
 }
 
 /** "Instalar": aparece solo cuando el navegador ofrece instalar la web (PWA) */
@@ -258,6 +287,7 @@ export default function Layout({ header, children }) {
     <>
       <OfflineBar />
       <ServerBanner />
+      <RiotStatusBar region={header?.region} />
       <Header {...header} />
       <main>{children}</main>
       <Footer />

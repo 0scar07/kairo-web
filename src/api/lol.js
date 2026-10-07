@@ -118,3 +118,15 @@ export async function getTimeline(matchId, region) {
     return null;
   }
 }
+
+/**
+ * Estado del servidor de LoL de una región (mantenimientos e incidencias, con el título en español):
+ * { name, maintenances: [{ id, status, title }], incidents: [{ id, severity, title }] }. null si no se pudo consultar.
+ */
+export async function getServerStatus(region) {
+  try {
+    return await get("/lol/status", { params: { region, lang: "es" }, ttl: 5 * MIN });
+  } catch {
+    return null;
+  }
+}
