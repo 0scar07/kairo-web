@@ -111,12 +111,19 @@ export function compactMatch(m) {
     end: info.gameEndTimestamp || null,
     // gameDuration viene en segundos desde el parche 11.20 (antes en ms)
     duration: info.gameEndTimestamp ? info.gameDuration : Math.round((info.gameDuration || 0) / 1000),
+    // Objetivos de cada equipo (página de la partida)
+    teams: (info.teams || []).map(t => ({
+      teamId: t.teamId,
+      win: Boolean(t.win),
+      objectives: Object.fromEntries(Object.entries(t.objectives || {}).map(([k, v]) => [k, v?.kills || 0])),
+    })),
     participants: (info.participants || []).map(p => ({
       puuid: p.puuid,
       gameName: p.riotIdGameName || p.summonerName || "",
       tagLine: p.riotIdTagline || "",
       championId: p.championId,
       championName: p.championName,
+      icon: p.profileIcon ?? null,
       champLevel: p.champLevel,
       teamId: arena && p.playerSubteamId ? 1000 + p.playerSubteamId : p.teamId,
       position: p.teamPosition || p.individualPosition || "",
@@ -129,6 +136,9 @@ export function compactMatch(m) {
       damage: p.totalDamageDealtToChampions || 0,
       gold: p.goldEarned || 0,
       vision: p.visionScore || 0,
+      taken: p.totalDamageTaken || 0,
+      wards: p.wardsPlaced || 0,
+      buildings: p.damageDealtToBuildings || 0,
       items: [p.item0, p.item1, p.item2, p.item3, p.item4, p.item5, p.item6].map(i => i || 0),
       spells: [p.summoner1Id, p.summoner2Id],
       keystone: p.perks?.styles?.[0]?.selections?.[0]?.perk ?? null,
@@ -241,6 +251,62 @@ export function currentStreak(matches, puuid) {
     count++;
   }
   return win === null ? null : { win, count };
+}
+
+/**
+ * Con quién juega: los compañeros de equipo que se repiten en las partidas cargadas (2 o más), con las partidas y
+ * victorias juntos. Ordenados por partidas y, a igualdad, por winrate. Sin remakes.
+ */
+export function teammates(matches, puuid, min = 2) {
+  const by = new Map();
+  for (const m of matches) {
+    const me = findMe(m, puuid);
+    if (!me || me.remake) continue;
+    for (const p of m.participants) {
+      if (p.puuid === puuid || p.teamId !== me.teamId || !p.puuid) continue;
+      const s = by.get(p.puuid) || { puuid: p.puuid, gameName: p.gameName, tagLine: p.tagLine, icon: p.icon ?? null, games: 0, wins: 0, last: 0 };
+      s.games++;
+      if (me.win) s.wins++;
+      // Nombre e ícono de la partida más reciente
+      if ((m.start || 0) > s.last) Object.assign(s, { last: m.start || 0, gameName: p.gameName || s.gameName, tagLine: p.tagLine || s.tagLine, icon: p.icon ?? s.icon });
+      by.set(p.puuid, s);
+    }
+  }
+  return [...by.values()]
+    .filter(s => s.games >= min)
+    .map(s => ({ ...s, wr: Math.round((s.wins / s.games) * 100) }))
+    .sort((a, b) => b.games - a.games || b.wr - a.wr);
+}
+
+/**
+ * Promedios de un jugador en una lista de partidas (para Comparar): winrate, KDA, participación y valores por minuto.
+ * null si no hay partidas válidas.
+ */
+export function averages(matches, puuid) {
+  const base = summarize(matches, puuid);
+  if (!base) return null;
+  let cs = 0, damage = 0, gold = 0, vision = 0, minutes = 0, deaths = 0;
+  for (const m of matches) {
+    const me = findMe(m, puuid);
+    if (!me || me.remake) continue;
+    cs += me.cs; damage += me.damage; gold += me.gold; vision += me.vision; deaths += me.deaths;
+    minutes += m.duration / 60;
+  }
+  const per = v => (minutes > 0 ? v / minutes : 0);
+  return { ...base, csMin: per(cs), dmgMin: per(damage), goldMin: per(gold), visionMin: per(vision), deathsAvg: deaths / base.games };
+}
+
+/** Partidas que aparecen en las dos listas: cuántas jugaron en el mismo equipo y cuántas en contra (y quién ganó) */
+export function sharedMatches(listA, puuidA, listB, puuidB) {
+  const all = new Map([...listA, ...listB].map(m => [m.id, m]));
+  const out = { together: 0, togetherWins: 0, against: 0, aWins: 0, matches: [] };
+  for (const m of all.values()) {
+    const a = findMe(m, puuidA), b = findMe(m, puuidB);
+    if (!a || !b || a.remake) continue;
+    out.matches.push(m);
+    if (a.teamId === b.teamId) { out.together++; if (a.win) out.togetherWins++; } else { out.against++; if (a.win) out.aWins++; }
+  }
+  return out;
 }
 
 /** Color del KDA como en op.gg: 5+ dorado, 4+ azul, 3+ verde; el resto, normal */

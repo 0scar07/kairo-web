@@ -45,3 +45,26 @@ export function parseRiotIdSlug(slug) {
 
 export const profilePath = (regionSlug, gameName, tagLine) => `/lol/${regionSlug}/${riotIdSlug(gameName, tagLine)}`;
 export const livePath = (regionSlug, gameName, tagLine) => `${profilePath(regionSlug, gameName, tagLine)}/en-vivo`;
+
+// El ID de una partida empieza con su plataforma ("LA1_123", "KR_456"): de ahí sale la región
+export const regionOfMatchId = matchId => regionById(String(matchId || "").split("_")[0].toLowerCase());
+
+/** Página de una partida. `who` = jugador a resaltar ({ gameName, tagLine }), opcional */
+export const matchPath = (matchId, who) =>
+  `/lol/partida/${encodeURIComponent(matchId)}${who?.gameName ? `?jugador=${riotIdSlug(who.gameName, who.tagLine)}` : ""}`;
+
+/** Comparar: cada jugador como "region/Nombre-TAG" */
+export const playerKey = (regionSlug, gameName, tagLine) => `${regionSlug}/${riotIdSlug(gameName, tagLine)}`;
+export function parsePlayerKey(value) {
+  const [slug, ...rest] = String(value || "").split("/");
+  const region = regionBySlug(slug);
+  const id = parseRiotIdSlug(rest.join("/"));
+  return region && id ? { region, ...id } : null;
+}
+export const comparePath = (a, b) => {
+  const q = new URLSearchParams();
+  if (a) q.set("a", a);
+  if (b) q.set("b", b);
+  const s = q.toString();
+  return `/lol/comparar${s ? `?${s}` : ""}`;
+};

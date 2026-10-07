@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { livePath, parseRiotId, parseRiotIdSlug, profilePath, regionById, regionBySlug, riotIdSlug } from "./regions";
+import { comparePath, livePath, matchPath, parsePlayerKey, parseRiotId, parseRiotIdSlug, playerKey, profilePath, regionById, regionBySlug, regionOfMatchId, riotIdSlug } from "./regions";
 
 describe("parseRiotId", () => {
   it("separa nombre y tag por el último #", () => {
@@ -42,5 +42,26 @@ describe("regiones", () => {
     expect(regionBySlug("euw").id).toBe("euw1");
     expect(regionById("br1").slug).toBe("br");
     expect(regionBySlug("xx")).toBeNull();
+  });
+});
+
+describe("partidas y comparar", () => {
+  it("saca la región del ID de partida", () => {
+    expect(regionOfMatchId("LA1_123")?.slug).toBe("lan");
+    expect(regionOfMatchId("KR_9")?.slug).toBe("kr");
+    expect(regionOfMatchId("JP1_9")).toBeNull();
+  });
+
+  it("arma la ruta de la partida con el jugador resaltado", () => {
+    expect(matchPath("KR_1")).toBe("/lol/partida/KR_1");
+    expect(matchPath("KR_1", { gameName: "Hide on bush", tagLine: "KR1" })).toBe("/lol/partida/KR_1?jugador=Hide%20on%20bush-KR1");
+  });
+
+  it("codifica y lee jugadores para Comparar", () => {
+    const key = playerKey("kr", "Hide on bush", "KR1");
+    expect(parsePlayerKey(key)).toMatchObject({ gameName: "Hide on bush", tagLine: "KR1", region: { slug: "kr" } });
+    expect(parsePlayerKey("xx/Faker-KR1")).toBeNull();
+    expect(comparePath(key)).toBe(`/lol/comparar?a=${encodeURIComponent(key)}`);
+    expect(comparePath()).toBe("/lol/comparar");
   });
 });

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   QUEUE_FILTERS, championStats, compactMatch, currentStreak, matchHighlights, formatDuration, kdaText, kdaTone, killParticipation, matchesFilter,
   queueLong, queueShort, rankFromScore, rankLabel, rankScore, rankShort, roleStats, summarize, timeAgo, winrate,
+  averages, sharedMatches, teammates,
 } from "./lol";
 
 describe("rangos", () => {
@@ -185,5 +186,56 @@ describe("última partida", () => {
     ];
     expect(currentStreak(games, "me")).toEqual({ win: true, count: 2 });
     expect(currentStreak([], "me")).toBeNull();
+  });
+});
+
+describe("con quién juega y comparar", () => {
+  // Partida mínima: el jugador "me" y otros, cada uno con equipo y resultado
+  const player = (puuid, teamId, win, extra = {}) => ({
+    puuid, gameName: puuid.toUpperCase(), tagLine: "LAN", teamId, win, remake: false, kills: 5, deaths: 2, assists: 5,
+    cs: 200, damage: 20000, gold: 12000, vision: 30, ...extra,
+  });
+  const match = (id, start, players) => ({ id, start, duration: 1800, participants: players });
+  const list = [
+    match("A_1", 3, [player("me", 100, true), player("duo", 100, true), player("x", 200, false)]),
+    match("A_2", 2, [player("me", 100, false), player("duo", 100, false), player("y", 100, false)]),
+    match("A_3", 1, [player("me", 200, true), player("duo", 200, true, { gameName: "Viejo" }), player("y", 100, false)]),
+  ];
+
+  it("teammates cuenta compañeros repetidos con su winrate y el nombre más reciente", () => {
+    const out = teammates(list, "me");
+    expect(out).toHaveLength(1);
+    expect(out[0]).toMatchObject({ puuid: "duo", gameName: "DUO", games: 3, wins: 2, wr: 67 });
+    expect(teammates(list, "me", 1).map(t => t.puuid)).toEqual(["duo", "y"]);   // y: compañero 1 vez, rival otra
+  });
+
+  it("averages da valores por minuto y null sin partidas", () => {
+    const a = averages(list, "me");
+    expect(a.games).toBe(3);
+    expect(a.csMin).toBeCloseTo(200 / 30);
+    expect(a.dmgMin).toBeCloseTo(20000 / 30);
+    expect(averages([], "me")).toBeNull();
+  });
+
+  it("sharedMatches separa partidas juntos y en contra sin repetir", () => {
+    const b = [list[0], match("B_9", 0, [player("y", 100, true), player("me", 200, false)])];
+    const out = sharedMatches(list, "me", b, "y");
+    expect(out.together).toBe(1);        // A_2
+    expect(out.against).toBe(2);         // A_3 y B_9
+    expect(out.aWins).toBe(1);           // ganó A_3
+    expect(out.matches).toHaveLength(3);
+  });
+
+  it("compactMatch guarda objetivos por equipo e ícono", () => {
+    const m = compactMatch({
+      metadata: { matchId: "LA1_1" },
+      info: {
+        gameEndTimestamp: 1, gameDuration: 1500, queueId: 420,
+        teams: [{ teamId: 100, win: true, objectives: { dragon: { first: true, kills: 3 }, baron: { kills: 1 } } }],
+        participants: [{ puuid: "p", profileIcon: 29, totalDamageTaken: 900, wardsPlaced: 7, teamId: 100 }],
+      },
+    });
+    expect(m.teams[0]).toEqual({ teamId: 100, win: true, objectives: { dragon: 3, baron: 1 } });
+    expect(m.participants[0]).toMatchObject({ icon: 29, taken: 900, wards: 7 });
   });
 });

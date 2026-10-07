@@ -56,7 +56,7 @@ export const getMatchIds = (puuid, region, { start = 0, count = MATCH_PAGE_FIRST
   get(`/lol/matches/${puuid}`, { params: { region, start, count, queue }, ttl: TTL.matchIds, persist: true, force });
 
 /** Una partida, ya compactada (ver compactMatch). Subir MATCH_FORMAT al cambiar compactMatch. */
-const MATCH_FORMAT = 3;   // 3: multikill, firstBlood y turrets (insignias de la última partida)
+const MATCH_FORMAT = 4;   // 3: insignias de la última partida · 4: ícono, daño recibido, guardianes y objetivos por equipo
 export const getMatch = (matchId, region) =>
   get(`/lol/match/${matchId}`, { params: { region }, ttl: TTL.match, persist: true, map: compactMatch, version: MATCH_FORMAT });
 
@@ -68,6 +68,10 @@ export async function getMatches(ids, region) {
   if (!matches.length && failed) throw failed.reason;
   return { matches, failed: results.length - matches.length };
 }
+
+/** Rotación semanal gratuita: { free: [championId], newPlayers: [championId] } */
+export const getRotation = region =>
+  get("/lol/rotation", { params: { region }, ttl: 60 * MIN, persist: true });
 
 /** Partida en curso: { inGame: false } o { inGame: true, queueId, mapId, startTime, bans, participants } */
 export const getLive = (puuid, region, force) =>
