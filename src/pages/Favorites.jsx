@@ -9,6 +9,7 @@ import { formatDuration, queueShort } from "../lib/lol";
 import { championIcon, championName, profileIcon, useDDragon } from "../lib/ddragon";
 import { useNow, useTitle } from "../lib/hooks";
 import { APK_URL } from "../lib/config";
+import FavoritesTools from "./favorites/FavoritesTools";
 
 // Favoritos de este navegador: quién está jugando ahora, su rango guardado y acceso al perfil
 export default function Favorites() {
@@ -26,6 +27,7 @@ export default function Favorites() {
           <h1 className="section-title page-title">Favoritos</h1>
           {favorites.length > 0 && <span className="faint">{favorites.length} {favorites.length === 1 ? "jugador" : "jugadores"} · se guardan en este navegador</span>}
         </div>
+        <FavoritesTools />
 
         {!favorites.length ? (
           <div className="card">
@@ -77,7 +79,7 @@ export default function Favorites() {
 
         <div className="card notify favorites-app">
           <Icon name="bell" size={18} className="brand" />
-          <p>En la web revisamos cada minuto mientras la página está abierta. Para recibir avisos con el navegador cerrado, usa la app de Kairo.</p>
+          <p>En la web revisamos cada minuto mientras la página está abierta. Con los avisos de arriba te llegan aunque la cierres; en el celular, la app de Kairo también avisa.</p>
           <a className="btn btn-primary" href={APK_URL} rel="noopener">Descargar app</a>
         </div>
       </div>

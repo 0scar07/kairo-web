@@ -24,8 +24,9 @@ function createList(key) {
       listeners.forEach(fn => fn());
     });
   }
-  const use = () => useSyncExternalStore(fn => { listeners.add(fn); return () => listeners.delete(fn); }, () => value);
-  return { get: () => value, set, use };
+  const subscribe = fn => { listeners.add(fn); return () => listeners.delete(fn); };
+  const use = () => useSyncExternalStore(subscribe, () => value);
+  return { get: () => value, set, use, subscribe };
 }
 
 const sameId = (a, b) => a.region === b.region
@@ -48,8 +49,32 @@ export function updateFavorite(player, patch) {
 
 export function toggleFavorite(player) {
   const list = favorites.get();
-  if (isFavorite(list, player)) favorites.set(list.filter(f => !sameId(f, player)));
-  else favorites.set([{ ...player, addedAt: Date.now() }, ...list].slice(0, MAX_FAVORITES));
+  if (isFavorite(list, player)) {
+    markRemoved(player);
+    favorites.set(list.filter(f => !sameId(f, player)));
+  } else {
+    unmarkRemoved(player);
+    favorites.set([{ ...player, addedAt: Date.now() }, ...list].slice(0, MAX_FAVORITES));
+  }
+}
+
+/** Avisa cuando cambian los favoritos (sincronización y avisos del navegador) */
+export const subscribeFavorites = favorites.subscribe;
+/** Reemplaza la lista completa (lo usa la sincronización al traer los de otro dispositivo) */
+export const setFavorites = list => favorites.set(list.slice(0, MAX_FAVORITES));
+
+// ─── Quitados: { key, at } — para que la sincronización no los vuelva a traer de otro dispositivo ─────
+const REMOVED_KEY = "kairo:favorites:removed";
+export const favoriteKey = p => `${p.region}:${p.gameName}#${p.tagLine}`.toLowerCase();
+export const getRemoved = () => { const v = readJSON(REMOVED_KEY, []); return Array.isArray(v) ? v : []; };
+export const setRemoved = list => writeJSON(REMOVED_KEY, list.slice(-200));
+function markRemoved(player) {
+  const key = favoriteKey(player);
+  setRemoved([...getRemoved().filter(r => r.key !== key), { key, at: Date.now() }]);
+}
+function unmarkRemoved(player) {
+  const key = favoriteKey(player);
+  setRemoved(getRemoved().filter(r => r.key !== key));
 }
 
 // ─── Recientes: { game, region, gameName, tagLine, subtitle, iconId, rank } ──────────

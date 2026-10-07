@@ -3,7 +3,7 @@
 //   - Archivos de la app (/assets/*, con hash en el nombre): de la caché, porque nunca cambian.
 //   - Imágenes de Data Dragon y de los CDN de los juegos: de la caché mientras se actualizan por detrás.
 //   - Datos del backend: NO pasan por aquí; la web guarda lo último en localStorage (src/api/client.js).
-const VERSION = "kairo-v1";
+const VERSION = "kairo-v2";
 const SHELL = `${VERSION}-shell`;
 const IMAGES = `${VERSION}-img`;
 const MAX_IMAGES = 300;
@@ -83,4 +83,29 @@ self.addEventListener("fetch", event => {
       }),
     );
   }
+});
+
+// ─── Avisos en el navegador (Web Push, ver src/lib/webPush.js) ────────────
+// El servidor manda { title, body, url (relativa a la web), tag }
+self.addEventListener("push", event => {
+  let data = {};
+  try { data = event.data ? event.data.json() : {}; } catch { data = { body: event.data?.text() }; }
+  event.waitUntil(self.registration.showNotification(data.title || "Kairo", {
+    body: data.body || "",
+    icon: new URL("pwa/icon-192.png", SCOPE).href,
+    badge: new URL("favicon-32.png", SCOPE).href,
+    tag: data.tag || "kairo",
+    data: { url: new URL(data.url || "", SCOPE).href },
+  }));
+});
+
+self.addEventListener("notificationclick", event => {
+  event.notification.close();
+  const url = event.notification.data?.url || SCOPE.href;
+  event.waitUntil((async () => {
+    const tabs = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
+    const tab = tabs.find(t => t.url.startsWith(SCOPE.href));
+    if (tab) { await tab.focus(); return tab.navigate(url).catch(() => self.clients.openWindow(url)); }
+    return self.clients.openWindow(url);
+  })());
 });
