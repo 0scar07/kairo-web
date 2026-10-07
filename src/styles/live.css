@@ -127,3 +127,22 @@
   .notify { flex-wrap: wrap; }
   .notify .btn { width: 100%; }
 }
+
+/* Etiquetas por jugador (maestría y rango) */
+.live-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+.live-tag {
+  display: inline-flex; align-items: center; gap: 3px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  font-size: 10px; font-weight: 700; letter-spacing: .02em;
+  border: 1px solid currentColor;
+  white-space: nowrap;
+  animation: tag-in .35s cubic-bezier(.2, .7, .2, 1) both;
+}
+.live-tag.gold { color: var(--gold); background: color-mix(in srgb, var(--gold) 12%, transparent); }
+.live-tag.brand { color: var(--brand); background: color-mix(in srgb, var(--brand) 12%, transparent); }
+.live-tag.red { color: var(--loss); background: color-mix(in srgb, var(--loss) 12%, transparent); }
+.live-tag.blue { color: var(--blue); background: color-mix(in srgb, var(--blue) 12%, transparent); }
+.live-tag.muted { color: var(--text-2); border-color: var(--border-2); }
+@keyframes tag-in { from { opacity: 0; transform: translateY(3px); } }
+@media (prefers-reduced-motion: reduce) { .live-tag { animation: none; } }

@@ -5,7 +5,8 @@ import Icon from "../components/Icon";
 import CountUp from "../components/CountUp";
 import { DDImg, Skeleton, StateBox } from "../components/ui";
 import { errorMessage } from "../api/client";
-import { getAccount, getLive } from "../api/lol";
+import { getAccount, getLive, getLiveInsights } from "../api/lol";
+import { liveTags } from "../lib/liveTags";
 import { useAsync, useInterval, useNow, useTitle } from "../lib/hooks";
 import { parseRiotId, parseRiotIdSlug, profilePath, regionBySlug } from "../lib/regions";
 import { formatDuration, mapName, queueLong, rankFromScore, rankLabel, rankScore, tierColor, winrate } from "../lib/lol";
@@ -98,6 +99,8 @@ function LiveGame({ live, puuid, region, riotId }) {
   const teamIds = [...new Set(live.participants.map(p => p.teamId))].sort((a, b) => a - b);
   const bansOf = teamId => live.bans.filter(b => b.teamId === teamId).sort((a, b) => a.pickTurn - b.pickTurn);
   const hasBans = live.bans.length > 0;
+  // Etiquetas por jugador (maestría): se piden una vez por partida y llegan después de los equipos
+  const { data: insights } = useAsync(() => getLiveInsights(puuid, region.id), [live.gameId, puuid, region.id]);
 
   return (
     <>
@@ -125,7 +128,7 @@ function LiveGame({ live, puuid, region, riotId }) {
 
         <div className="teams">
           {teamIds.map(teamId => (
-            <Team key={teamId} teamId={teamId} players={live.participants.filter(p => p.teamId === teamId)} puuid={puuid} region={region} />
+            <Team key={teamId} teamId={teamId} players={live.participants.filter(p => p.teamId === teamId)} puuid={puuid} region={region} insights={insights?.players || null} />
           ))}
         </div>
 
@@ -157,7 +160,7 @@ function BanGroup({ label, cls, bans, reverse }) {
   );
 }
 
-function Team({ teamId, players, puuid, region }) {
+function Team({ teamId, players, puuid, region, insights }) {
   const meta = TEAMS[teamId] || { name: `Equipo ${teamId}`, cls: "" };
   const scores = players.map(p => p.ranked && rankScore(p.ranked.tier, p.ranked.rank, p.ranked.leaguePoints)).filter(Number.isFinite);
   const avg = scores.length ? rankFromScore(scores.reduce((s, v) => s + v, 0) / scores.length) : null;
@@ -168,18 +171,20 @@ function Team({ teamId, players, puuid, region }) {
         {avg && <span className="muted">Rango medio <strong>{avg}</strong></span>}
       </header>
       <ul className="team-list">
-        {players.map((p, i) => <LivePlayer key={p.puuid || i} p={p} me={p.puuid === puuid} region={region} index={i} />)}
+        {players.map((p, i) => <LivePlayer key={p.puuid || i} p={p} me={p.puuid === puuid} region={region} index={i} insights={insights} />)}
       </ul>
     </section>
   );
 }
 
-function LivePlayer({ p, me, region, index }) {
+function LivePlayer({ p, me, region, index, insights }) {
   const champ = championName(p.championId, "Campeón");
   const id = p.riotId ? parseRiotId(p.riotId) : null;
   const r = p.ranked;
   const games = r ? r.wins + r.losses : 0;
   const wr = r ? winrate(r.wins, r.losses) : null;
+  // null = aún cargando o sin datos: no se muestran etiquetas
+  const tags = insights && p.puuid && !p.bot ? liveTags(insights[p.puuid] ?? null, r, champ) : [];
   return (
     <li className={`live-player reveal${me ? " me" : ""}`} style={{ "--i": index }} aria-current={me ? "true" : undefined}>
       <DDImg src={championIcon(p.championId)} size={40} alt={champ} />
@@ -196,6 +201,11 @@ function LivePlayer({ p, me, region, index }) {
           : id ? <Link to={profilePath(region.slug, id.gameName, id.tagLine)}><strong>{id.gameName}<span className="faint">#{id.tagLine}</span></strong></Link>
           : <strong>{p.riotId || "Jugador"}</strong>}
         <span className="faint">{champ}</span>
+        {tags.length > 0 && (
+          <span className="live-tags">
+            {tags.map(t => <span key={t.key} className={`live-tag ${t.tone}`} title={t.title}>{t.key === "streak" && <Icon name="flame" size={11} />}{t.label}</span>)}
+          </span>
+        )}
       </div>
       <div className="live-rank">
         {r ? (
