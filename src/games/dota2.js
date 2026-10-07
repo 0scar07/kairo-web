@@ -19,6 +19,11 @@ export const getMatch = id => get(`/dota2/match/${encodeURIComponent(id)}`, { tt
 /** Objetos: id -> { key, name, cost } (1 día) */
 export const getItems = () => get("/dota2/items", { ttl: 24 * 60 * MIN, persist: true, map: r => r.items || {} });
 
+/** Héroes con partidas y victorias por medalla (brackets[0] = Heraldo … [7] = Inmortal) y en partidas pro (1 h) */
+export const getHeroStats = () => get("/dota2/herostats", { ttl: 60 * MIN, persist: true, map: r => r.items || [] });
+export const MEDAL_NAMES = ["Heraldo", "Guardián", "Cruzado", "Arconte", "Leyenda", "Ancestral", "Divino", "Inmortal"];
+export const heroImageByName = name => `${HERO_CDN}/${name}.png`;
+
 const ITEM_CDN = "https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/items";
 export const itemIcon = (items, id) => (id && items?.[id] ? `${ITEM_CDN}/${items[id].key}.png` : null);
 export const itemName = (items, id) => items?.[id]?.name || "";

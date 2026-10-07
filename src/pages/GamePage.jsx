@@ -7,7 +7,7 @@ import { DDImg, Initials, Skeleton, StateBox } from "../components/ui";
 import HeroShowcase from "./home/HeroShowcase";
 import GameCards from "./home/GameCards";
 import { PROFILES, gameProfilePath } from "../games/registry";
-import { COUNTRIES, bsProfileIcon, cleanName, getTop, tagOf } from "../games/supercell";
+import { COUNTRIES, bsProfileIcon, cleanName, getEvents, getTop, mapImage, modeName, parseBattleTime, tagOf } from "../games/supercell";
 import { errorMessage } from "../api/client";
 import { gameById } from "../lib/games";
 import { useAsync, useTitle } from "../lib/hooks";
@@ -63,7 +63,15 @@ export default function GamePage() {
         <div className="container"><GameCards /></div>
       </section>
       {["brawlstars", "clashroyale", "clashofclans"].includes(game.id) && (
-        <div className="container home-body" style={{ "--game": game.hex }}><TopPlayers game={game} /></div>
+        <div className="container home-body" style={{ "--game": game.hex }}>
+          {game.id === "brawlstars" && <BsEvents />}
+          <TopPlayers game={game} />
+        </div>
+      )}
+      {game.id === "dota2" && (
+        <div className="container home-body" style={{ "--game": game.hex }}>
+          <Link className="btn dota-heroes-link" to="/juegos/dota2/heroes"><Icon name="grid" size={15} /> Héroes con su winrate por medalla</Link>
+        </div>
       )}
     </Layout>
   );
@@ -169,6 +177,35 @@ function TopPlayers({ game }) {
           </ol>
         )}
       </div>
+    </section>
+  );
+}
+
+/** Brawl Stars: eventos activos ahora (modo, mapa y cuánto les queda) */
+function BsEvents() {
+  const { data, loading } = useAsync(() => getEvents().catch(() => null), []);
+  const now = Date.now();
+  const active = (data || []).filter(e => parseBattleTime(e.startTime) <= now && parseBattleTime(e.endTime) > now);
+  if (!loading && !active.length) return null;
+  const left = ms => {
+    const h = Math.floor(ms / 3_600_000), m = Math.floor((ms % 3_600_000) / 60_000);
+    return h >= 24 ? `${Math.floor(h / 24)} d ${h % 24} h` : h ? `${h} h ${m} min` : `${m} min`;
+  };
+  return (
+    <section className="home-section" aria-labelledby="events-title">
+      <div className="section-head"><h2 className="section-title" id="events-title">Eventos ahora</h2></div>
+      <ul className="bs-events">
+        {loading && !data ? [0, 1, 2, 3].map(i => <li key={i}><Skeleton h={170} r={14} /></li>) : active.map((e, i) => (
+          <li key={`${e.slotId}-${e.event.id}`} className="bs-event reveal" style={{ "--i": i }}>
+            <span className="bs-event-map"><img src={mapImage(e.event.id)} alt="" loading="lazy" /></span>
+            <span className="bs-event-text">
+              <strong>{modeName(e.event.mode)}</strong>
+              <span className="faint">{e.event.map || "Mapa"}</span>
+              <span className="bs-event-left num"><Icon name="clock" size={12} /> {left(parseBattleTime(e.endTime) - now)}</span>
+            </span>
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }

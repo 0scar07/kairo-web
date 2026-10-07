@@ -52,6 +52,22 @@ export const getClub = (game, tag, force) =>
 export const getBrawlers = () =>
   get("/brawlstars/brawlers", { ttl: 24 * 60 * MIN, persist: true, map: r => (r.items || []).sort((a, b) => a.id - b.id) });
 
+/** Eventos activos y próximos de Brawl Stars: [{ startTime, endTime, event: { id, mode, map } }] */
+export const getEvents = () =>
+  get("/brawlstars/events", { ttl: 5 * MIN, map: r => r.items || [] });
+
+export const mapImage = id => (id ? `https://cdn.brawlify.com/maps/regular/${id}.png` : null);
+
+// Modos de Brawl Stars con su nombre en español (el resto se muestra como lo da la API)
+const BS_MODES = {
+  gemGrab: "Atrapagemas", brawlBall: "Balón Brawl", heist: "Atraco", bounty: "Caza estelar", knockout: "Noqueo",
+  hotZone: "Zona restringida", soloShowdown: "Supervivencia", duoShowdown: "Supervivencia dúo", trioShowdown: "Supervivencia trío",
+  wipeout: "Aniquilación", duels: "Duelos", siege: "Asedio", basketBrawl: "Baloncesto Brawl", volleyBrawl: "Voleibol Brawl",
+  payload: "Carga explosiva", presentPlunder: "Saqueo de regalos", holdTheTrophy: "Agarra el trofeo", trophyThieves: "Ladrones de trofeos",
+  roboRumble: "Robopelea", bossFight: "Jefe", bigGame: "Gran juego", hunters: "Cazadores", brawlHockey: "Hockey Brawl",
+};
+export const modeName = mode => BS_MODES[mode] || humanize(mode);
+
 export const clubPath = (game, tag) => `/juegos/${game}/club/${tagOf(tag)}`;
 export const brawlerPath = id => `/juegos/brawlstars/brawlers/${id}`;
 
