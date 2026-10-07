@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "Versión web de Kairo: estadísticas de League of Legends estilo op.gg — perfiles, historial y partidas en vivo.",
+  "description": "Versión web de Kairo: estadísticas de League of Legends (con partida en vivo), Brawl Stars, Clash Royale, Clash of Clans y Dota 2.",
   "homepage": "https://0scar07.github.io/kairo-web/",
   "repository": {
     "type": "git",
