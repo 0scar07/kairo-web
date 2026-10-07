@@ -344,6 +344,60 @@ export function roleStats(matches, puuid) {
 
 export const formatKda = v => (v === Infinity ? "Perfecto" : `${v.toFixed(2)} : 1`);
 
+// ─── Récords y actividad ─────────────────────────────────────────────────
+/**
+ * Récords del jugador en las partidas cargadas (sin remakes): mejor KDA, más kills, más daño, más CS, más visión, más
+ * oro, mayor multikill y partida más larga. Cada uno con la partida en la que lo logró.
+ */
+export function matchRecords(matches, puuid) {
+  const rows = [];
+  for (const m of matches) {
+    const me = findMe(m, puuid);
+    if (me && !me.remake) rows.push({ m, me });
+  }
+  if (!rows.length) return [];
+  const best = (key, value, label, show, min = 0) => {
+    let top = null;
+    for (const r of rows) {
+      const v = value(r);
+      if (v > min && (!top || v > top.v)) top = { v, r };
+    }
+    return top ? { key, label, value: top.v, display: show(top.v, top.r), match: top.r.m, me: top.r.me } : null;
+  };
+  return [
+    best("kda", r => (r.me.deaths === 0 ? 1000 + r.me.kills + r.me.assists : kdaValue(r.me.kills, r.me.deaths, r.me.assists)), "Mejor KDA",
+      (_, r) => `${r.me.kills}/${r.me.deaths}/${r.me.assists}`),
+    best("kills", r => r.me.kills, "Más kills", v => `${v} kills`),
+    best("damage", r => r.me.damage, "Más daño", v => formatNumber(v)),
+    best("multikill", r => r.me.multikill || 0, "Mayor multikill", v => ({ 2: "Doble", 3: "Triple", 4: "Quadra", 5: "Penta" }[Math.min(v, 5)]), 1),
+    best("cs", r => r.me.cs, "Más CS", v => `${v} CS`),
+    best("vision", r => r.me.vision, "Más visión", v => `${v} de visión`),
+    best("gold", r => r.me.gold, "Más oro", v => formatNumber(v)),
+    best("duration", r => r.m.duration, "Partida más larga", v => formatDuration(v)),
+  ].filter(Boolean);
+}
+
+/**
+ * Cuándo juega: partidas por día de la semana (0 = lunes) y hora local, con victorias.
+ * Devuelve { cells: [7][24] { games, wins }, max, total, peakDay, peakHour }.
+ */
+export function activityGrid(matches, puuid) {
+  const cells = Array.from({ length: 7 }, () => Array.from({ length: 24 }, () => ({ games: 0, wins: 0 })));
+  const days = Array(7).fill(0), hours = Array(24).fill(0);
+  let total = 0;
+  for (const m of matches) {
+    const me = findMe(m, puuid);
+    if (!me || !m.start) continue;
+    const d = new Date(m.start);
+    const day = (d.getDay() + 6) % 7, hour = d.getHours();
+    cells[day][hour].games++;
+    if (me.win && !me.remake) cells[day][hour].wins++;
+    days[day]++; hours[hour]++; total++;
+  }
+  const max = Math.max(0, ...cells.flat().map(c => c.games));
+  return { cells, max, total, peakDay: total ? days.indexOf(Math.max(...days)) : null, peakHour: total ? hours.indexOf(Math.max(...hours)) : null };
+}
+
 // ─── Tiempo ──────────────────────────────────────────────────────────────
 export function formatDuration(seconds) {
   const s = Math.max(0, Math.floor(seconds || 0));

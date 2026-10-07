@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   QUEUE_FILTERS, championStats, compactMatch, currentStreak, matchHighlights, formatDuration, kdaText, kdaTone, killParticipation, matchesFilter,
   queueLong, queueShort, rankFromScore, rankLabel, rankScore, rankShort, roleStats, summarize, timeAgo, winrate,
-  averages, goldDiff, sharedMatches, teammates,
+  activityGrid, averages, goldDiff, matchRecords, sharedMatches, teammates,
 } from "./lol";
 
 describe("rangos", () => {
@@ -244,5 +244,35 @@ describe("línea de tiempo", () => {
   it("goldDiff resta el oro del equipo rojo al del azul en cada minuto", () => {
     const frames = [{ t: 0, gold: [500, 500, 500, 500] }, { t: 1, gold: [900, 700, 600, 600] }];
     expect(goldDiff(frames, [100, 100, 200, 200])).toEqual([{ t: 0, diff: 0 }, { t: 1, diff: 400 }]);
+  });
+});
+
+describe("récords y actividad", () => {
+  const p = (extra) => ({ puuid: "me", teamId: 100, win: true, remake: false, kills: 5, deaths: 2, assists: 5, cs: 150, damage: 20000, gold: 10000, vision: 20, multikill: 1, ...extra });
+  // Lunes 6 de octubre de 2025, 20:30 y 21:10 hora local
+  const at = (h, m) => new Date(2025, 9, 6, h, m).getTime();
+  const list = [
+    { id: "A", start: at(20, 30), duration: 1500, participants: [p({ kills: 12, damage: 41000 })] },
+    { id: "B", start: at(21, 10), duration: 2400, participants: [p({ deaths: 0, kills: 3, assists: 9, win: false, multikill: 3 })] },
+    { id: "C", start: at(21, 40), duration: 200, participants: [p({ remake: true, kills: 40 })] },
+  ];
+
+  it("matchRecords elige la partida de cada récord y omite remakes", () => {
+    const r = Object.fromEntries(matchRecords(list, "me").map(x => [x.key, x]));
+    expect(r.kills.match.id).toBe("A");
+    expect(r.damage.display).toBe("41 000");
+    expect(r.kda.match.id).toBe("B");          // sin morir gana
+    expect(r.multikill.display).toBe("Triple");
+    expect(r.duration.display).toBe("40:00");
+    expect(matchRecords([], "me")).toEqual([]);
+  });
+
+  it("activityGrid cuenta por día y hora local", () => {
+    const g = activityGrid(list, "me");
+    expect(g.total).toBe(3);
+    expect(g.cells[0][21].games).toBe(2);   // lunes 21 h
+    expect(g.cells[0][20].wins).toBe(1);
+    expect(g.peakDay).toBe(0);
+    expect(g.peakHour).toBe(21);
   });
 });
