@@ -5,6 +5,7 @@ import Profile from "./pages/Profile";
 import Live from "./pages/Live";
 import Favorites from "./pages/Favorites";
 import GamePage from "./pages/GamePage";
+import GameProfile from "./pages/GameProfile";
 import { ComingSoon, NotFound } from "./pages/Misc";
 import { probe } from "./api/server";
 import { ensureDDragon } from "./lib/ddragon";
@@ -13,6 +14,7 @@ import "./styles/components.css";
 import "./styles/home.css";
 import "./styles/profile.css";
 import "./styles/live.css";
+import "./styles/games.css";
 
 // Al cambiar de página se vuelve arriba (salvo al ir atrás/adelante, que el navegador restaura)
 function ScrollToTop() {
@@ -47,6 +49,7 @@ export default function App() {
         <Route path="/favoritos" element={<Favorites />} />
         <Route path="/juegos" element={<ComingSoon />} />
         <Route path="/juegos/:game" element={<GamePage />} />
+        <Route path="/juegos/:game/jugador/:id" element={<GameProfile />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </>

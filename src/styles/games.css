@@ -1,0 +1,159 @@
+/* ─── Perfiles de los demás juegos (Supercell, Dota 2, Fortnite, Apex) ──────
+   Usan el color de acento del juego (--game). */
+.accent { color: var(--game, var(--brand)); }
+
+.gp-head {
+  position: relative;
+  overflow: hidden;
+  border-bottom: 1px solid var(--border);
+  background:
+    radial-gradient(60% 120% at 0% 0%, color-mix(in srgb, var(--game) 16%, transparent), transparent 60%),
+    var(--bg);
+}
+.gp-head-inner { display: flex; align-items: center; gap: 18px; padding-top: 30px; padding-bottom: 26px; flex-wrap: wrap; }
+.gp-avatar { position: relative; flex: none; }
+.gp-avatar .dd, .gp-avatar .initials {
+  width: 72px; height: 72px;
+  border-radius: 16px;
+  border: 1px solid color-mix(in srgb, var(--game) 55%, var(--border-2));
+  background: var(--surface-2);
+  object-fit: contain;
+  font-size: 22px;
+}
+.gp-avatar-game {
+  position: absolute;
+  right: -6px;
+  bottom: -6px;
+  width: 26px; height: 26px;
+  display: grid; place-items: center;
+  border-radius: 8px;
+  background: var(--bg);
+  border: 1px solid var(--border-2);
+}
+.gp-id { flex: 1; min-width: 220px; }
+.gp-id h1 { font-size: 30px; font-weight: 700; line-height: 1.15; word-break: break-word; }
+.gp-id p { margin: 8px 0 0; font-size: 12px; }
+.gp-body { padding-top: 24px; }
+
+.gp-grid { display: grid; grid-template-columns: 330px minmax(0, 1fr); gap: 16px; align-items: start; }
+.gp-side, .gp-main-col { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+
+.gp-stats, .gp-list-card { padding: 16px 18px; }
+.gp-card-title {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 12px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--text-2);
+}
+.gp-card-title svg { color: var(--game); }
+.gp-card-title .faint, .gp-card-title .accent { margin-left: auto; letter-spacing: 0; text-transform: none; font-size: 12px; }
+.gp-stat-grid { margin: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px 10px; }
+.gp-stat-grid dt { font-size: 11px; color: var(--text-3); }
+.gp-stat-grid dd { margin: 2px 0 0; font-family: var(--font-title); font-size: 19px; font-weight: 700; }
+
+.gp-rows { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.gp-rows li { display: flex; align-items: center; gap: 10px; }
+.gp-row-img { border-radius: 10px; border: 1px solid color-mix(in srgb, var(--game) 40%, var(--border-2)); background: var(--surface-2); object-fit: contain; }
+.gp-row-text { display: flex; flex-direction: column; min-width: 0; flex: 1; font-size: 11px; }
+.gp-row-text strong { font-size: 14px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gp-row-value { display: flex; flex-direction: column; align-items: flex-end; font-size: 11px; }
+.gp-row-value strong { font-size: 15px; font-weight: 700; }
+.gp-more { margin-top: 12px; height: 36px; }
+
+/* Batallas */
+.gp-battles { min-width: 0; }
+.gp-strip-wrap {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 8px 12px;
+  align-items: center;
+  padding: 14px 16px;
+  margin-bottom: 14px;
+  border-radius: var(--radius-card);
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+.gp-strip-wrap .eyebrow { margin: 0; font-size: 10px; }
+.gp-strip-sum { justify-self: end; font-weight: 700; font-size: 13px; }
+.gp-strip { grid-column: 1 / -1; grid-template-columns: repeat(20, 1fr); }
+.gp-section-title { font-size: 15px; font-weight: 600; margin-bottom: 10px; }
+.gp-battle-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.gp-battle {
+  position: relative;
+  display: grid;
+  grid-template-columns: 92px auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px 10px 18px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+.gp-battle.tone-win { background: var(--win-bg); border-color: #1d3329; }
+.gp-battle.tone-loss { background: var(--loss-bg); border-color: #33201f; }
+.gp-battle.tone-gold { background: color-mix(in srgb, var(--gold) 7%, var(--surface)); border-color: color-mix(in srgb, var(--gold) 30%, var(--border)); }
+.gp-battle-bar { position: absolute; left: 0; top: 10px; bottom: 10px; width: 4px; border-radius: 0 3px 3px 0; background: var(--text-3); }
+.tone-win .gp-battle-bar { background: var(--win); }
+.tone-loss .gp-battle-bar { background: var(--loss); }
+.tone-gold .gp-battle-bar { background: var(--gold); }
+.gp-battle-result { font-size: 13px; font-weight: 700; }
+.gp-battle-result.win { color: var(--win); }
+.gp-battle-result.loss { color: var(--loss); }
+.gp-battle-result.gold { color: var(--gold); }
+.gp-battle-result.draw { color: var(--text-2); }
+.gp-battle-img { border-radius: 10px; background: var(--surface-2); object-fit: contain; }
+.gp-battle-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; font-size: 11px; }
+.gp-battle-text strong { font-size: 14px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gp-battle-value { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; font-size: 11px; white-space: nowrap; }
+.gp-battle-value strong { font-size: 15px; font-weight: 700; }
+.gp-empty { margin: 0; padding: 22px 18px; color: var(--text-2); font-size: 13px; }
+.gp-note { margin: 4px 2px 0; font-size: 12px; }
+
+/* Clash Royale: mazo */
+.cr-deck { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.cr-deck li { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.cr-card { width: 100% !important; height: auto !important; aspect-ratio: 5 / 6; object-fit: contain; background: none; transition: transform .25s cubic-bezier(.2, .7, .2, 1); }
+.cr-deck li:hover .cr-card { transform: translateY(-3px) scale(1.04); }
+.cr-card-level { font-size: 11px; font-weight: 700; color: var(--text-2); }
+.cr-mini-deck { display: flex; gap: 2px; margin-top: 3px; }
+.cr-mini-deck .dd { background: none; border-radius: 3px; object-fit: contain; }
+
+/* Clash of Clans */
+.coc-clan { display: flex; align-items: center; gap: 12px; }
+.coc-clan img { object-fit: contain; }
+.coc-heroes { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.coc-hero-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-size: 13px; margin-bottom: 5px; }
+.coc-bar { display: block; height: 6px; border-radius: 3px; background: var(--surface-2); overflow: hidden; }
+.coc-bar span { display: block; height: 100%; background: var(--game); transform-origin: left; transition: transform .6s cubic-bezier(.2, .7, .2, 1); }
+.coc-builder { margin: 0 0 12px; font-size: 13px; }
+
+/* Ranking mundial en la página del juego */
+.top-list { list-style: none; margin: 0; padding: 4px 0; }
+.top-list li + li { border-top: 1px solid var(--border); }
+.top-row { display: flex; align-items: center; gap: 12px; padding: 9px 16px; transition: background-color .15s; }
+.top-row:hover { background: var(--surface-2); }
+.top-row .dd { border-radius: 8px; object-fit: contain; background: var(--surface-2); }
+.top-pos { width: 26px; font-weight: 700; color: var(--text-2); }
+.top-pos.podium { color: var(--game); }
+.top-name { display: flex; flex-direction: column; min-width: 0; flex: 1; font-size: 11px; }
+.top-name strong { font-size: 14px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.top-value { font-size: 12px; white-space: nowrap; }
+.top-value strong { font-size: 15px; color: var(--game); }
+
+@media (max-width: 900px) {
+  .gp-grid { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 600px) {
+  .gp-id h1 { font-size: 24px; }
+  .gp-battle { grid-template-columns: auto minmax(0, 1fr) auto; }
+  .gp-battle-result { grid-column: 1 / -1; }
+  .gp-stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .gp-strip { grid-template-columns: repeat(10, 1fr); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .coc-bar span, .cr-card { transition: none; }
+}

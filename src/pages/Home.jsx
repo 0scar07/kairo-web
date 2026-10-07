@@ -16,6 +16,7 @@ import { REGIONS, livePath, profilePath, regionBySlug, savedRegion } from "../li
 import { formatDuration, formatNumber, queueLong, rankLabel, winrate } from "../lib/lol";
 import { championIcon, championName, profileIcon, useDDragon } from "../lib/ddragon";
 import { gameById } from "../lib/games";
+import { gameProfilePath } from "../games/registry";
 import { APK_URL } from "../lib/config";
 
 export default function Home() {
@@ -276,13 +277,13 @@ function Recents() {
               const game = gameById(r.game);
               return (
                 <li key={`${r.game}:${r.region}:${r.gameName}#${r.tagLine}`} className="reveal" style={{ "--i": i }}>
-                  <Link to={profilePath(r.region, r.gameName, r.tagLine)} className="recent">
+                  <Link to={r.game === "lol" ? profilePath(r.region, r.gameName, r.tagLine) : gameProfilePath(r.game, r.tagLine)} className="recent">
                     <span className="recent-badge" title={game?.name}>
                       <GameLogo game={r.game} size={16} color={game?.color} />
                       <span className="sr-only">{game?.name}</span>
                     </span>
                     <span className="recent-text">
-                      <span className="recent-name">{r.gameName}#{r.tagLine}</span>
+                      <span className="recent-name">{r.gameName}{r.game === "lol" ? `#${r.tagLine}` : ""}</span>
                       <span className="recent-sub">{r.subtitle || game?.name}</span>
                     </span>
                     <Icon name="chevronRight" size={14} className="faint" />
