@@ -145,3 +145,9 @@
 .form-cmp-name { font-size: 12px; font-weight: 600; }
 .form-cmp.a .form-cmp-name { color: var(--side-a); }
 .form-cmp.b .form-cmp-name { color: var(--side-b); }
+.game-compare-hero { background: radial-gradient(50% 140% at 0% 0%, color-mix(in srgb, var(--game) 16%, transparent), transparent 60%), radial-gradient(50% 140% at 100% 0%, color-mix(in srgb, #A78BFA 12%, transparent), transparent 60%); }
+.game-compare-hero .eyebrow { display: flex; align-items: center; gap: 6px; }
+.common-small { font-size: 14px !important; font-family: var(--font-body) !important; }
+.vs-slot .name-results { margin-top: 0; }
+.vs-slot .name-result { width: 100%; border: 0; background: none; color: inherit; font: inherit; cursor: pointer; text-align: left; }
+.btn-sm { height: 32px; padding: 0 12px; font-size: 13px; }

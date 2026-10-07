@@ -5,6 +5,7 @@ import Icon from "../components/Icon";
 import CountUp from "../components/CountUp";
 import RoleIcon from "../components/RoleIcon";
 import SearchForm from "../components/SearchForm";
+import H2H from "../components/H2H";
 import ShareButton from "../components/ShareButton";
 import { DDImg, RankEmblem, Skeleton, StateBox } from "../components/ui";
 import { errorMessage } from "../api/client";
@@ -178,33 +179,7 @@ function HeadToHead({ A, B }) {
   ];
 
   return (
-    <section className="card h2h" aria-labelledby="h2h-title">
-      <h2 className="sr-only" id="h2h-title">Cara a cara</h2>
-      <ul className="h2h-list">
-        {rows.map((r, i) => {
-          if (r.section) return <li key={r.section} className="h2h-section eyebrow">{r.section}</li>;
-          const has = r.a !== null && r.b !== null;
-          const fa = Number.isFinite(r.a) ? r.a : r.a === Infinity ? 99 : 0;
-          const fb = Number.isFinite(r.b) ? r.b : r.b === Infinity ? 99 : 0;
-          const aWins = has && (r.lower ? fa < fb : fa > fb);
-          const bWins = has && (r.lower ? fb < fa : fb > fa);
-          const total = Math.abs(fa) + Math.abs(fb) || 1;
-          return (
-            <li key={r.label} className="h2h-row reveal" style={{ "--i": i }}>
-              <span className={`h2h-val a num${aWins ? " best" : ""}`}>{r.a === null ? "—" : r.show(r.a, A)}</span>
-              <span className="h2h-mid">
-                <span className="h2h-label">{r.label}</span>
-                <span className="h2h-bar" aria-hidden="true">
-                  <span className={`h2h-a${aWins ? " best" : ""}`} style={{ "--w": has ? fa / total : 0 }} />
-                  <span className={`h2h-b${bWins ? " best" : ""}`} style={{ "--w": has ? fb / total : 0 }} />
-                </span>
-              </span>
-              <span className={`h2h-val b num${bWins ? " best" : ""}`}>{r.b === null ? "—" : r.show(r.b, B)}</span>
-            </li>
-          );
-        })}
-      </ul>
-    </section>
+    <H2H rows={rows.map(r => (r.section ? r : { ...r, show: (v, side) => r.show(v, side === "a" ? A : B) }))} />
   );
 }
 

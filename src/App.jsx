@@ -9,6 +9,8 @@ import GameProfile from "./pages/GameProfile";
 import Match from "./pages/Match";
 import Compare from "./pages/Compare";
 import Ladder from "./pages/Ladder";
+import Multi from "./pages/Multi";
+import GameCompare from "./pages/GameCompare";
 import Club from "./pages/Club";
 import { BrawlerList, BrawlerPage } from "./pages/Brawlers";
 import DotaMatch from "./pages/DotaMatch";
@@ -25,6 +27,7 @@ import "./styles/games.css";
 import "./styles/match.css";
 import "./styles/compare.css";
 import "./styles/champions.css";
+import "./styles/extras.css";
 
 // Al cambiar de página se vuelve arriba (salvo al ir atrás/adelante, que el navegador restaura)
 function ScrollToTop() {
@@ -57,6 +60,7 @@ export default function App() {
         <Route path="/lol/partida/:matchId" element={<Match />} />
         <Route path="/lol/comparar" element={<Compare />} />
         <Route path="/lol/clasificacion" element={<Ladder />} />
+        <Route path="/lol/multi" element={<Multi />} />
         <Route path="/lol/campeones" element={<ChampionList />} />
         <Route path="/lol/campeones/:key" element={<ChampionPage />} />
         <Route path="/lol/:region/:riotId" element={<Profile />} />
@@ -66,6 +70,7 @@ export default function App() {
         <Route path="/juegos/:game" element={<GamePage />} />
         <Route path="/juegos/:game/jugador/:id" element={<GameProfile />} />
         <Route path="/juegos/:game/club/:tag" element={<Club />} />
+        <Route path="/juegos/:game/comparar" element={<GameCompare />} />
         <Route path="/juegos/brawlstars/brawlers" element={<BrawlerList />} />
         <Route path="/juegos/brawlstars/brawlers/:id" element={<BrawlerPage />} />
         <Route path="/juegos/dota2/partida/:id" element={<DotaMatch />} />

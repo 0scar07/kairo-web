@@ -57,6 +57,9 @@ function GameProfilePage({ game, def, id }) {
                     <Icon name="refresh" size={15} className={loading && data ? "spin" : ""} /> {loading && data ? "Actualizando" : "Actualizar"}
                   </button>
                   {head?.club && <Link className="btn" to={clubPath(game.id, head.club.tag)}><Icon name="users" size={15} /> {head.club.label}</Link>}
+                  {["brawlstars", "clashroyale", "clashofclans", "dota2"].includes(game.id) && (
+                    <Link className="btn compare-btn" to={`/juegos/${game.id}/comparar?a=${encodeURIComponent(id)}`}><Icon name="compare" size={15} /> Comparar</Link>
+                  )}
                   <Link className="btn" to={`/juegos/${game.id}`}><GameLogo game={game.id} size={15} color={game.color} /> Buscar otro</Link>
                 </div>
               </>

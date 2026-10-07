@@ -9,6 +9,9 @@ import { useProfile, useMatches } from "./profile/useProfile";
 import { ChampionsCard, FlexCard, LpChart, SoloCard, TeammatesCard } from "./profile/Sidebar";
 import LastMatchCard from "./profile/LastMatchCard";
 import MatchRow from "./profile/MatchRow";
+import ShareImageButton from "../components/ShareImageButton";
+import { profileCard } from "../lib/shareCard";
+import ActivityTab from "./profile/ActivityTab";
 import { REGIONS, comparePath, livePath, parseRiotIdSlug, playerKey, profilePath, regionBySlug } from "../lib/regions";
 import { QUEUE_FILTERS, championStats, findMe, formatNumber, rankLabel, teammates, timeAgo } from "../lib/lol";
 import { champion, championIcon, championName, championSplash, profileIcon, useDDragon } from "../lib/ddragon";
@@ -21,6 +24,7 @@ const TABS = [
   { key: "resumen", label: "Resumen" },
   { key: "campeones", label: "Campeones" },
   { key: "maestria", label: "Maestría" },
+  { key: "records", label: "Récords" },
 ];
 
 export default function Profile() {
@@ -115,6 +119,7 @@ function ProfilePage({ region, gameName, tagLine }) {
         inGame={Boolean(data?.live?.inGame)}
         splash={splashChamp ? championSplash(splashChamp.id, splashChamp.key) : null}
         soloRank={solo ? rankLabel(solo.tier, solo.rank) : null}
+        card={data && !matches.loading ? () => profileCard({ account: data.account, summoner: data.summoner, solo, region, matches: matches.matches, champs: championStats(matches.matches, puuid) }) : null}
       />
 
       <div className="container profile-body">
@@ -123,6 +128,8 @@ function ProfilePage({ region, gameName, tagLine }) {
           <ProfileSkeleton />
         ) : tab === "campeones" ? (
           <ChampionsTab matches={matches} puuid={puuid} player={playerKey(region.slug, name, tag)} />
+        ) : tab === "records" ? (
+          <ActivityTab matches={matches} puuid={puuid} who={{ gameName: name, tagLine: tag }} loadMore={matches.loadMore} />
         ) : tab === "maestria" ? (
           <MasteryTab mastery={data.mastery} error={data.masteryError} player={playerKey(region.slug, name, tag)} />
         ) : (
@@ -163,7 +170,7 @@ function ProfilePage({ region, gameName, tagLine }) {
 }
 
 // ─── Cabecera ─────────────────────────────────────────────────────────────
-function ProfileHeader({ loading, name, tag, region, summoner, updatedAt, refreshing, onRefresh, puuid, tab, setTab, inGame, splash, soloRank }) {
+function ProfileHeader({ loading, name, tag, region, summoner, updatedAt, refreshing, onRefresh, puuid, tab, setTab, inGame, splash, soloRank, card }) {
   const now = useNow(30_000);
   const favorites = useFavorites();
   const player = { region: region.slug, gameName: name, tagLine: tag };
@@ -200,6 +207,7 @@ function ProfileHeader({ loading, name, tag, region, summoner, updatedAt, refres
             >
               <Icon name="star" size={16} filled={fav} />
             </button>
+            <ShareImageButton build={card || (() => Promise.resolve(null))} disabled={!card} filename={`kairo-${name}.png`} title={`${name}#${tag} en Kairo`} />
             <Link className="btn compare-btn" to={comparePath(playerKey(region.slug, name, tag))}>
               <Icon name="compare" size={15} /> Comparar
             </Link>
