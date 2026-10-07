@@ -79,7 +79,12 @@
 }
 .gp-strip-wrap .eyebrow { margin: 0; font-size: 10px; }
 .gp-strip-sum { justify-self: end; font-weight: 700; font-size: 13px; }
-.gp-strip { grid-column: 1 / -1; grid-template-columns: repeat(20, 1fr); }
+.gp-strip { grid-column: 1 / -1; list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(20, 1fr); gap: 4px; }
+.gp-strip .form-pip { height: 18px; border-radius: 4px; background: var(--surface-2); }
+.gp-strip .form-pip.win { background: var(--win); }
+.gp-strip .form-pip.loss { background: var(--loss); opacity: .85; }
+.gp-strip .form-pip.draw { background: var(--text-3); opacity: .5; }
+.gp-strip .form-pip:first-child { box-shadow: 0 0 0 2px var(--surface), 0 0 0 3px color-mix(in srgb, var(--text) 60%, transparent); }
 .gp-section-title { font-size: 15px; font-weight: 600; margin-bottom: 10px; }
 .gp-battle-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
 .gp-battle {

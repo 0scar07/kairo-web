@@ -1,11 +1,12 @@
 import CountUp from "../../components/CountUp";
 import RoleIcon from "../../components/RoleIcon";
+import Icon from "../../components/Icon";
 import { DDImg, Skeleton } from "../../components/ui";
 import {
   championIcon, championName, championSplash, itemIcon, itemName, perkIcon, perkName, spellIcon, spellName,
 } from "../../lib/ddragon";
 import {
-  currentStreak, findMe, formatDuration, formatNumber, kdaTone, kdaValue, mapName, matchHighlights, positionName,
+  championStats, currentStreak, findMe, formatDuration, formatNumber, kdaTone, kdaValue, mapName, matchHighlights, positionName,
   queueLong, roleStats, summarize, timeAgo,
 } from "../../lib/lol";
 
@@ -114,6 +115,20 @@ function Spotlight({ match, h }) {
   );
 }
 
+/** Anillo de winrate (verde = victorias sobre rojo) con el porcentaje que cuenta en el centro */
+function WinRing({ wr }) {
+  const R = 26, C = 2 * Math.PI * R;
+  return (
+    <span className="win-ring" role="img" aria-label={`${wr}% de victorias`}>
+      <svg viewBox="0 0 64 64" width="64" height="64" aria-hidden="true">
+        <circle cx="32" cy="32" r={R} className="win-ring-track" />
+        <circle cx="32" cy="32" r={R} className="win-ring-fill" strokeDasharray={`${(C * wr) / 100} ${C}`} transform="rotate(-90 32 32)" />
+      </svg>
+      <span className="win-ring-label num" aria-hidden="true"><CountUp value={wr} suffix="%" /></span>
+    </span>
+  );
+}
+
 function FormPanel({ matches, puuid }) {
   const recent = matches.slice(0, 20);
   const s = summarize(recent, puuid);
@@ -121,39 +136,76 @@ function FormPanel({ matches, puuid }) {
   const roles = roleStats(recent, puuid);
   const main = roles.total ? [...roles.roles].sort((a, b) => b.games - a.games)[0] : null;
   const remakes = recent.filter(m => findMe(m, puuid)?.remake).length;
+  const star = championStats(recent, puuid)[0];
+  const hot = streak && streak.count >= 2 ? (streak.win ? "hot" : "cold") : "";
   return (
-    <section className="card form-panel reveal" style={{ "--i": 1 }} aria-label="Forma reciente">
-      <span className="eyebrow">Forma reciente</span>
-      {s && (
-        <p className="form-record num">
-          <strong>{s.wins}V {s.losses}D</strong>
-          <span className={s.wr >= 50 ? "win" : "loss"}><CountUp value={s.wr} suffix="%" /></span>
-        </p>
+    <section className={`card form-panel ${hot} reveal`} style={{ "--i": 1 }} aria-label="Forma reciente">
+      <div className="form-top">
+        <div className="form-title">
+          <span className="eyebrow">Forma reciente</span>
+          {s && (
+            <p className="form-record num">
+              <strong>{s.wins}V <span className="faint">/</span> {s.losses}D</strong>
+              <span className="faint">en {s.games} partidas</span>
+            </p>
+          )}
+        </div>
+        {s && <WinRing wr={s.wr} />}
+      </div>
+
+      {streak && streak.count >= 2 && (
+        <span className={`streak-chip ${streak.win ? "win" : "loss"}`}>
+          <Icon name="flame" size={14} /> {streak.count} {streak.win ? "victorias" : "derrotas"} seguidas
+        </span>
       )}
-      {/* De izquierda a derecha, de la más reciente a la más vieja */}
-      <ol className="form-strip" aria-label="Resultados de las últimas partidas">
-        {recent.map(m => {
+
+      {/* Ecualizador: de izquierda a derecha, de la más reciente a la más vieja */}
+      <ol className="form-bars" aria-label="Resultados de las últimas partidas, de la más reciente a la más vieja">
+        {recent.map((m, i) => {
           const me = findMe(m, puuid);
           const r = !me ? "none" : me.remake ? "remake" : me.win ? "win" : "loss";
           const label = r === "win" ? "Victoria" : r === "loss" ? "Derrota" : "Remake";
-          return <li key={m.id} className={`form-pip ${r}`} title={`${label} · ${championName(me?.championId, me?.championName)}`}><span className="sr-only">{label}</span></li>;
+          const detail = me ? `${label} · ${championName(me.championId, me.championName)} · ${me.kills}/${me.deaths}/${me.assists}` : label;
+          return (
+            <li key={m.id} className={`form-bar ${r}`} style={{ "--i": i }} title={detail}>
+              <span className="form-bar-fill" />
+              <span className="sr-only">{detail}</span>
+            </li>
+          );
         })}
       </ol>
-      {remakes > 0 && <p className="form-note faint">En gris: {remakes === 1 ? "1 remake" : `${remakes} remakes`} (no cuentan)</p>}
-      {streak && streak.count >= 2 && (
-        <p className={`form-streak ${streak.win ? "win" : "loss"}`}>
-          {streak.count} {streak.win ? "victorias" : "derrotas"} seguidas
-        </p>
-      )}
-      <dl className="form-facts">
-        {s && <div><dt>KDA medio</dt><dd className={`num ${kdaTone(s.kda)}`}>{s.kda === Infinity ? "Perfecto" : s.kda.toFixed(2)}</dd></div>}
-        {main && (
-          <div>
-            <dt>Rol principal</dt>
-            <dd className="form-role"><RoleIcon role={main.key} size={16} /> {main.label} <span className="faint">({main.games})</span></dd>
+      <div className="form-legend faint">
+        <span>Más reciente</span>
+        {remakes > 0 && <span>{remakes === 1 ? "1 remake" : `${remakes} remakes`} en gris (no cuentan)</span>}
+      </div>
+
+      <div className="form-tiles">
+        {s && (
+          <div className="form-tile">
+            <span className="tile-label">KDA medio</span>
+            <strong className={`num ${kdaTone(s.kda)}`}>{s.kda === Infinity ? "Perfecto" : <CountUp value={s.kda} decimals={2} />}</strong>
           </div>
         )}
-      </dl>
+        {main && (
+          <div className="form-tile">
+            <span className="tile-label">Rol principal</span>
+            <strong className="form-role"><span className="role-badge"><RoleIcon role={main.key} size={14} /></span>{main.label}</strong>
+            <span className="faint num">{main.games} de {roles.total} partidas</span>
+          </div>
+        )}
+        {star && (
+          <div className="form-tile form-star">
+            <span className="tile-label">Campeón estrella</span>
+            <span className="form-star-row">
+              <DDImg src={championIcon(star.championId, star.championName)} size={30} alt="" />
+              <span className="form-star-text">
+                <strong>{championName(star.championId, star.championName)}</strong>
+                <span className="num"><span className={star.wr >= 50 ? "win" : "loss"}>{star.wr}%</span> <span className="faint">en {star.games}</span></span>
+              </span>
+            </span>
+          </div>
+        )}
+      </div>
     </section>
   );
 }
