@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import { DDImg } from "../components/ui";
 import { formatNumber, winrate } from "../lib/lol";
 import { StatCard, BattleList, BattleRow } from "./ui";
+import { cocProgress } from "./coc";
+import Icon from "../components/Icon";
 import {
   brawlerPath,
   averageElixir, brawlerIcon, bsBattleView, cardIcon, clanRole, cleanName, crBattleView, displayLevel, tagOf, titleCase,
@@ -205,8 +207,48 @@ export function ClashOfClansBody({ data }) {
             {builder.length > 0 && <HeroBars heroes={builder} />}
           </section>
         )}
+        <CocProgress player={player} />
         <p className="gp-note faint">La API de Clash of Clans no publica el registro de ataques, por eso no hay historial de batallas.</p>
       </div>
     </div>
+  );
+}
+
+/** Progreso de la aldea: cada grupo con su % y, al abrirlo, cada tropa o hechizo contra su nivel máximo */
+function CocProgress({ player }) {
+  const groups = cocProgress(player).filter(g => g.key !== "heroes");
+  const [open, setOpen] = useState(null);
+  if (!groups.length) return null;
+  return (
+    <section className="card gp-list-card coc-progress reveal" style={{ "--i": 5 }} aria-labelledby="coc-progress-title">
+      <h2 className="gp-card-title" id="coc-progress-title">Progreso de la aldea</h2>
+      <ul className="coc-groups">
+        {groups.map(g => {
+          const expanded = open === g.key;
+          return (
+            <li key={g.key} className={expanded ? "open" : ""}>
+              <button type="button" className="coc-group" aria-expanded={expanded} onClick={() => setOpen(expanded ? null : g.key)}>
+                <span className="coc-group-name">{g.label}</span>
+                <span className="faint num">{g.done} de {g.total} al máximo</span>
+                <span className="coc-bar" aria-hidden="true"><span style={{ transform: `scaleX(${g.pct / 100})` }} /></span>
+                <strong className={`num ${g.pct === 100 ? "win" : ""}`}>{g.pct}%</strong>
+                <Icon name="chevronDown" size={15} className="coc-caret" />
+              </button>
+              {expanded && (
+                <ul className="coc-items">
+                  {[...g.items].sort((a, b) => a.level / a.maxLevel - b.level / b.maxLevel).map(it => (
+                    <li key={it.name} className={it.level >= it.maxLevel ? "max" : ""}>
+                      <span className="coc-item-name">{it.name}</span>
+                      <span className="coc-bar" aria-hidden="true"><span style={{ transform: `scaleX(${it.maxLevel ? it.level / it.maxLevel : 0})` }} /></span>
+                      <span className="num coc-item-level">{it.level}/{it.maxLevel}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+    </section>
   );
 }

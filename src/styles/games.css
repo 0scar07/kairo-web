@@ -275,3 +275,28 @@
 .top-tools { display: flex; gap: 8px; align-items: center; }
 .dota-items { flex-wrap: wrap; width: 98px; row-gap: 3px; }
 .dota-table th, .dota-table td { white-space: nowrap; }
+
+/* Clash of Clans: progreso de la aldea */
+.coc-groups { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.coc-group {
+  width: 100%;
+  display: grid; grid-template-columns: minmax(130px, 1fr) auto minmax(80px, 1.2fr) 44px 16px; align-items: center; gap: 12px;
+  padding: 10px 8px; border: 0; border-radius: 10px;
+  background: none; color: var(--text); font: inherit; font-size: 13px; text-align: left; cursor: pointer;
+}
+.coc-group:hover, .coc-groups li.open .coc-group { background: var(--surface-2); }
+.coc-group-name { font-weight: 600; }
+.coc-group strong { text-align: right; }
+.coc-caret { color: var(--text-3); transition: transform .2s; }
+.coc-groups li.open .coc-caret { transform: rotate(180deg); }
+.coc-items { list-style: none; margin: 4px 0 8px; padding: 0 8px; display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 6px 18px; }
+.coc-items li { display: grid; grid-template-columns: minmax(0, 1fr) 70px 46px; align-items: center; gap: 8px; font-size: 12px; }
+.coc-item-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.coc-item-level { text-align: right; color: var(--text-2); }
+.coc-items li.max .coc-item-level { color: var(--win); }
+.coc-items .coc-bar { height: 5px; }
+.coc-items li.max .coc-bar span { background: var(--win); }
+@media (max-width: 600px) {
+  .coc-group { grid-template-columns: 1fr 44px 16px; }
+  .coc-group .faint, .coc-group .coc-bar { display: none; }
+}
