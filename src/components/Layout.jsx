@@ -4,7 +4,7 @@ import Icon from "./Icon";
 import GameLogo from "./GameLogo";
 import SearchForm from "./SearchForm";
 import { DDImg } from "./ui";
-import { GAMES, gameById, gamePath } from "../lib/games";
+import { GAMES, gameById, gamePath, isSearchable } from "../lib/games";
 import { useLiveFavorites } from "../lib/liveFavorites";
 import { useNow } from "../lib/hooks";
 import { livePath } from "../lib/regions";
@@ -63,7 +63,7 @@ function GamePicker() {
                 <Link to={gamePath(g)} className={`game-option${g.id === current.id ? " current" : ""}`} onClick={pop.close} aria-current={g.id === current.id ? "page" : undefined}>
                   <span className="game-option-logo"><GameLogo game={g.id} size={18} color={g.color} /></span>
                   <span className="game-option-name">{g.name}</span>
-                  <span className={`game-option-tag${g.available ? " on" : ""}`}>{g.available ? "Disponible" : "Búsqueda pronto"}</span>
+                  <span className={`game-option-tag${isSearchable(g) ? " on" : ""}`}>{isSearchable(g) ? "Disponible" : "Próximamente"}</span>
                 </Link>
               </li>
             ))}

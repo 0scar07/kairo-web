@@ -28,7 +28,7 @@ FK = "https://media.ffycdn.net/eu/supercell"
 CAST = {
     "lol": {
         "zoe": (f"{DD}/img/champion/splash/Zoe_0.jpg", True),
-        "seraphine": (f"{DD}/img/champion/splash/Seraphine_0.jpg", True),
+        "neeko": (f"{DD}/img/champion/splash/Neeko_0.jpg", True),
     },
     "tft": {
         "poro": (f"{DD}/16.19.1/img/tft-tactician/Tooltip_Poro_Base_Classic_Tier1.png", True),

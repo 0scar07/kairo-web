@@ -16,7 +16,7 @@ export const HEROES = {
     palette: ["#35E0A1", "#0BC4E3", "#A855F7", "#7FB0FF", "#35E0A1"],
     pair: [
       { src: "hero/lol/zoe.webp", h: 66, gap: 1, lift: 6, dur: 4.2, delay: 0, float: true },
-      { src: "hero/lol/seraphine.webp", h: 74, gap: 3, dur: 3, delay: -0.8, flip: true },
+      { src: "hero/lol/neeko.webp", h: 60, gap: 2, dur: 3, delay: -0.8, flip: true },
     ],
   },
   tft: {

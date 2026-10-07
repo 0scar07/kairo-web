@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import GameLogo from "../../components/GameLogo";
 import Icon from "../../components/Icon";
-import { GAMES, gamePath } from "../../lib/games";
+import { GAMES, gamePath, isSearchable } from "../../lib/games";
 import { POSTER_ART } from "./posterArt";
 
 const reduceMotion = () => window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
@@ -47,7 +47,7 @@ function Poster({ game, index }) {
         className={`poster${art?.char ? " has-char" : ""}`}
         onPointerMove={onMove}
         onPointerLeave={onLeave}
-        aria-label={game.available ? `${game.name}: buscar jugadores` : `${game.name}: próximamente`}
+        aria-label={isSearchable(game) ? `${game.name}: buscar jugadores` : `${game.name}: próximamente`}
       >
         <span className="poster-tilt" ref={tilt}>
           <span className="poster-frame">
@@ -79,7 +79,7 @@ function Poster({ game, index }) {
           )}
           <span className="poster-shade" aria-hidden="true" />
           <span className="poster-title">{game.name}</span>
-          {!game.available && <span className="poster-badge">Próximamente</span>}
+          {!isSearchable(game) && <span className="poster-badge">Próximamente</span>}
         </span>
       </Link>
       <span className="poster-label">

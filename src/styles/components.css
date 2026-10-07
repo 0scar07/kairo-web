@@ -412,3 +412,9 @@
 }
 .soon-list li.current { border-color: var(--border-2); background: var(--surface-2); }
 .soon-tag { margin-left: auto; font-size: 10px; color: var(--text-3); font-weight: 600; }
+
+.soon-link { display: flex; align-items: center; gap: 10px; width: 100%; }
+.soon-list li:hover { border-color: var(--border-2); background: var(--surface-2); }
+.soon-tag.on { color: var(--brand); }
+.games-app-note { margin-top: 16px; font-size: 13px; }
+.games-app-note a { color: var(--brand); text-decoration: underline; }

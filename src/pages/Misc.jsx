@@ -1,43 +1,35 @@
-import { Link, useParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 import Layout from "../components/Layout";
 import { StateBox } from "../components/ui";
-import { GAMES, gameById } from "../lib/games";
+import { GAMES, gamePath, isSearchable } from "../lib/games";
+import GameLogo from "../components/GameLogo";
 import { APK_URL } from "../lib/config";
 import { useTitle } from "../lib/hooks";
 
-// Juegos que todavía no están en la web (sí en la app)
+// Todos los juegos de Kairo con su estado en la web (página "Más juegos")
 export function ComingSoon() {
-  const { game: id } = useParams();
-  const game = gameById(id);
-  useTitle(game ? game.name : "Más juegos");
-
-  const upcoming = GAMES.filter(g => !g.available);
+  useTitle("Juegos");
   return (
     <Layout header={{ variant: "nav" }}>
       <div className="container page-narrow">
-        <div className="card">
-          <StateBox
-            icon="hourglass"
-            title={game && !game.available ? `${game.name}: próximamente en la web` : "Más juegos, próximamente en la web"}
-            action={
-              <div className="state-actions">
-                <Link className="btn btn-primary" to="/">Buscar en League of Legends</Link>
-                <a className="btn" href={APK_URL} rel="noopener">Descargar app</a>
-              </div>
-            }
-          >
-            Esta primera versión de Kairo Web es solo para League of Legends. Los demás juegos ya están en la app.
-          </StateBox>
+        <div className="section-head">
+          <h1 className="section-title page-title">Juegos de Kairo</h1>
+          <span className="faint">{GAMES.filter(isSearchable).length} de {GAMES.length} con búsqueda en la web</span>
         </div>
-        <ul className="soon-list" aria-label="Juegos próximamente">
-          {upcoming.map(g => (
-            <li key={g.id} className={g.id === id ? "current" : ""}>
-              <span className="game-dot" style={{ background: g.color }} aria-hidden="true" />
-              {g.name}
-              <span className="soon-tag">Próximamente</span>
+        <ul className="soon-list" aria-label="Juegos">
+          {GAMES.map(g => (
+            <li key={g.id}>
+              <Link to={gamePath(g)} className="soon-link">
+                <GameLogo game={g.id} size={20} color={g.color} />
+                {g.name}
+                <span className={`soon-tag${isSearchable(g) ? " on" : ""}`}>{isSearchable(g) ? "Disponible" : "Próximamente"}</span>
+              </Link>
             </li>
           ))}
         </ul>
+        <p className="faint games-app-note">
+          Los que aún no tienen búsqueda en la web ya están en la <a href={APK_URL} rel="noopener">app de Kairo</a>.
+        </p>
       </div>
     </Layout>
   );
