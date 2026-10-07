@@ -117,3 +117,29 @@
   .champ-hero-art img, .champ-bar span, .ability-body { animation: none; }
   .champ-tile, .champ-tile img, .skin, .ability-tab { transition: none; }
 }
+
+/* Build de los Challenger */
+.build-card .section-title { display: flex; align-items: center; gap: 8px; }
+.build-card.empty .muted { margin: 8px 0 0; font-size: 13px; }
+.build-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+.build-head .faint { font-size: 12px; }
+.build-positions { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.build-pos { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; background: var(--surface-2); font-size: 12px; }
+.build-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 24px; }
+.build-grid .eyebrow { margin: 0 0 10px; display: flex; gap: 8px; align-items: baseline; }
+.build-items { list-style: none; margin: 0 0 16px; padding: 0; display: flex; flex-wrap: wrap; gap: 12px; }
+.build-pick { display: flex; flex-direction: column; align-items: center; gap: 2px; width: 58px; font-size: 12px; }
+.build-pick .dd { border-radius: 10px; border: 1px solid var(--border-2); }
+.build-pick .faint { font-size: 10px; }
+.build-runes { display: flex; gap: 22px; align-items: center; margin-bottom: 16px; flex-wrap: wrap; }
+.rune-tree { display: flex; align-items: center; gap: 8px; }
+.rune-tree .dd { background: var(--surface-2); }
+.rune-tree .keystone { box-shadow: 0 0 0 2px color-mix(in srgb, var(--game-lol) 60%, transparent); }
+.rune-tree.secondary { padding-left: 16px; border-left: 1px solid var(--border); }
+.build-spells { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.build-spells li { display: flex; align-items: center; gap: 6px; }
+.build-spells .dd { border-radius: 8px; }
+.build-spells .faint { margin-left: 6px; font-size: 12px; }
+.build-note { margin: 4px 0 0; font-size: 11px; }
+@media (max-width: 760px) { .build-grid { grid-template-columns: 1fr; } }
+.meta-badge { position: absolute; top: 8px; right: 8px; z-index: 1; padding: 2px 7px; border-radius: 999px; font-size: 10px; font-weight: 700; color: var(--text); background: rgba(10, 15, 13, .78); border: 1px solid var(--border-2); }

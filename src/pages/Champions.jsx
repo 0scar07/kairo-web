@@ -6,7 +6,7 @@ import CountUp from "../components/CountUp";
 import SearchForm from "../components/SearchForm";
 import { DDImg, Skeleton, StateBox } from "../components/ui";
 import { errorMessage } from "../api/client";
-import { getAccount, getMastery, getMatchIds, getMatches, getRotation } from "../api/lol";
+import { getAccount, getBuildsMeta, getMastery, getMatchIds, getMatches, getRotation } from "../api/lol";
 import { useAsync, useTitle } from "../lib/hooks";
 import { parsePlayerKey, playerKey, profilePath, savedRegion } from "../lib/regions";
 import { championStats, formatNumber, kdaTone, timeAgo } from "../lib/lol";
@@ -15,6 +15,7 @@ import {
 } from "../lib/ddragon";
 import { CHAMPION_ROLES, burnText, championPath, cleanText, filterChampions, roleLabel } from "../lib/champions";
 import { NotFound } from "./Misc";
+import ChallengerBuild from "./champion/ChallengerBuild";
 
 /** Campeones gratis esta semana (ids numéricos) en la región guardada; vacío si falla */
 function useFreeChampions() {
@@ -30,11 +31,17 @@ export function ChampionList() {
   const [query, setQuery] = useState("");
   const [role, setRole] = useState(null);
   const [freeOnly, setFreeOnly] = useState(false);
+  const [metaOnly, setMetaOnly] = useState(false);
   const free = useFreeChampions();
+  // Meta de Challenger (backend: /lol/builds): partidas y victorias de cada campeón en el parche actual
+  const { data: meta } = useAsync(() => getBuildsMeta(), []);
+  const metaBy = useMemo(() => new Map((meta?.champions || []).map(c => [String(c.championId), c])), [meta]);
   const shown = useMemo(() => {
-    const list = filterChampions(data || [], query, role);
-    return freeOnly ? list.filter(c => free.has(c.key)) : list;
-  }, [data, query, role, freeOnly, free]);
+    let list = filterChampions(data || [], query, role);
+    if (freeOnly) list = list.filter(c => free.has(c.key));
+    if (metaOnly) list = list.filter(c => metaBy.has(c.key)).sort((a, b) => metaBy.get(b.key).games - metaBy.get(a.key).games);
+    return list;
+  }, [data, query, role, freeOnly, free, metaOnly, metaBy]);
 
   return (
     <Layout header={{ variant: "search" }}>
@@ -50,7 +57,8 @@ export function ChampionList() {
               <input type="search" value={query} onChange={e => setQuery(e.target.value)} placeholder="Busca un campeón" autoComplete="off" spellCheck="false" />
             </label>
             <div className="segmented role-filter" role="group" aria-label="Rol">
-              <button type="button" aria-pressed={!role && !freeOnly} onClick={() => { setRole(null); setFreeOnly(false); }}>Todos</button>
+              <button type="button" aria-pressed={!role && !freeOnly && !metaOnly} onClick={() => { setRole(null); setFreeOnly(false); setMetaOnly(false); }}>Todos</button>
+              {metaBy.size > 0 && <button type="button" aria-pressed={metaOnly} onClick={() => setMetaOnly(v => !v)} title={`Más jugados en Challenger · parche ${meta.patch}`}>Meta Challenger</button>}
               {free.size > 0 && <button type="button" aria-pressed={freeOnly} onClick={() => setFreeOnly(v => !v)}>Gratis</button>}
               {CHAMPION_ROLES.map(r => (
                 <button key={r.key} type="button" aria-pressed={role === r.key} onClick={() => setRole(role === r.key ? null : r.key)}>{r.label}</button>
@@ -73,6 +81,9 @@ export function ChampionList() {
                 <Link to={championPath(c.id)} className="champ-tile">
                   <span className="champ-tile-art"><img src={skinLoading(c.id, 0)} alt="" loading="lazy" decoding="async" /></span>
                   {free.has(c.key) && <span className="free-badge">Gratis</span>}
+                  {metaOnly && metaBy.has(c.key) && (
+                    <span className="meta-badge num">{metaBy.get(c.key).games} part. · {Math.round((metaBy.get(c.key).wins / metaBy.get(c.key).games) * 100)}%</span>
+                  )}
                   <span className="champ-tile-text">
                     <strong>{c.name}</strong>
                     <span>{c.tags.map(roleLabel).join(" · ")}</span>
@@ -154,6 +165,7 @@ function ChampionView({ champ }) {
 
       <div className="container champ-page">
         <PlayerWithChampion champ={champ} />
+        <ChallengerBuild championId={champ.key} name={champ.name} />
         <div className="champ-grid-2">
           <Abilities champ={champ} />
           <section className="card card-pad champ-lore" aria-labelledby="lore-title">

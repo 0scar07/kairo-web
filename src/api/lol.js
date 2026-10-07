@@ -130,3 +130,24 @@ export async function getServerStatus(region) {
     return null;
   }
 }
+
+/**
+ * Build de los Challenger con un campeón (objetos, runas, hechizos, posición): null si todavía no hay partidas suyas
+ * o si el backend no tiene la ruta.
+ */
+export async function getBuild(championId) {
+  try {
+    return await get(`/lol/builds/${championId}`, { ttl: 20 * MIN, persist: true });
+  } catch {
+    return null;
+  }
+}
+
+/** Campeones del parche más reciente en Challenger: { patch, matches, champions: [{ championId, games, wins, position }] } */
+export async function getBuildsMeta() {
+  try {
+    return await get("/lol/builds", { ttl: 20 * MIN, persist: true });
+  } catch {
+    return null;
+  }
+}

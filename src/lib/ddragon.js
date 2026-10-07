@@ -13,7 +13,7 @@ let version = readJSON(VERSION_KEY)?.v || FALLBACK_VERSION;
 let champs = {};   // championId numérico -> { id: "MonkeyKing", name: "Wukong" }
 let spells = {};   // id -> { image, name }
 let perks = {};    // id de runa o de estilo -> { icon, name }
-let items = {};    // id de objeto -> nombre
+let items = {};    // id de objeto -> { n: nombre, g: oro total, b: botas, c: consumible, f: completo (no se mejora en otro) }
 let ready = false;
 let loading = null;
 
@@ -54,6 +54,8 @@ async function loadList(name, url, compact) {
 
 async function load() {
   await loadVersion();
+  // La lista vieja de objetos (solo nombres) se reemplazó por "items2": se borra para no ocupar espacio
+  try { Object.keys(localStorage).filter(k => k.startsWith("kdd:items:")).forEach(k => localStorage.removeItem(k)); } catch { /* nada */ }
   const base = `${CDN}/cdn/${version}/data/${LOCALE}`;
   const [c, s, r, it] = await Promise.allSettled([
     loadList("champions", `${base}/champion.json`, json =>
@@ -68,8 +70,15 @@ async function load() {
       });
       return out;
     }),
-    loadList("items", `${base}/item.json`, json =>
-      Object.fromEntries(Object.entries(json.data).map(([id, x]) => [id, x.name]))),
+    // "items2": guarda también si es completo, botas o consumible (lo usan las builds de los Challenger)
+    loadList("items2", `${base}/item.json`, json =>
+      Object.fromEntries(Object.entries(json.data).map(([id, x]) => [id, {
+        n: x.name,
+        g: x.gold?.total || 0,
+        b: (x.tags || []).includes("Boots") ? 1 : 0,
+        c: (x.tags || []).includes("Consumable") || x.consumed ? 1 : 0,
+        f: x.into?.length ? 0 : 1,
+      }]))),
   ]);
   if (c.status === "fulfilled") champs = c.value;
   if (s.status === "fulfilled") spells = s.value;
@@ -116,7 +125,16 @@ export function championSplash(championId, championKey) {
 }
 
 export const itemIcon = id => (id ? img(`item/${id}.png`) : null);
-export const itemName = id => items[id] || "";
+export const itemName = id => items[id]?.n || "";
+
+/** Tipo de objeto para las builds: "boots" (botas mejoradas), "core" (completo y caro), "other" o null si no se conoce */
+export function itemKind(id) {
+  const it = items[id];
+  if (!it) return null;
+  if (it.c || it.g === 0) return "other";
+  if (it.b) return it.g >= 900 ? "boots" : "other";
+  return it.f && it.g >= 2200 ? "core" : "other";
+}
 export const profileIcon = id => (id || id === 0 ? img(`profileicon/${id}.png`) : null);
 export const spellIcon = id => (spells[id] ? img(`spell/${spells[id].image}`) : null);
 export const spellName = id => spells[id]?.name || "";
