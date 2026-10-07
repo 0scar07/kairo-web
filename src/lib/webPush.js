@@ -52,7 +52,17 @@ export async function enableWebPush() {
   if (permission !== "granted") throw new Error("Hay que permitir las notificaciones para recibir los avisos");
   const { publicKey } = await call("GET", "/webpush-key", null, false);
   const reg = await registration();
-  const sub = (await reg.pushManager.getSubscription()) || await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: keyBytes(publicKey) });
+  let sub;
+  try {
+    sub = (await reg.pushManager.getSubscription()) || await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: keyBytes(publicKey) });
+  } catch (e) {
+    // "Registration failed - push service error": el navegador no llega a su servicio de avisos (Brave con los avisos
+    // de Google apagados, Opera, o una VPN o bloqueador que filtra fcm.googleapis.com)
+    if (e.name === "AbortError" || /push service/i.test(e.message)) {
+      throw new Error("Tu navegador no pudo conectarse a su servicio de avisos. En Brave, activa «Usar los servicios de Google para mensajes push» en brave://settings/privacy y reinícialo. Si usas VPN o un bloqueador, páusalo, o prueba en Chrome o Edge.");
+    }
+    throw e;
+  }
   const { deviceId, secret } = await call("POST", "", {
     platform: "web",
     webPush: sub.toJSON(),
