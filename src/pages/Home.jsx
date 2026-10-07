@@ -35,6 +35,10 @@ export default function Home() {
           <h1 className="hero-title">Cada partida cuenta.</h1>
           <p className="hero-sub">Busca cualquier jugador y mira su rango, su historial y su partida en vivo.</p>
           <div className="hero-search"><SearchForm size="large" /></div>
+          <p className="hero-links">
+            <Link to="/lol/multi"><Icon name="users" size={14} /> Multi-búsqueda del lobby</Link>
+            <Link to="/lol/comparar"><Icon name="compare" size={14} /> Comparar jugadores</Link>
+          </p>
         </div>
         <div className="container">
           <GameCards />

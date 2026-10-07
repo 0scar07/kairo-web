@@ -2,7 +2,7 @@ import { useId, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Icon from "./Icon";
 import { DDImg } from "./ui";
-import { REGIONS, parseRiotId, profilePath, regionBySlug, saveRegion, savedRegion } from "../lib/regions";
+import { REGIONS, multiPath, parseLobby, parseRiotId, profilePath, regionBySlug, saveRegion, savedRegion } from "../lib/regions";
 import { suggestions, useFavorites, useRecents } from "../lib/library";
 import { profileIcon } from "../lib/ddragon";
 
@@ -44,6 +44,13 @@ export default function SearchForm({ size = "large", initialRegion, autoFocus = 
     if (expanded && active >= 0) {
       const o = options[active];
       go(o.gameName, o.tagLine, o.region);
+      return;
+    }
+    // Varios Riot IDs pegados (el chat del lobby): multi-búsqueda
+    const many = onPick ? [] : parseLobby(text);
+    if (many.length >= 2) {
+      setText(""); close(); saveRegion(region);
+      navigate(multiPath(region, many));
       return;
     }
     const id = parseRiotId(text);

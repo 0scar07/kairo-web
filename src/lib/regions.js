@@ -68,3 +68,28 @@ export const comparePath = (a, b) => {
   const s = q.toString();
   return `/lol/comparar${s ? `?${s}` : ""}`;
 };
+
+// ─── Multi-búsqueda ──────────────────────────────────────────────────────
+/**
+ * Riot IDs de un texto pegado del lobby ("Faker#KR1 se unió a la sala", "joined the lobby"…) o de una lista separada
+ * por comas o líneas. Sin repetidos (sin importar mayúsculas) y como mucho `max`.
+ */
+export function parseLobby(text, max = 10) {
+  const out = [];
+  const seen = new Set();
+  const re = /([^\n\r,;#]{1,40}?)\s*#\s*([\p{L}\p{N}]{2,5})(?![\p{L}\p{N}])/gu;
+  for (const m of String(text || "").matchAll(re)) {
+    // El nombre es lo que queda pegado al #: se quitan palabras de mensajes anteriores en la misma línea
+    const gameName = m[1].replace(/^.*(?:sala|lobby|chat)\s*[.:]?\s*/i, "").trim();
+    const tagLine = m[2].trim();
+    const key = `${gameName}#${tagLine}`.toLowerCase();
+    if (!gameName || seen.has(key)) continue;
+    seen.add(key);
+    out.push({ gameName, tagLine });
+    if (out.length >= max) break;
+  }
+  return out;
+}
+
+export const multiPath = (regionSlug, players) =>
+  `/lol/multi?region=${regionSlug}&jugadores=${players.map(p => riotIdSlug(p.gameName, p.tagLine)).join(",")}`;

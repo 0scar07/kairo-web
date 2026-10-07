@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { comparePath, livePath, matchPath, parsePlayerKey, parseRiotId, parseRiotIdSlug, playerKey, profilePath, regionById, regionBySlug, regionOfMatchId, riotIdSlug } from "./regions";
+import { comparePath, livePath, matchPath, multiPath, parseLobby, parsePlayerKey, parseRiotId, parseRiotIdSlug, playerKey, profilePath, regionById, regionBySlug, regionOfMatchId, riotIdSlug } from "./regions";
 
 describe("parseRiotId", () => {
   it("separa nombre y tag por el último #", () => {
@@ -63,5 +63,26 @@ describe("partidas y comparar", () => {
     expect(parsePlayerKey("xx/Faker-KR1")).toBeNull();
     expect(comparePath(key)).toBe(`/lol/comparar?a=${encodeURIComponent(key)}`);
     expect(comparePath()).toBe("/lol/comparar");
+  });
+});
+
+describe("multi-búsqueda", () => {
+  it("lee el texto del lobby en español e inglés sin repetidos", () => {
+    const text = "Faker#KR1 se unió a la sala\nHide on bush #KR1 se unió a la sala\nGumayusi#T1 joined the lobby\nfaker#kr1 se unió a la sala";
+    expect(parseLobby(text)).toEqual([
+      { gameName: "Faker", tagLine: "KR1" },
+      { gameName: "Hide on bush", tagLine: "KR1" },
+      { gameName: "Gumayusi", tagLine: "T1" },
+    ]);
+  });
+
+  it("acepta listas separadas por comas y nombres con caracteres no latinos", () => {
+    expect(parseLobby("모든일은같이#KR1, Zeus#0703")).toEqual([{ gameName: "모든일은같이", tagLine: "KR1" }, { gameName: "Zeus", tagLine: "0703" }]);
+    expect(parseLobby("sin nada")).toEqual([]);
+  });
+
+  it("arma la URL para compartir", () => {
+    expect(multiPath("kr", [{ gameName: "Faker", tagLine: "KR1" }, { gameName: "Hide on bush", tagLine: "KR1" }]))
+      .toBe("/lol/multi?region=kr&jugadores=Faker-KR1,Hide%20on%20bush-KR1");
   });
 });

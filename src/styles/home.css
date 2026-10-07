@@ -663,3 +663,6 @@ a.ladder-name:hover { text-decoration: underline; }
 .ladder-page { padding-top: 22px; padding-bottom: 48px; }
 .pager { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 14px; }
 .ladder-all { margin-left: auto; margin-right: 12px; }
+.hero-links { display: flex; justify-content: center; gap: 18px; flex-wrap: wrap; margin: 14px 0 0; font-size: 13px; }
+.hero-links a { display: inline-flex; align-items: center; gap: 6px; color: var(--text-2); }
+.hero-links a:hover { color: var(--brand); }
