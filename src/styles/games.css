@@ -184,3 +184,94 @@
 .dota-medal img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
 .dota-rank-body { display: flex; align-items: center; gap: 14px; }
 .dota-rank-name { font-family: var(--font-title); font-size: 18px; }
+
+/* Clubes y clanes */
+.club-desc { margin: 0; color: var(--text-2); font-size: 13px; line-height: 1.6; white-space: pre-line; word-break: break-word; }
+.club-members { padding: 16px 18px; min-width: 0; }
+.club-members-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+.club-members-head .section-title { display: flex; align-items: center; gap: 8px; }
+.club-members-head .section-title svg { color: var(--game); }
+.member-list { list-style: none; margin: 0; padding: 0; }
+.member-list li + li { border-top: 1px solid var(--border); }
+.member-row { display: grid; grid-template-columns: 28px 34px minmax(0, 1fr) auto auto; align-items: center; gap: 12px; padding: 8px 6px; border-radius: 10px; }
+.member-row:hover { background: var(--surface-2); }
+.member-row .dd, .member-row .initials { border-radius: 9px; object-fit: contain; }
+.member-pos { font-weight: 700; color: var(--text-2); }
+.member-pos.top { color: var(--game); }
+.member-text { display: flex; flex-direction: column; min-width: 0; font-size: 11px; }
+.member-text strong { font-size: 14px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.member-don { font-size: 12px; }
+.member-trophies { display: inline-flex; align-items: center; gap: 4px; font-weight: 700; font-size: 14px; }
+.member-trophies svg { color: var(--game); }
+.war-river { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.war-river li { display: grid; grid-template-columns: 18px 1fr auto; gap: 10px; align-items: center; padding: 6px 8px; border-radius: 8px; font-size: 13px; }
+.war-river li.mine { background: color-mix(in srgb, var(--game) 12%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--game) 40%, transparent); }
+.war-coc { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 10px; }
+.war-side { display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center; font-size: 12px; }
+.war-side strong { font-size: 13px; }
+.war-stars { display: inline-flex; align-items: center; gap: 4px; font-size: 18px; font-weight: 800; color: var(--gold); }
+.war-vs { font-family: var(--font-title); font-weight: 800; color: var(--text-3); }
+.war-size { margin: 10px 0 0; text-align: center; font-size: 12px; }
+.gp-head .profile-actions { margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* Brawlers */
+.bs-hero { background: radial-gradient(60% 140% at 0% 0%, color-mix(in srgb, var(--game) 16%, transparent), transparent 60%); }
+.brawler-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(112px, 1fr)); gap: 12px; }
+.brawler-tile { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 14px 8px 12px; border-radius: 14px; border: 1px solid var(--border); background: var(--surface); transition: transform .3s cubic-bezier(.2, .7, .2, 1), border-color .2s; }
+.brawler-tile img { width: 72px; height: 72px; object-fit: contain; transition: transform .35s cubic-bezier(.2, .7, .2, 1); }
+.brawler-tile strong { font-size: 13px; text-align: center; }
+.brawler-tile:hover { transform: translateY(-4px); border-color: color-mix(in srgb, var(--game) 60%, var(--border)); }
+.brawler-tile:hover img { transform: scale(1.12) rotate(-3deg); }
+.brawler-hero { border-bottom: 1px solid var(--border); background: radial-gradient(60% 160% at 10% 0%, color-mix(in srgb, var(--game) 22%, transparent), transparent 65%); }
+.brawler-hero-inner { display: flex; flex-direction: column; gap: 16px; padding-top: 24px; padding-bottom: 26px; }
+.brawler-id { display: flex; align-items: center; gap: 18px; }
+.brawler-id .eyebrow { margin: 0 0 4px; }
+.brawler-portrait { width: 112px; height: 112px; border-radius: 22px; overflow: hidden; border: 2px solid color-mix(in srgb, var(--game) 60%, var(--border)); box-shadow: 0 12px 30px color-mix(in srgb, var(--game) 25%, transparent); }
+.brawler-portrait img { width: 100%; height: 100%; object-fit: cover; }
+.kit + .kit { margin-top: 16px; }
+.kit .eyebrow { margin: 12px 0 8px; }
+.kit ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.kit li { display: flex; align-items: center; gap: 12px; font-size: 14px; }
+.kit img { object-fit: contain; }
+.brawler-top { padding: 16px 0 6px; min-width: 0; }
+.brawler-top .club-members-head { padding: 0 18px; }
+.country-select select { height: 34px; padding: 0 10px; border-radius: 10px; border: 1px solid var(--border-2); background: var(--surface-2); color: var(--text); font: inherit; font-size: 13px; }
+.gp-battle .stretched { position: absolute; inset: 0; border-radius: inherit; }
+.gp-battle:has(.stretched):hover { border-color: color-mix(in srgb, var(--game) 45%, var(--border)); }
+
+@media (max-width: 600px) {
+  .member-row { grid-template-columns: 22px 30px minmax(0, 1fr) auto; }
+  .member-don { display: none; }
+  .brawler-portrait { width: 84px; height: 84px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .brawler-tile, .brawler-tile img { transition: none; }
+}
+
+/* Partida de Dota 2 */
+.dota-eyebrow { display: flex; align-items: center; gap: 6px; margin: 0 0 8px; }
+.dota-score { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; font-size: 28px; }
+.dota-score .radiant { color: #92D050; opacity: .7; }
+.dota-score .dire { color: #E05555; opacity: .7; }
+.dota-score .won { opacity: 1; }
+.dota-team { overflow: hidden; }
+.dota-team-head { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--border); font-size: 13px; }
+.dota-team-head h2 { font-size: 16px; }
+.dota-team.radiant .dota-team-head h2 { color: #92D050; }
+.dota-team.dire .dota-team-head h2 { color: #E05555; }
+.dota-team .dota-team-head .faint { margin-left: auto; }
+.dota-table td { vertical-align: middle; }
+.dota-hero { position: relative; display: inline-flex; }
+.dota-hero .dd { border-radius: 8px; object-fit: cover; }
+.dota-items { display: flex; align-items: center; gap: 3px; }
+.dota-item { border-radius: 5px; object-fit: cover; }
+.dota-neutral { margin-left: 4px; border: 1px solid var(--border-2); }
+.gold-text { color: var(--gold); }
+.adv-zero { stroke: var(--border-2); }
+.adv-radiant { fill: color-mix(in srgb, #92D050 35%, transparent); }
+.adv-dire { fill: color-mix(in srgb, #E05555 35%, transparent); }
+.gp-row-link { font-size: 14px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gp-row-link:hover { color: var(--game); }
+.top-tools { display: flex; gap: 8px; align-items: center; }
+.dota-items { flex-wrap: wrap; width: 98px; row-gap: 3px; }
+.dota-table th, .dota-table td { white-space: nowrap; }

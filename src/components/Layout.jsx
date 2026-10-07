@@ -155,7 +155,7 @@ export function Header({ variant = "nav", back, region }) {
             {items.length > 0 && <span className="nav-count">{items.length}<span className="sr-only"> en partida</span></span>}
           </Link>
           <Link to="/favoritos" className={cls(pathname === "/favoritos")} aria-current={pathname === "/favoritos" ? "page" : undefined}><Icon name="star" size={15} /> Favoritos</Link>
-          <Link to={{ pathname: "/", hash: "#clasificacion" }} className={cls(at("/", "#clasificacion"))}><Icon name="trophy" size={15} /> Clasificación</Link>
+          <Link to="/lol/clasificacion" className={cls(pathname === "/lol/clasificacion")} aria-current={pathname === "/lol/clasificacion" ? "page" : undefined}><Icon name="trophy" size={15} /> Clasificación</Link>
           <Link to="/lol/campeones" className={cls(pathname.startsWith("/lol/campeones"))} aria-current={pathname === "/lol/campeones" ? "page" : undefined}><Icon name="grid" size={15} /> Campeones</Link>
           <a href={APK_URL} rel="noopener" className="nav-item"><Icon name="phone" size={15} /> App <span className="nav-new">Nuevo</span></a>
         </nav>

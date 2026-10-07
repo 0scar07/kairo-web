@@ -1,7 +1,7 @@
 import { DDImg } from "../components/ui";
 import { formatDuration, formatNumber, kdaText, winrate } from "../lib/lol";
 import { StatCard, BattleList, BattleRow } from "./ui";
-import { heroIcon, heroName, medalIcon, medalOf, modeLabel, rankLabel, starIcon } from "./dota2";
+import { heroIcon, heroName, matchPath as dotaMatchPath, medalIcon, medalOf, modeLabel, rankLabel, starIcon } from "./dota2";
 
 /** Medalla de rango con sus estrellas (imágenes de OpenDota, como la app) */
 export function DotaMedal({ rankTier, size = 64 }) {
@@ -72,7 +72,7 @@ export function Dota2Body({ data }) {
         >
           {recent.map((m, i) => (
             <BattleRow
-              key={m.matchId} index={i} tone={m.win ? "win" : "loss"} label={m.win ? "Victoria" : "Derrota"}
+              key={m.matchId} index={i} tone={m.win ? "win" : "loss"} label={m.win ? "Victoria" : "Derrota"} to={dotaMatchPath(m.matchId)}
               image={heroIcon(heroes, m.heroId)} imageAlt={heroName(heroes, m.heroId)}
               title={heroName(heroes, m.heroId)}
               subtitle={`${modeLabel(m.gameMode, m.lobbyType)} · ${formatDuration(m.duration)} · ${formatNumber(m.goldPerMin)} oro/min`}

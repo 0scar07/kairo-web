@@ -13,6 +13,17 @@ export const getHeroes = () =>
 export const searchPlayers = q => get("/dota2/search", { params: { q }, ttl: 2 * MIN, map: r => r.items || [] });
 export const getPlayer = (id, force) => get(`/dota2/player/${encodeURIComponent(id)}`, { ttl: 2 * MIN, persist: true, force });
 
+/** Detalle de una partida (los 10 jugadores con objetos y la ventaja de oro) */
+export const getMatch = id => get(`/dota2/match/${encodeURIComponent(id)}`, { ttl: 24 * 60 * MIN, persist: true });
+
+/** Objetos: id -> { key, name, cost } (1 día) */
+export const getItems = () => get("/dota2/items", { ttl: 24 * 60 * MIN, persist: true, map: r => r.items || {} });
+
+const ITEM_CDN = "https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/items";
+export const itemIcon = (items, id) => (id && items?.[id] ? `${ITEM_CDN}/${items[id].key}.png` : null);
+export const itemName = (items, id) => items?.[id]?.name || "";
+export const matchPath = id => `/juegos/dota2/partida/${id}`;
+
 export const heroIcon = (heroes, id) => (heroes?.[id] ? `${HERO_CDN}/icons/${heroes[id].name}.png` : null);
 export const heroImage = (heroes, id) => (heroes?.[id] ? `${HERO_CDN}/${heroes[id].name}.png` : null);
 export const heroName = (heroes, id) => heroes?.[id]?.label || `Héroe #${id}`;

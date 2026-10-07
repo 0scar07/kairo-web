@@ -8,6 +8,10 @@ import GamePage from "./pages/GamePage";
 import GameProfile from "./pages/GameProfile";
 import Match from "./pages/Match";
 import Compare from "./pages/Compare";
+import Ladder from "./pages/Ladder";
+import Club from "./pages/Club";
+import { BrawlerList, BrawlerPage } from "./pages/Brawlers";
+import DotaMatch from "./pages/DotaMatch";
 import { ChampionList, ChampionPage } from "./pages/Champions";
 import { ComingSoon, NotFound } from "./pages/Misc";
 import { probe } from "./api/server";
@@ -52,6 +56,7 @@ export default function App() {
         <Route path="/" element={<Home />} />
         <Route path="/lol/partida/:matchId" element={<Match />} />
         <Route path="/lol/comparar" element={<Compare />} />
+        <Route path="/lol/clasificacion" element={<Ladder />} />
         <Route path="/lol/campeones" element={<ChampionList />} />
         <Route path="/lol/campeones/:key" element={<ChampionPage />} />
         <Route path="/lol/:region/:riotId" element={<Profile />} />
@@ -60,6 +65,10 @@ export default function App() {
         <Route path="/juegos" element={<ComingSoon />} />
         <Route path="/juegos/:game" element={<GamePage />} />
         <Route path="/juegos/:game/jugador/:id" element={<GameProfile />} />
+        <Route path="/juegos/:game/club/:tag" element={<Club />} />
+        <Route path="/juegos/brawlstars/brawlers" element={<BrawlerList />} />
+        <Route path="/juegos/brawlstars/brawlers/:id" element={<BrawlerPage />} />
+        <Route path="/juegos/dota2/partida/:id" element={<DotaMatch />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </>

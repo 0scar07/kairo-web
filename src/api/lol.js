@@ -78,15 +78,16 @@ export const getLive = (puuid, region, force) =>
   get(`/lol/live/${puuid}`, { params: { region }, ttl: TTL.live, force });
 
 /**
- * Clasificación Challenger: [{ puuid, gameName, tagLine, leaguePoints, wins, losses }].
- * El endpoint aún no existe en el backend: si responde ROUTE_NOT_FOUND devuelve null y la web muestra "Disponible pronto".
+ * Clasificación: [{ puuid, gameName, tagLine, leaguePoints, wins, losses }].
+ * opts: tier (challenger|grandmaster|master), queue (RANKED_SOLO_5x5|RANKED_FLEX_SR), start y limit (paginación).
+ * Si el backend no tiene el endpoint (ROUTE_NOT_FOUND) devuelve null y la web muestra "Disponible pronto".
  */
-export async function getLeaderboard(region, limit = 10) {
+export async function getLeaderboard(region, limit = 10, { tier = "challenger", queue = "RANKED_SOLO_5x5", start = 0 } = {}) {
   try {
     // Si el backend no pudo traer el Riot ID de alguien (Riot limitó las consultas), la lista se muestra pero no se
     // guarda: la próxima visita la vuelve a pedir en vez de dejar jugadores sin nombre durante 10 minutos
     return await get("/lol/leaderboard", {
-      params: { region, queue: "RANKED_SOLO_5x5", limit },
+      params: { region, queue, limit, tier: tier === "challenger" ? undefined : tier, start: start || undefined },
       ttl: TTL.leaderboard,
       persist: true,
       cacheIf: rows => Array.isArray(rows) && rows.every(r => r.gameName),
@@ -94,5 +95,26 @@ export async function getLeaderboard(region, limit = 10) {
   } catch (e) {
     if (e instanceof ApiError && e.status === 404 && e.code === "ROUTE_NOT_FOUND") return null;
     throw e;
+  }
+}
+
+/**
+ * Datos para las etiquetas de la partida en vivo: { inGame, players: { [puuid]: { champion, position, top, totalPoints,
+ * championsPlayed } | null } }. Opcional: si el backend no lo tiene, devuelve null y la partida se ve sin etiquetas.
+ */
+export async function getLiveInsights(puuid, region) {
+  try {
+    return await get(`/lol/live/${puuid}/insights`, { params: { region }, ttl: 5 * MIN });
+  } catch {
+    return null;
+  }
+}
+
+/** Línea de tiempo de una partida: { puuids, frames: [{ t, gold[], xp[], cs[] }], events } o null si no está */
+export async function getTimeline(matchId, region) {
+  try {
+    return await get(`/lol/match/${matchId}/timeline`, { params: { region }, ttl: TTL.match, persist: true });
+  } catch {
+    return null;
   }
 }

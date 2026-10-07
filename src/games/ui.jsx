@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import CountUp from "../components/CountUp";
 import Icon from "../components/Icon";
 import { DDImg } from "../components/ui";
@@ -45,10 +46,11 @@ export function ResultsStrip({ tones, wins, losses }) {
   );
 }
 
-/** Fila de una batalla o partida */
-export function BattleRow({ tone, label, image, imageAlt = "", title, subtitle, value, valueTone, time, index = 0, extra }) {
+/** Fila de una batalla o partida. `to`: la fila entera abre esa página (detalle de la partida) */
+export function BattleRow({ tone, label, image, imageAlt = "", title, subtitle, value, valueTone, time, index = 0, extra, to }) {
   return (
     <li className={`gp-battle tone-${tone} reveal`} style={{ "--i": Math.min(index, 12) }}>
+      {to && <Link to={to} className="stretched" aria-label={`Ver partida: ${title}`} />}
       <span className="gp-battle-bar" aria-hidden="true" />
       <span className={`gp-battle-result ${tone}`}>{label}</span>
       {image !== undefined && <DDImg src={image} size={40} alt={imageAlt} className="gp-battle-img" />}
