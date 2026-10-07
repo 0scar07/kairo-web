@@ -22,8 +22,8 @@ const githubPagesFallback = () => ({
   },
 });
 
-// Dirección pública (para las imágenes de la vista previa de enlaces): SITE_URL o GitHub Pages
-const site = (process.env.SITE_URL || `https://0scar07.github.io${base}`).replace(/\/?$/, "/");
+// Dirección pública (para las imágenes de la vista previa de enlaces): SITE_URL, o la de Cloudflare o GitHub Pages
+const site = (process.env.SITE_URL || (onCloudflare ? "https://kairo-web.osky7470.workers.dev/" : `https://0scar07.github.io${base}`)).replace(/\/?$/, "/");
 
 // Vista previa de enlaces: una copia de index.html por página conocida con su título e imagen (scripts/prerender.js)
 const linkPreviews = () => ({
