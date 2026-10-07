@@ -655,3 +655,11 @@ a.ladder-name:hover { text-decoration: underline; }
 @media (prefers-reduced-motion: reduce) {
   .rotation-card, .rotation-card img { transition: none; }
 }
+
+/* Clasificación completa */
+.ladder-hero { padding: 30px 0 22px; border-bottom: 1px solid var(--border); background: radial-gradient(60% 140% at 0% 0%, color-mix(in srgb, var(--gold) 12%, transparent), transparent 60%); }
+.ladder-hero .eyebrow { margin: 0 0 8px; }
+.ladder-filters { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+.ladder-page { padding-top: 22px; padding-bottom: 48px; }
+.pager { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 14px; }
+.ladder-all { margin-left: auto; margin-right: 12px; }

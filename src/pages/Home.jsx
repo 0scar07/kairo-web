@@ -13,7 +13,7 @@ import { useAsync, useNow, useTitle } from "../lib/hooks";
 import { clearRecents, useFavorites, useRecents } from "../lib/library";
 import { useLiveFavorites } from "../lib/liveFavorites";
 import { REGIONS, livePath, profilePath, regionBySlug, savedRegion } from "../lib/regions";
-import { formatDuration, formatNumber, queueLong, rankLabel, winrate } from "../lib/lol";
+import { formatDuration, formatNumber, queueLong, rankLabel, tierColor, winrate } from "../lib/lol";
 import { champion, championIcon, championName, profileIcon, skinLoading, useDDragon } from "../lib/ddragon";
 import { championPath } from "../lib/champions";
 import { gameById } from "../lib/games";
@@ -167,6 +167,7 @@ function Leaderboard() {
     <section className="home-section leaderboard" id="clasificacion" aria-labelledby="ladder-title">
       <div className="section-head">
         <h2 className="section-title" id="ladder-title">Clasificación · Solo/Duo</h2>
+        {data !== null && <Link to={`/lol/clasificacion?region=${region}`} className="link-btn ladder-all">Ver completa <Icon name="chevronRight" size={14} /></Link>}
         {/* Las regiones solo tienen sentido cuando el backend ya ofrece la clasificación */}
         {data !== null && (
           <div className="segmented region-tabs" role="group" aria-label="Región de la clasificación">
@@ -238,7 +239,10 @@ function LadderAvatar({ puuid, region, name }) {
     : <Initials text={name} size={26} />;
 }
 
-function LadderTable({ rows, region }) {
+const TIER_LABEL = { challenger: "Challenger", grandmaster: "Gran Maestro", master: "Maestro" };
+
+/** Tabla de la clasificación. offset = puesto del primero menos 1 (paginación); tier = liga de la lista */
+export function LadderTable({ rows, region, offset = 0, tier = "challenger" }) {
   return (
     <div className="table-scroll">
       <table className="ladder">
@@ -266,8 +270,8 @@ function LadderTable({ rows, region }) {
               const wr = winrate(p.wins, p.losses) ?? 0;
               const name = p.gameName ? `${p.gameName}#${p.tagLine}` : "Nombre no disponible";
               return (
-                <tr key={p.puuid || i} className="reveal" style={{ "--i": i }}>
-                  <td className={`col-pos num${i < 3 ? " top" : ""}`}>{i + 1}</td>
+                <tr key={p.puuid || i} className="reveal" style={{ "--i": Math.min(i, 12) }}>
+                  <td className={`col-pos num${offset + i < 3 ? " top" : ""}`}>{offset + i + 1}</td>
                   <td>
                     <div className="ladder-player">
                       <LadderAvatar puuid={p.puuid} region={region} name={p.gameName} />
@@ -276,7 +280,7 @@ function LadderTable({ rows, region }) {
                         : <span className="ladder-name muted">{name}</span>}
                     </div>
                   </td>
-                  <td className="ladder-tier"><span className="ladder-tier-in"><RankEmblem tier="CHALLENGER" rank="I" size={20} /> Challenger</span></td>
+                  <td className="ladder-tier" style={{ color: tierColor(tier.toUpperCase()) }}><span className="ladder-tier-in"><RankEmblem tier={tier.toUpperCase()} rank="I" size={20} /> {TIER_LABEL[tier]}</span></td>
                   <td className="col-lp num">{formatNumber(p.leaguePoints)}</td>
                   <td className="col-wr">
                     <div className="wr-bar-wrap" title={`${p.wins} V · ${p.losses} D`}>
