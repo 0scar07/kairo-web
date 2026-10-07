@@ -79,7 +79,11 @@ Busca a cualquier jugador de **League of Legends** y mira su rango, su historial
 - Animaciones sutiles (entrada escalonada, números que cuentan, logo que respira, barras de rol). Se apagan si el sistema pide `prefers-reduced-motion` y solo usan `transform` y `opacity`.
 - Imágenes reales de Data Dragon (campeones, objetos, hechizos, runas e íconos) y emblemas oficiales de rango. Sin emojis.
 
-TFT, Brawl Stars, Clash Royale, Clash of Clans, Dota 2, Fortnite, Apex Legends y PUBG aparecen como *Próximamente*: ya están en la [app](https://github.com/0scar07/Kairo).
+**Otros juegos** · `/juegos/:juego` y `/juegos/:juego/jugador/:id`
+- Cada juego tiene su página con su propio hero animado (solo personajes de ese juego), el carrusel de pósters y su buscador.
+- **Brawl Stars, Clash Royale y Clash of Clans** (API oficial de Supercell): búsqueda por #TAG, perfil con trofeos y estadísticas, brawlers (BS), mazo actual (CR), héroes y clan (CoC), últimas batallas y el ranking mundial de cada juego.
+- **Dota 2** (OpenDota): búsqueda por nombre de Steam (con lista para elegir) o por ID, medalla y rango, historial, héroes más jugados y partidas recientes.
+- **TFT, Fortnite, Apex Legends y PUBG**: su página dice por qué todavía no tienen búsqueda (TFT: Riot aún no habilita la API para la key; Fortnite, Apex y PUBG: falta una key válida en el servidor). Ya están en la [app](https://github.com/0scar07/Kairo).
 
 ## Correr en local
 

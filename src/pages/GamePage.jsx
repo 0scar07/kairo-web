@@ -19,6 +19,8 @@ import { NotFound } from "./Misc";
 const WHY_NOT = {
   tft: "Riot todavía no habilitó la API de TFT para la key de Kairo. En cuanto la habilite, la búsqueda llega aquí.",
   pubg: "Falta configurar la key de la API de PUBG en el servidor de Kairo.",
+  fortnite: "La key de Fortnite-API del servidor de Kairo todavía no es válida.",
+  apex: "La key de Apex Legends Status del servidor de Kairo todavía no es válida.",
 };
 
 /** Página de un juego: su hero, el buscador (real si el juego ya tiene perfiles) y, si hay, el ranking mundial */
@@ -44,7 +46,7 @@ export default function GamePage() {
           {def ? (
             <>
               <h1 className="hero-title">Cada partida cuenta.</h1>
-              <p className="hero-sub">Busca a cualquier jugador de {game.name} por su tag y mira su perfil, sus estadísticas y sus últimas batallas.</p>
+              <p className="hero-sub">Busca a cualquier jugador de {game.name} y mira su perfil, sus estadísticas y sus últimas partidas.</p>
               <div className="hero-search"><GameSearch game={game} def={def} /></div>
             </>
           ) : (
@@ -71,11 +73,23 @@ function GameSearch({ game, def }) {
   const navigate = useNavigate();
   const [text, setText] = useState("");
   const [error, setError] = useState("");
-  function submit(e) {
+  const [results, setResults] = useState(null);   // búsqueda por nombre (Dota 2): lista para elegir
+  const [busy, setBusy] = useState(false);
+  async function submit(e) {
     e.preventDefault();
     const id = def.parse(text);
-    if (!id) { setError(def.invalidHint); return; }
-    navigate(gameProfilePath(game.id, id));
+    if (id) { navigate(gameProfilePath(game.id, id)); return; }
+    if (!def.search || text.trim().length < 2) { setError(def.invalidHint); return; }
+    setBusy(true); setError(""); setResults(null);
+    try {
+      const found = await def.search(text);
+      if (!found.length) setError("No encontramos jugadores con ese nombre. Prueba con el ID de la cuenta.");
+      setResults(found);
+    } catch (err) {
+      setError(errorMessage(err));
+    } finally {
+      setBusy(false);
+    }
   }
   return (
     <form className="search search-large" onSubmit={submit} role="search" noValidate>
@@ -84,9 +98,24 @@ function GameSearch({ game, def }) {
           <span className="sr-only">Buscar jugador de {game.name}</span>
           <input type="text" value={text} onChange={e => { setText(e.target.value); setError(""); }} placeholder={game.searchHint} autoComplete="off" spellCheck="false" aria-invalid={Boolean(error)} />
         </label>
-        <button type="submit" className="btn btn-primary search-submit"><Icon name="search" size={16} /> Buscar</button>
+        <button type="submit" className="btn btn-primary search-submit" disabled={busy}>
+          {busy ? <span className="spinner" aria-hidden="true" /> : <Icon name="search" size={16} />} Buscar
+        </button>
       </div>
       {error && <p className="search-error" role="alert">{error}</p>}
+      {results?.length > 0 && (
+        <ul className="name-results" aria-label="Jugadores encontrados">
+          {results.map((p, i) => (
+            <li key={p.id} className="reveal" style={{ "--i": i }}>
+              <Link to={gameProfilePath(game.id, p.id)} className="name-result">
+                {p.avatar ? <DDImg src={p.avatar} size={36} alt="" /> : <Initials text={p.name} size={36} />}
+                <span className="top-name"><strong>{p.name}</strong><span className="faint">{p.sub}</span></span>
+                <Icon name="chevronRight" size={14} className="faint" />
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
     </form>
   );
 }

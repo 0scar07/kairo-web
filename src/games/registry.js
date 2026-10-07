@@ -2,6 +2,8 @@
 // muestra la cabecera. El cuerpo del perfil está en cada módulo (SupercellProfiles.jsx, …).
 import { BrawlStarsBody, ClashOfClansBody, ClashRoyaleBody } from "./SupercellProfiles";
 import { bsProfileIcon, cleanName, getBattles, getPlayer, isTag, tagOf } from "./supercell";
+import { Dota2Body } from "./Dota2Profile";
+import * as dota from "./dota2";
 
 const supercell = (game, { battles, avatar, subtitle }) => ({
   // La búsqueda es por #TAG
@@ -46,6 +48,25 @@ export const PROFILES = {
       subtitle: p => [p.league?.name, p.clan?.name ? `Clan ${cleanName(p.clan.name)}` : "Sin clan"].filter(Boolean).join(" · "),
     }),
     Body: ClashOfClansBody,
+  },
+  dota2: {
+    // Por ID de cuenta o Steam64; si se escribe un nombre, se busca y se elige de una lista (los nombres se repiten)
+    parse: text => (dota.isAccountId(text) ? String(text).trim() : null),
+    search: async text => (await dota.searchPlayers(String(text).trim())).map(p => ({
+      id: p.id, name: p.name, avatar: p.avatar, sub: p.lastMatch ? `Última partida: ${new Date(p.lastMatch).toLocaleDateString("es")}` : `ID ${p.id}`,
+    })),
+    invalidHint: "Escribe al menos 2 letras del nombre de Steam o el ID de la cuenta.",
+    load: async (id, force) => {
+      const [player, heroes] = await Promise.all([dota.getPlayer(id, force), dota.getHeroes().catch(() => ({}))]);
+      return { player, heroes };
+    },
+    header: data => ({
+      name: data.player.profile.name,
+      tag: `ID ${data.player.id}`,
+      avatar: data.player.profile.avatar,
+      subtitle: dota.rankLabel(data.player.rankTier, data.player.leaderboardRank),
+    }),
+    Body: Dota2Body,
   },
 };
 
