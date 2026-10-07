@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import CountUp from "../../components/CountUp";
 import RoleIcon from "../../components/RoleIcon";
 import Icon from "../../components/Icon";
@@ -9,6 +10,7 @@ import {
   championStats, currentStreak, findMe, formatDuration, formatNumber, kdaTone, kdaValue, mapName, matchHighlights, positionName,
   queueLong, roleStats, summarize, timeAgo,
 } from "../../lib/lol";
+import { matchPath } from "../../lib/regions";
 
 /**
  * "Tu última partida": la partida más reciente (de la cola elegida) con el splash del campeón de fondo, el resultado,
@@ -60,6 +62,7 @@ function Spotlight({ match, h }) {
         <header className="spotlight-head">
           <span className="eyebrow">Tu última partida</span>
           <span className={`result-chip ${result}`}>{result === "win" ? "Victoria" : result === "loss" ? "Derrota" : "Remake"}</span>
+          <Link className="spotlight-open" to={matchPath(match.id, me)}>Ver partida <Icon name="chevronRight" size={13} /></Link>
           <span className="spotlight-meta faint">
             {queueLong(match.queueId)} · {mapName(match.mapId)} · {formatDuration(match.duration)} · {timeAgo(match.end || match.start + match.duration * 1000)}
           </span>

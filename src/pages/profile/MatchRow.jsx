@@ -4,13 +4,13 @@ import Icon from "../../components/Icon";
 import { DDImg } from "../../components/ui";
 import { championIcon, championName, itemIcon, itemName, perkIcon, perkName, spellIcon, spellName } from "../../lib/ddragon";
 import { findMe, formatDuration, formatNumber, kdaText, killParticipation, placementLabel, positionName, queueShort, timeAgo } from "../../lib/lol";
-import { profilePath } from "../../lib/regions";
+import { matchPath, profilePath } from "../../lib/regions";
 
 const resultOf = me => (me.remake ? "remake" : me.win ? "win" : "loss");
 const RESULT_LABEL = { win: "Victoria", loss: "Derrota", remake: "Remake" };
 
 /** Hechizos (arriba) y runas (abajo) en una cuadrícula de 2x2 */
-function Loadout({ p, size = 18 }) {
+export function Loadout({ p, size = 18 }) {
   return (
     <div className="loadout" style={{ gridTemplateColumns: `repeat(2, ${size}px)` }}>
       <DDImg src={spellIcon(p.spells[0])} size={size} alt={spellName(p.spells[0])} />
@@ -21,7 +21,7 @@ function Loadout({ p, size = 18 }) {
   );
 }
 
-function Items({ items, size = 22 }) {
+export function Items({ items, size = 22 }) {
   return (
     <div className="items">
       {items.map((id, i) => (
@@ -86,12 +86,13 @@ export default function MatchRow({ match, puuid, region, index = 0 }) {
         </button>
       </div>
 
-      {open && <MatchDetail id={detailId} match={match} puuid={puuid} region={region} />}
+      {open && <MatchDetail id={detailId} match={match} puuid={puuid} region={region} fullLink />}
     </article>
   );
 }
 
-function MatchDetail({ id, match, puuid, region }) {
+/** Los equipos de una partida con KDA, daño, CS y objetos. `region` = slug para los enlaces a perfiles (o null). */
+export function MatchDetail({ id, match, puuid, region, fullLink = false }) {
   const placeOf = teamId => match.participants.find(p => p.teamId === teamId)?.placement || 99;
   const teams = [...new Set(match.participants.map(p => p.teamId))].sort((a, b) => (match.arena ? placeOf(a) - placeOf(b) : a - b));
   const minutes = match.duration / 60;
@@ -134,7 +135,7 @@ function MatchDetail({ id, match, puuid, region }) {
                             <Loadout p={p} size={13} />
                             <div className="detail-name">
                               {p.gameName && p.tagLine
-                                ? <Link to={profilePath(region, p.gameName, p.tagLine)}>{p.gameName}</Link>
+                                ? (region ? <Link to={profilePath(region, p.gameName, p.tagLine)}>{p.gameName}</Link> : <span>{p.gameName}</span>)
                                 : <span>{p.gameName || pName}</span>}
                               <span className="faint">{[pName, positionName(p.position)].filter(Boolean).join(" · ")}</span>
                             </div>
@@ -162,6 +163,11 @@ function MatchDetail({ id, match, puuid, region }) {
           </div>
         );
       })}
+      {fullLink && (
+        <Link className="detail-full" to={matchPath(match.id, match.participants.find(p => p.puuid === puuid))}>
+          Ver partida completa <Icon name="chevronRight" size={14} />
+        </Link>
+      )}
     </div>
   );
 }
