@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "type": "module",
   "description": "Versión web de Kairo: estadísticas de League of Legends (con partida en vivo), Brawl Stars, Clash Royale, Clash of Clans y Dota 2.",
-  "homepage": "https://0scar07.github.io/kairo-web/",
+  "homepage": "https://kairo-web.osky7470.workers.dev/",
   "repository": {
     "type": "git",
     "url": "https://github.com/0scar07/kairo-web.git"

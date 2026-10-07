@@ -7,7 +7,7 @@ import { findMe, formatDuration, formatNumber, kdaValue, killParticipation, queu
 const W = 1080, H = 1350;
 const C = { bg: "#0A0F0D", surface: "rgba(17,24,21,.86)", border: "rgba(255,255,255,.08)", text: "#E8F0EC", text2: "#9AADA4", brand: "#35E0A1", win: "#4FC97A", loss: "#E05555", gold: "#E8B65A" };
 const BASE = import.meta.env.BASE_URL;
-const SITE = "0scar07.github.io/kairo-web";
+const SITE = "kairo-web.osky7470.workers.dev";
 
 function loadImage(src) {
   if (!src) return Promise.resolve(null);

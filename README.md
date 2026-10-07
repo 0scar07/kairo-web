@@ -15,7 +15,9 @@ Busca a cualquier jugador de **League of Legends**, **Brawl Stars**, **Clash Roy
 ![Vite](https://img.shields.io/badge/Vite-5-646CFF?logo=vite&logoColor=white)
 ![Node](https://img.shields.io/badge/Node-20%2B-339933?logo=node.js&logoColor=white)
 
-### [Abrir la web: 0scar07.github.io/kairo-web](https://0scar07.github.io/kairo-web/)
+### [Abrir la web: kairo-web.osky7470.workers.dev](https://kairo-web.osky7470.workers.dev/)
+
+<sub>También en GitHub Pages: [0scar07.github.io/kairo-web](https://0scar07.github.io/kairo-web/)</sub>
 
 [Capturas](#capturas) · [Juegos](#juegos) · [Qué hace](#qué-hace) · [Correr en local](#correr-en-local) · [Despliegue](#despliegue) · [Arquitectura](#arquitectura) · [Arte y permisos](#arte-y-permisos) · [Hoja de ruta](#hoja-de-ruta)
 
@@ -153,14 +155,14 @@ Los scripts de `scripts/` (Python, con `pillow` y `rembg`) regeneran el arte de 
 
 ## Despliegue
 
-### GitHub Pages (el actual)
+### GitHub Pages (copia)
 
 Cada push a `main` ejecuta [`deploy.yml`](.github/workflows/deploy.yml): `npm ci`, lint, pruebas, build con `VITE_API_URL` de producción y publicación de `dist/` con `actions/deploy-pages`. **Si el lint o las pruebas fallan, no se publica nada.** Los pull requests pasan por [`ci.yml`](.github/workflows/ci.yml).
 
 - La web vive en `/kairo-web/`. Lo define `base` en `vite.config.js`; el `basename` de React Router y las rutas de `public/` salen de `import.meta.env.BASE_URL`.
 - GitHub Pages no reescribe rutas, así que el build copia `index.html` a `404.html`: al abrir un link directo, Pages sirve esa copia y la SPA muestra la página pedida. Esas URLs responden con código 404, aunque se ven bien.
 
-### Cloudflare (alternativa)
+### Cloudflare (la dirección principal)
 
 Conecta el repo en Cloudflare (**Workers & Pages → Create → Import a repository**) con build `npm run build` y deploy `npx wrangler deploy`. [`wrangler.jsonc`](wrangler.jsonc) sirve `dist/` y responde `index.html` en las rutas de la web. El build detecta Cloudflare (`WORKERS_CI` o `CF_PAGES`) y se construye en la raíz `/`; el backend por defecto en producción es el de Render. Opcional: `SITE_URL` con la dirección final para las imágenes de la vista previa de enlaces.
 
