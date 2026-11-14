@@ -284,7 +284,7 @@ export function LadderTable({ rows, region, offset = 0, tier = "challenger" }) {
                         : <span className="ladder-name muted">{name}</span>}
                     </div>
                   </td>
-                  <td className="ladder-tier" style={{ color: tierColor(tier.toUpperCase()) }}><span className="ladder-tier-in"><RankEmblem tier={tier.toUpperCase()} rank="I" size={20} /> {TIER_LABEL[tier]}</span></td>
+                  <td className="ladder-tier" style={{ color: tierColor(tier.toUpperCase()) }}><span className="ladder-tier-in"><RankEmblem tier={tier.toUpperCase()} rank="I" size={20} decorative /> {TIER_LABEL[tier]}</span></td>
                   <td className="col-lp num">{formatNumber(p.leaguePoints)}</td>
                   <td className="col-wr">
                     <div className="wr-bar-wrap" title={`${p.wins} V · ${p.losses} D`}>

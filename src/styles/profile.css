@@ -419,7 +419,7 @@
   background: var(--surface);
   color: var(--text-3);
 }
-.champ-search:focus-within { border-color: #3c5248; }
+.champ-search:focus-within { border-color: var(--brand); box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand) 22%, transparent); }
 .champ-search input { flex: 1; min-width: 0; border: 0; background: none; outline: none; font-size: 13px; color: var(--text); }
 .champ-search input::placeholder { color: var(--text-3); }
 .role-icon { display: block; }

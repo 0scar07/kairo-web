@@ -25,8 +25,9 @@ export function DDImg({ src, size = 32, alt = "", round = false, className = "",
   );
 }
 
-/** Emblema oficial de rango (assets del cliente vía Community Dragon, los mismos de la app) */
-export function RankEmblem({ tier, rank, size = 48 }) {
+/** Emblema oficial de rango (assets del cliente vía Community Dragon, los mismos de la app).
+ *  `decorative` cuando el nombre del rango ya está escrito al lado: así el lector de pantalla no lo repite. */
+export function RankEmblem({ tier, rank, size = 48, decorative = false }) {
   if (!tier) {
     return <span className="rank-emblem rank-emblem-none" style={{ width: size, height: size }} aria-label="Sin clasificar" role="img" />;
   }
@@ -34,7 +35,7 @@ export function RankEmblem({ tier, rank, size = 48 }) {
     <img
       className="rank-emblem"
       src={`${import.meta.env.BASE_URL}ranks/${tier.toLowerCase()}.png`}
-      alt={rankLabel(tier, rank)}
+      alt={decorative ? "" : rankLabel(tier, rank)}
       width={Math.round(size * (256 / 224))}
       height={size}
       style={{ height: size, width: "auto" }}
@@ -51,7 +52,7 @@ export function StateBox({ icon = "alert", title, children, action, compact = fa
   return (
     <div className={`state${compact ? " compact" : ""}`} role={tone === "error" ? "alert" : undefined}>
       <span className="state-icon" style={tone === "error" ? { color: "var(--loss)" } : undefined}><Icon name={icon} size={22} /></span>
-      {title && <h3>{title}</h3>}
+      {title && <h2>{title}</h2>}
       {children && <p>{children}</p>}
       {action}
     </div>

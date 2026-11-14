@@ -114,7 +114,8 @@ export default function SearchForm({ size = "large", initialRegion, autoFocus = 
             onFocus={() => setOpen(true)}
             onClick={() => setOpen(true)}
             onKeyDown={onKeyDown}
-            placeholder={placeholder || (size === "large" ? "Nombre#TAG" : "Buscar Nombre#TAG")}
+            placeholder={placeholder || "Nombre#TAG"}
+            aria-label="Buscar jugador por Nombre#TAG"
             autoComplete="off"
             spellCheck="false"
             autoFocus={autoFocus}

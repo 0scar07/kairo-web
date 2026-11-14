@@ -183,7 +183,7 @@ h1, h2, h3 { font-family: var(--font-title); margin: 0; letter-spacing: -0.01em;
   border: 1px solid var(--border-2);
   color: var(--text-2);
 }
-.state h3 { font-size: 16px; font-weight: 600; }
+.state h2 { font-size: 16px; font-weight: 600; }
 .state p { margin: 0; color: var(--text-2); max-width: 420px; }
 .state .btn { margin-top: 6px; }
 .state.compact { padding: 24px 16px; }
@@ -212,3 +212,18 @@ h1, h2, h3 { font-family: var(--font-title); margin: 0; letter-spacing: -0.01em;
 
 /* Tablas con scroll horizontal dentro de su caja */
 .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+/* ─── Pantallas táctiles: áreas de toque de unos 44 px ─── */
+/* Las pestañas y filtros crecen de verdad; los enlaces de texto amplían su zona de toque con un ::after invisible
+   para no mover el diseño. Con ratón todo queda igual. */
+@media (pointer: coarse) {
+  .segmented button, .region-tabs button { min-height: 40px; padding-inline: 14px; }
+  .search-compact .search-region select, .search.search-compact .search-region select { height: 32px; }
+  .champ-search input { min-height: 32px; }
+  .riot-status .riot-status-close { width: 40px; height: 40px; right: 4px; }
+  .footer-links a, .link-btn, .footer-legal a, .hero-links a, .ladder-name, .champ-link, .mate-name, .spotlight-open { position: relative; }
+  .footer-links a::after, .link-btn::after, .footer-legal a::after, .hero-links a::after, .ladder-name::after,
+  .champ-link::after, .mate-name::after, .spotlight-open::after {
+    content: ""; position: absolute; inset: -12px -6px;
+  }
+}
